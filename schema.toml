@@ -1,0 +1,55 @@
+[collections.settings]
+indexes = ['creator', 'reader']
+
+[groups.admin]
+[groups.admin.rules.carte_blanche]
+template = "any()"
+
+[groups.authenticated.rules.user_read]
+template = "collection('users').find({id: userId()})"
+
+[groups.authenticated.rules.user_update]
+template = "collection('users').anyWrite()"
+validator = """
+  (user, oldDoc, newDoc) => {
+    return true
+  }
+"""
+
+[groups.authenticated.rules.settings_read]
+template = "collection('settings').anyRead()"
+validator = """
+  (user, doc) => {
+    return true || user.data
+        && (
+             user.data.pub == doc.creator
+          || user.data.pub == doc.reader
+        )
+  }
+"""
+
+[groups.authenticated.rules.settings_write]
+template = "collection('settings').anyWrite()"
+validator = """
+  (user, oldDoc, newDoc) => {
+    if (!user.data)
+      return false
+    cond = []
+    if (oldDoc)
+      cond.push(oldDoc.creator == user.data.pub)
+    if (newDoc)
+      cond.push(newDoc.creator == user.data.pub)
+    return cond.reduce((prev, cur) => {
+      return prev && cur
+    })
+  }
+"""
+
+[groups.authenticated.rules.diffs_write]
+template = "collection('diffs').store()"
+validator = """
+  (user, newDoc) => {
+    return user.data
+        && newDoc.creator == user.data.pub
+  }
+"""
