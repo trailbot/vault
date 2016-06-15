@@ -45,11 +45,8 @@ validator = """
   }
 """
 
+[groups.authenticated.rules.diffs_read]
+template = "collection('diffs').anyRead({creator: any(), reader: userId(), content: any()})"
+
 [groups.authenticated.rules.diffs_write]
-template = "collection('diffs').store()"
-validator = """
-  (user, newDoc) => {
-    return user.data
-        && newDoc.creator == user.data.pub
-  }
-"""
+template = "collection('diffs').anyWrite({creator: userId(), reader: any(), content: any()})"

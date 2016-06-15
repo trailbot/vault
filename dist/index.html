@@ -2,16 +2,20 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <script src="/horizon/horizon.js"></script>
-    <script>
-      var horizon = Horizon();
-      horizon.onReady(function() {
-        document.querySelector('h1').innerHTML = 'logburn works!'
-      });
-      horizon.connect();
-    </script>
+    <title>SEMPER client</title>
+    <link rel="stylesheet" href="/css/main.css">
   </head>
   <body>
-   <marquee><h1></h1></marquee>
+    <div id="app">
+      <router-view></router-view>
+    </div>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://flightjs.github.io/release/latest/flight.min.js"></script>
+    <script src="/horizon/horizon.js"></script>
+    <script>if (window.module) module = window.module;</script>
+    <script type="text/javascript" src="/js/bundle.js"></script>
+    <script src="//localhost:35729/livereload.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,500,700">
   </body>
 </html>
