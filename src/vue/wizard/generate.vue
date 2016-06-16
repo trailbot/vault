@@ -64,13 +64,13 @@ module.exports =
         @generating = true
         @genKeys()
       else
-        @error = 'Please make sure you set a valid email and password'
+        @error = 'Please make sure you set a passphrase'
 
     genKeys: ->
       app.pgp.generateKey(
         userIds: [
           name: @email
-          email: @email
+          email: @identikit()
         ]
         numBits: 4096
         passphrase: @pass
@@ -80,6 +80,16 @@ module.exports =
           pub: keys.publicKeyArmored
         app.save()
         @next()
+
+    identikit: ->
+      try
+        user = electron.os.homedir().split('/').pop()
+        host = electron.os.hostname()
+      catch e
+        user = 'webuser'
+        host = "#{navigator.appCodeName}.#{navigator.appName}".toLowerCase()
+      console.log "#{user}@#{host}.local"
+      "#{user}@#{host}.local"
 
     next: ->
       @generating = false

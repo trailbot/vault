@@ -3,17 +3,19 @@ VueRouter = require 'vue-router'
 Vue.use VueRouter
 App = Vue.extend({})
 
-main = () ->
+main = ->
 
-  @after 'initialize', () ->
+  @after 'initialize', ->
     openpgp = require './openpgp.min.js'
     openpgp.initWorker
       path: '/js/openpgp.worker.min.js'
     openpgp.config.aead_protect = true
     @pgp = openpgp
-    @settings = JSON.parse(localStorage.getItem('settings') || '{}')
+    @settings =
+      $.extend {watchers: []}, JSON.parse(localStorage.getItem('settings'))
     @data = ->
       appName: 'SEMPER'
+      isElectron: 'electron' of window
     document.app = this
 
     @router = new VueRouter()
@@ -29,19 +31,52 @@ main = () ->
             component: require '../../src/vue/wizard/generate.vue'
           '/export':
             component: require '../../src/vue/wizard/export.vue'
+          '/preImport':
+            component: require '../../src/vue/wizard/preImport.vue'
+          '/watcherGuide':
+            component: require '../../src/vue/wizard/watcherGuide.vue'
           '/import':
             component: require '../../src/vue/wizard/import.vue'
+          '/congrats':
+            component: require '../../src/vue/wizard/congrats.vue'
+      '/dashboard':
+        component: require '../../src/vue/dashboard/main.vue'
+
     @router.afterEach (transition) =>
-      methods = transition.to.matched['1'].handler.component.options.methods
+      methods = transition.to.matched.slice(-1)[0].handler.component.options.methods
       if methods?.run
         methods.run app
     @router.start App, '#app'
 
-    unless @settings.ready
+    if @settings.ready
+      @router.replace '/dashboard'
+    else
       @router.replace '/wizard'
 
-  @save = () ->
+  @save = ->
     localStorage.setItem 'settings', JSON.stringify @settings
+
+  @copy = (text) ->
+    el = $ '<input type="text"/>'
+      .val text
+    $('body')
+      .append el
+    el.select()
+    try
+      document.execCommand 'copy'
+    catch err
+      window.prompt 'Please, select the text, copy it and paste it in a safe place', text
+    finally
+      el.remove()
+
+  @paste = (cb) ->
+    try
+      cb electron.clipboard.readText()
+    catch err
+      cb window.prompt 'Please, paste the text down below'
+
+  @clear = ->
+    localStorage.clear()
 
 Main = flight.component main
 Main.attachTo document

@@ -5,7 +5,6 @@
 
 body {
   margin: 0;
-  background: #f9f9f9;
   font-family: Lato;
 }
 
@@ -166,6 +165,32 @@ a.button{
   }
   100% {
     transform: translateX(-100vw);
+    opacity: 0;
+  }
+}
+
+.fade-transition {
+  display: inline-block;
+}
+.fade-enter {
+  animation: fade-in .5s;
+}
+.fade-leave {
+  animation: fade-out .5s;
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
     opacity: 0;
   }
 }

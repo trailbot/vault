@@ -27,10 +27,11 @@ div.welcome(transition='slide')
     figure
       img(src='/img/icon.svg')
       label
-        h1 Welcome to {{appName}}!
+        h1 Congratulations!
   div.textBody
-    p This wizard will guide you through the process of setting up {{appName}}
-    a.button(v-link="{ path: '/wizard/generate' }") Start setup
+    p {{appName}} is now completely set up.
+    p You can go now to your dashboard and choose which files to monitor and what policies to apply.
+    a.button(v-link="{ path: '/dashboard' }") Go to my dashboard
 </template>
 
 <script lang="coffee">

@@ -1,38 +1,22 @@
 <style lang="stylus" scoped>
-p
-  margin-bottom: 0!important
 div.or
   text-align: center
   button
-    opacity: 1
-    &:hover
-      background: #642b6e
-      color: white
     &:first-child
-      padding-right: 35px
-      border-radius: 4px 0 0 4px
+      padding-right: 30px
     &:last-child
       position: relative
-      padding-left: 35px
-      border-radius: 0 4px 4px 0
-      &:before
-        content: ''
-        display: block
-        position: absolute
-        top: 0
-        bottom: 0
-        left: -25px
-        width: 50px
+      padding-left: 30px
       &:after
         content: 'or'
         display: block
         position: absolute
-        left: -22px
-        top: -1px
-        background: white
-        border: 1px solid #642b6e
+        left: -21px
+        top: 6px
+        background: #f7
+        border: 1px solid #dd
         border-radius: 50%
-        padding: 14.5px 14px
+        padding: 12px 11px 11px 11px
         text-transform: uppercase
         font-size: .8em
         color: gray
@@ -44,12 +28,12 @@ article.form(transition='slide')
   header
       h1 Public key export
   form
+    p You have just generated a secure keypar for cyphering all your data.
     p It is very important to export the public key now so that you can later import it in every server you want to monitor.
-    div.or
-      button.or(@click='copy') Copy to clipboard
-      button.or(@click='export') Export to my filesystem
   footer
-    button.next(v-if='exported', @click='next') Next
+    div.half.or
+      button.or(@click='copy') Copy to clipboard
+      button.or(@click='export') Export to filesystem
 </template>
 
 <script lang="coffee">
@@ -57,11 +41,26 @@ app = document.app
 module.exports =
   data: () ->
     $.extend app.data(),
-      exported: false
       settings:
         app.settings
   methods:
     next: ->
-    copy: ->
-    export: ->
+      app.router.go '/wizard/preImport'
+    copy: (e) ->
+      e.preventDefault()
+      app.copy @settings.keys.pub
+      @next()
+    export: (e) ->
+      e.preventDefault()
+      try
+        electron.dialog.showSaveDialog
+          title: 'Exporting client public key'
+          defaultPath: "./#{@appName}_client.pub"
+          buttonLabel: 'Export'
+        , (path) =>
+          if path
+            fs.writeFileSync(path, @settings.keys.pub)
+            @next()
+      catch err
+        console.log 'This is not Electron'
 </script>

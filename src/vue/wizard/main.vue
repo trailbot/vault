@@ -1,15 +1,15 @@
 <style lang="stylus">
 section.wizard
   background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%)
+  animation: fade-in 2s
 
   article
     background: white
     color: #777;
     position: absolute
     margin: 0 auto
-    border: 1px solid #eb517a
-    border-radius: 4px
-    box-shadow: 0 5px 10px rgba(0, 0, 0, .2)
+    border-radius: 2px
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2)
     overflow: hidden
 
     &.form
@@ -20,15 +20,14 @@ section.wizard
       left: 50px
 
       header
-        padding: 15px 20px 15px 20px
-        border-bottom: 1px solid #d
-        background: #f0
+        padding: 21px 30px 20px 30px
+        background: #642b6e
 
         h1
           margin: 0
-          font-size: .9em
-          color: #777
-          font-weight: 500
+          font-size: 1.2em
+          color: white
+          font-weight: 100
 
       form
         padding: 30px
@@ -55,7 +54,7 @@ section.wizard
             padding-bottom: 30px
 
         p
-          margin: 0 0 25px 0
+          margin: 0 0 20px 0
           font-weight: 300
           color: black
 
@@ -74,20 +73,30 @@ section.wizard
         background: #f0
         border-top: 1px solid #d
         overflow: auto
-
         button
+          min-height: 50px
           margin: 0
           opacity: 1
-
+          border: none
+          border-radius: 0
+          background: #ee
+          text-transform: uppercase
+          font-weight: 700
+          font-size: .8em
+          color: #99
           &:hover
-            background: #eb517a
-            color: white
-
+            background: #ff
+            color: #642b6e
           &.next
             float: right
             border: none
             border-left: 1px solid #d
-            border-radius: 0
+
+        div.half
+          button
+            width: 50%
+            &:not(:first-child)
+              border-left: 1px solid #dd
 </style>
 
 <template lang="jade">
