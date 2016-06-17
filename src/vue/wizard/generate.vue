@@ -15,20 +15,6 @@ article
 </style>
 
 <template lang="jade">
-article.form(v-if='!generating', transition='slide')
-  header
-    h1 PGP keypar generation
-  form(@keyup.enter='submit')
-    p First of all, we need to generate the keys that {{appName}} will use to cypher all the data going between your server and this desktop app.
-    p Your keys will be kept locally in a secure storage. Please never share your private key with anyone so you are the only one who can access the system.
-    p Please choose a safe password or passphrase for protecting your keys:
-    p.error(v-if='error') {{error}}
-    fieldset.pass
-      label(for='pass') Passphrase
-      input(name='pass', type='password', v-model='pass')
-  footer
-    button.next(@click='submit') Next
-
 article.generating(v-if='generating', transition='pop')
   div.sk-cube-grid
     div.sk-cube.sk-cube1
@@ -44,6 +30,21 @@ article.generating(v-if='generating', transition='pop')
     strong Generating keypair...
   p
     small (It may take up to 1 minute)
+
+article.form(v-else, transition='slide')
+  header
+    h1 PGP keypar generation
+  form(@keyup.enter='submit')
+    p First of all, we need to generate the keys that {{appName}} will use to cypher all the data going between your server and this desktop app.
+    p Your keys will be kept locally in a secure storage. Please never share your private key with anyone so you are the only one who can access the system.
+    p Please choose a safe password or passphrase for protecting your keys:
+    p.error(v-if='error') {{error}}
+    fieldset.pass
+      label(for='pass') Passphrase
+      input(name='pass', type='password', v-model='pass')
+  footer
+    button.next(@click='submit') Next
+
 </template>
 
 <script lang="coffee">
@@ -78,6 +79,7 @@ module.exports =
         app.settings.keys =
           priv: keys.privateKeyArmored
           pub: keys.publicKeyArmored
+          fingerprint: keys.key.primaryKey.fingerprint
         app.save()
         @next()
 

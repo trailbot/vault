@@ -41,14 +41,23 @@ main = ->
             component: require '../../src/vue/wizard/congrats.vue'
       '/dashboard':
         component: require '../../src/vue/dashboard/main.vue'
+        subRoutes:
+          '/:watcher':
+            name: 'watcher'
+            component: require '../../src/vue/dashboard/main.vue'
+            subRoutes:
+              '/fileAdd':
+                name: 'fileAdd'
+                component: require '../../src/vue/dashboard/fileAdd.vue'
+
 
     @router.afterEach (transition) =>
       methods = transition.to.matched.slice(-1)[0].handler.component.options.methods
       if methods?.run
-        methods.run app
+        methods.run this.router.app.$route
     @router.start App, '#app'
 
-    if @settings.ready
+    if true or @settings.ready
       @router.replace '/dashboard'
     else
       @router.replace '/wizard'

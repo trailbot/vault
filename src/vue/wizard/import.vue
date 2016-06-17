@@ -49,7 +49,8 @@ module.exports =
       try
         keys = app.pgp.key.readArmored(key).keys
         name = keys[0].users[0].userId.userid.split('@')[1].slice(0, -1)
-        watcher = {key, name}
+        fingerprint = keys[0].primaryKey.fingerprint
+        watcher = {key, name, fingerprint}
         app.settings.watchers.push watcher
         app.settings.ready = true
         app.save()
