@@ -2,7 +2,7 @@
 </style>
 
 <template>
-h1 This is the home!
+  router-view
 </template>
 
 <script>

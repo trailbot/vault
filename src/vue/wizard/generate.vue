@@ -43,7 +43,7 @@ article.form(v-else, transition='slide')
       label(for='pass') Passphrase
       input(name='pass', type='password', v-model='pass')
   footer
-    button.next(@click='submit') Next
+    button.next(v-show='pass', @click='submit') Next
 
 </template>
 
@@ -80,6 +80,7 @@ module.exports =
           priv: keys.privateKeyArmored
           pub: keys.publicKeyArmored
           fingerprint: keys.key.primaryKey.fingerprint
+        document.vault.updateFingerprint app.settings.keys.fingerprint
         app.save()
         @next()
 

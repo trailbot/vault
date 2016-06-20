@@ -12,16 +12,21 @@ main = ->
     openpgp.config.aead_protect = true
     @pgp = openpgp
     @settings =
-      $.extend {watchers: []}, JSON.parse(localStorage.getItem('settings'))
+      $.extend {watchers: [], ready: false}, JSON.parse(localStorage.getItem('settings'))
     @data = ->
       appName: 'SEMPER'
       isElectron: 'electron' of window
     document.app = this
 
+    document.onkeyup = (e) =>
+      if e.altKey is true and e.key is 'c'
+        @clear()
+        document.location.reload()
+
     @router = new VueRouter()
     @router.map
       '/':
-        component: require '../../src/vue/home.vue'
+        component: require '../../src/vue/empty.vue'
       '/wizard':
         component: require '../../src/vue/wizard/main.vue'
         subRoutes:
@@ -41,23 +46,28 @@ main = ->
             component: require '../../src/vue/wizard/congrats.vue'
       '/dashboard':
         component: require '../../src/vue/dashboard/main.vue'
+      '/dashboard/:watcher':
+        name: 'watcher'
+        component: require '../../src/vue/dashboard/main.vue'
         subRoutes:
-          '/:watcher':
-            name: 'watcher'
-            component: require '../../src/vue/dashboard/main.vue'
+          '/fileAdd':
+            name: 'fileAdd'
+            component: require '../../src/vue/dashboard/fileAdd.vue'
+          '/file/:file':
+            name: 'file'
+            component: require '../../src/vue/dashboard/file.vue'
             subRoutes:
-              '/fileAdd':
-                name: 'fileAdd'
-                component: require '../../src/vue/dashboard/fileAdd.vue'
-
+              '/policyAdd':
+                name: 'policyAdd'
+                component: require '../../src/vue/dashboard/policyAdd.vue'
 
     @router.afterEach (transition) =>
       methods = transition.to.matched.slice(-1)[0].handler.component.options.methods
       if methods?.run
-        methods.run this.router.app.$route
+        methods.run this.router.app.$route, transition
     @router.start App, '#app'
 
-    if true or @settings.ready
+    if @settings.ready
       @router.replace '/dashboard'
     else
       @router.replace '/wizard'

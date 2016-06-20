@@ -44,11 +44,11 @@ section.dashboard
             background: #aadd88
             color: white
   > nav
+  > article nav
     width: 250px
     position: fixed
     top: 61px
     bottom: 0
-    left: 0
     border-right: 1px solid #cc
     header
       padding: 15px 20px
@@ -72,7 +72,37 @@ section.dashboard
         font-weight: 700
         padding: 10px 15px
     &.files
+      left: 0
       background: #f2
+      ul
+        li
+          &.selected
+            background: #f9
+            &:after
+              content: ''
+              display: block
+              position: absolute
+              top: 23px
+              right: 0
+              width: 0
+              height: 0
+              border-style: solid
+              border-width: 7px 7px 7px 0
+              border-color: transparent #cc transparent transparent
+          .path
+            color: #99
+            strong
+              color: #642b6e
+    ul
+      list-style-type: none
+      padding: 0
+      margin: 0
+      li
+        position: relative
+        padding: 20px
+        border-bottom: 1px solid #cc
+        cursor: pointer
+        transition: all .2s ease
     &:after
       content: ''
       display: block
@@ -93,15 +123,15 @@ section.dashboard
   a.cool
     text-decoration: none
     color: #642b6e
-  > article
+  article
     position: fixed
     top: 61px
     right: 0
     bottom: 0
     left: 251px
-    padding: 30px
     background: white
     &.form
+      padding: 30px
       color: #44
       header
         margin-bottom: 20px
@@ -120,7 +150,13 @@ section.dashboard
           color: white
           border-radius: 2px
       form
-        margin-top: 30px
+        padding: 30px
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 50px
+        overflow: auto
         fieldset
           padding: 0
           border: none
@@ -146,6 +182,8 @@ section.dashboard
             padding: 5px
             font-style: italic
             color: #999
+        :last-child
+          margin-bottom: 15px
       footer
         position: absolute
         bottom: 0
@@ -174,16 +212,19 @@ section.dashboard
     h1
       img(src='/img/logo.svg', alt='{{appName}}')
     nav
-      a.tab(v-for='(index, watcher) in settings.watchers', v-link="{ name: 'watcher', params: { watcher: index }}", v-bind:class="{ 'selected': index == ($route.params.watcher || 0) }") {{watcher.name}}
+      a.tab(v-for='(index, watcher) in watchers', v-link="{ name: 'watcher', params: { watcher: index }}", v-bind:class="{ 'selected': index == ($route.params.watcher || 0) }") {{watcher.name}}
       a.tab.add(v-link="{ path : '/wizard/import' }") +
   nav.files
     header
-      button.add(v-link="{ path: '/dashboard/' + ($route.params.watcher || 0) + '/fileAdd' }") +
+      button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
       h1 Watched files
-    ul(v-if='watcher')
-    p.empty(v-else).
-      No files are being watched yet.
-      #[br]#[b #[a.cool(v-link="{ path: '/dashboard/' + ($route.params.watcher || 0) + '/fileAdd' }") Click here]] to start watching a file.
+    ul(v-if="hasFiles")
+      li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}")
+        span.path.
+          {{path.split('/').slice(0, -1).join('/')}}/#[strong {{path.split('/').pop()}}]
+    div.empty(v-else).
+      No files are being watched.
+      #[p #[b #[a.cool(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") Click here]] to start watching a file.]
   router-view
 </template>
 
@@ -193,11 +234,14 @@ module.exports =
   data: ->
     $.extend app.data(),
       settings: app.settings
-      watcher: null
-  methods:
-    run: (route) ->
-      watcherId = route.params.watcher || 0
-      watcher = app.watchers?[watcherId]
-      if watcher
-        @data.watcher = watcher
+      watchers: app.settings.watchers
+  computed:
+    index: ->
+      @$route.params?.watcher || 0
+    fingerprint: ->
+      app.settings.watchers[@index].fingerprint
+    currentWatcher: ->
+      app.settings.watchers[@index]
+    hasFiles: ->
+      Object.keys(@currentWatcher.settings.files).length > 0
 </script>

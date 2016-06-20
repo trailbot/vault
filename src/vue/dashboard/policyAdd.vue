@@ -5,11 +5,11 @@ input[name='path']
 </style>
 
 <template lang="jade">
-article.form.fileAdd
+article.form.policyAdd
   form
     header
       h1.
-        Start watching a file in #[strong {{watcher.name}}]
+        Add a new policy for #[strong {{fileName}}]
     p {{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.
     p.
       Recommended files to watch are those containing the system and access logs, such as #[code /var/log/syslog] and #[code /var/log/auth.log].
@@ -19,27 +19,16 @@ article.form.fileAdd
       span.tip.
         Please consign the #[strong absolute path] of the file to watch.
   footer
-    button.ok(@click='submit').
+    button.ok().
       Start watching #[i {{path.split('/').pop()}}]
 </template>
 
 <script lang="coffee">
 app = document.app
+vault = document.vault
 module.exports =
   data: ->
     $.extend app.data(),
-      path: ''
-      index: @$parent.index
-  computed:
-    watcher: ->
-      @$parent.currentWatcher
-  methods:
-    submit: (e) ->
-      settings = @watcher.settings
-      settings.files[@path] =
-        policies: []
-      document.vault.replace 'settings', settings
-      @$parent.$set 'currentWatcher.settings', settings
-      app.save()
-      app.router.go '/dashboard/' + @index
+      path: @$parent.path
+      fileName: @$parent.fileName
 </script>

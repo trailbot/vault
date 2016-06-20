@@ -47,15 +47,23 @@ module.exports =
       app.router.go '/wizard/congrats'
     newWatcher: (key) ->
       try
+        key = key || temp0.pub
         keys = app.pgp.key.readArmored(key).keys
         name = keys[0].users[0].userId.userid.split('@')[1].slice(0, -1)
         fingerprint = keys[0].primaryKey.fingerprint
-        watcher = {key, name, fingerprint}
-        app.settings.watchers.push watcher
-        app.settings.ready = true
-        app.save()
-        @next()
+        settings =
+          creator: @settings.keys.fingerprint
+          reader: fingerprint
+          files: {}
+        watcher = {key, name, fingerprint, settings}
+        document.vault.store 'settings', settings, (id) =>
+          watcher.settings.id = id
+          @settings.watchers.push watcher
+          @settings.ready = true
+          app.save()
+          @next()
       catch err
+        console.error err
         console.error 'Bad armor!'
     paste: (e) ->
       e.preventDefault()

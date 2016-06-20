@@ -20,11 +20,8 @@ validator = """
 template = "collection('settings').anyRead()"
 validator = """
   (user, doc) => {
-    return true || user.data
-        && (
-             user.data.pub == doc.creator
-          || user.data.pub == doc.reader
-        )
+    return user.data
+        && [doc.creator, doc.reader].indexOf(user.data.key) > -1
   }
 """
 
@@ -36,9 +33,9 @@ validator = """
       return false
     cond = []
     if (oldDoc)
-      cond.push(oldDoc.creator == user.data.pub)
+      cond.push([oldDoc.creator, oldDoc.reader].indexOf(user.data.key) > -1)
     if (newDoc)
-      cond.push(newDoc.creator == user.data.pub)
+      cond.push([newDoc.creator, newDoc.reader].indexOf(user.data.key) > -1)
     return cond.reduce((prev, cur) => {
       return prev && cur
     })

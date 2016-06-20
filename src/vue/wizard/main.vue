@@ -70,6 +70,7 @@ section.wizard
 
       footer
         display: block
+        height: 50px
         background: #f0
         border-top: 1px solid #d
         overflow: auto
