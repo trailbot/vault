@@ -38,8 +38,8 @@ module.exports =
       settings = @watcher.settings
       settings.files[@path] =
         policies: []
-      document.vault.replace 'settings', settings
       @$parent.$set 'currentWatcher.settings', settings
+      document.vault.replace 'settings', settings
       app.save()
       app.router.go '/dashboard/' + @index
 </script>

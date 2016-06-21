@@ -219,7 +219,7 @@ section.dashboard
       button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
       h1 Watched files
     ul(v-if="hasFiles")
-      li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}")
+      li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='contextMenu', data-path='{{path}}')
         span.path.
           {{path.split('/').slice(0, -1).join('/')}}/#[strong {{path.split('/').pop()}}]
     div.empty(v-else).
@@ -244,4 +244,48 @@ module.exports =
       app.settings.watchers[@index]
     hasFiles: ->
       Object.keys(@currentWatcher.settings.files).length > 0
+  methods:
+    contextMenu: (e) ->
+      path = $(e.target).closest('li').data 'path'
+      try
+        MenuItem = window.electron.MenuItem
+        menu = new window.electron.Menu()
+        menu.append new MenuItem
+          label: "Options for #{path}"
+          enabled: false
+        menu.append new MenuItem
+          type: 'separator'
+        menu.append new MenuItem
+          label: 'Add a policy'
+          accelerator: 'p'
+          click: =>
+            app.router.go
+              name: 'policyAdd'
+              params:
+                watcher: @index
+                file: encodeURIComponent path
+        menu.append new MenuItem
+          label: 'Stop watching'
+          accelerator: 's'
+          click: =>
+            @stopWatching path
+        menu.popup window.electron.getCurrentWindow()
+      catch e
+        console.error e
+    stopWatching: (path) ->
+      try
+        window.electron.dialog.showMessageBox
+          type: 'question'
+          message: "Do you want to stop watching '#{path}' and completely remove all trace of it from #{@appName}?"
+          buttons: ['cancel', 'ok']
+        , (res) =>
+          return unless res
+          files = $.extend {}, @currentWatcher.settings.files
+          delete files[path]
+          @$set 'currentWatcher.settings.files', files
+          document.vault.replace 'settings', @currentWatcher.settings
+          app.save()
+          app.router.go '/dashboard'
+      catch e
+        console.error e
 </script>
