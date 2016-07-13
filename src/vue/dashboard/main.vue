@@ -50,6 +50,7 @@ section.dashboard
     top: 61px
     bottom: 0
     border-right: 1px solid #cc
+    overflow: auto
     header
       padding: 15px 20px
       background: white
@@ -76,19 +77,23 @@ section.dashboard
       background: #f2
       ul
         li
+          overflow: hidden
+          &:after
+            content: ''
+            display: block
+            position: absolute
+            top: 23px
+            right: -10px
+            width: 0
+            height: 0
+            border-style: solid
+            border-width: 7px 7px 7px 0
+            border-color: transparent #cc transparent transparent
+            transition: right .2s ease
           &.selected
             background: #f9
             &:after
-              content: ''
-              display: block
-              position: absolute
-              top: 23px
               right: 0
-              width: 0
-              height: 0
-              border-style: solid
-              border-width: 7px 7px 7px 0
-              border-color: transparent #cc transparent transparent
           .path
             color: #99
             strong
@@ -112,7 +117,7 @@ section.dashboard
       right: 0
       bottom: 0
       width: 30px
-      opacity: .1
+      opacity: .08
       pointer-events: none
     .empty
       display: block
@@ -161,6 +166,7 @@ section.dashboard
           padding: 0
           border: none
           label
+          .label-alike
             display: block
             position: relative
             top: 1px
@@ -172,7 +178,9 @@ section.dashboard
             color: #88
             text-transform: uppercase
           input
+          select
             padding: 10px
+            background: white
             border: 1px solid #cc
             border-radius: 4px
             &:focus
@@ -220,8 +228,8 @@ section.dashboard
       h1 Watched files
     ul(v-if="hasFiles")
       li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='contextMenu', data-path='{{path}}')
-        span.path.
-          {{path.split('/').slice(0, -1).join('/')}}/#[strong {{path.split('/').pop()}}]
+        span.path
+          {{{path | decoratePath}}}
     div.empty(v-else).
       No files are being watched.
       #[p #[b #[a.cool(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") Click here]] to start watching a file.]
@@ -244,6 +252,16 @@ module.exports =
       app.settings.watchers[@index]
     hasFiles: ->
       Object.keys(@currentWatcher.settings.files).length > 0
+  filters:
+    decoratePath: (path) ->
+      chunked = path.split('/')
+      filename = chunked.slice(-1)
+      path = chunked.slice(0, -1).join('/')
+      room = 14 - filename.length
+      if path.length > room
+        path = path.slice(0, room)
+        path += "<small>...</small>"
+      "#{path}/<strong>#{filename}</strong>"
   methods:
     contextMenu: (e) ->
       path = $(e.target).closest('li').data 'path'
@@ -281,8 +299,11 @@ module.exports =
         , (res) =>
           return unless res
           files = $.extend {}, @currentWatcher.settings.files
+          events = $.extend {}, @currentWatcher.events
           delete files[path]
+          delete events[path]
           @$set 'currentWatcher.settings.files', files
+          @$set 'currentWatcher.events', events
           document.vault.replace 'settings', @currentWatcher.settings
           app.save()
           app.router.go '/dashboard'

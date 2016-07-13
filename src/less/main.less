@@ -194,3 +194,32 @@ a.button{
     opacity: 0;
   }
 }
+
+.driftFade-transition {
+}
+.driftFade-enter {
+  animation: driftFade-in .2s;
+}
+.driftFade-leave {
+  animation: driftFade-out .2s;
+}
+@keyframes driftFade-in {
+  0% {
+    opacity: 0;
+    margin-left: 10px;
+  }
+  100% {
+    opacity: 1;
+    margin-left: 0;
+  }
+}
+@keyframes driftFade-out {
+  0% {
+    opacity: 1;
+    margin-left: 0;
+  }
+  100% {
+    opacity: 0;
+    margin-left: 10px;
+  }
+}

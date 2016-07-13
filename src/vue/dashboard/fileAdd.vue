@@ -5,7 +5,7 @@ input[name='path']
 </style>
 
 <template lang="jade">
-article.form.fileAdd
+article.form.fileAdd(transition='driftFade')
   form
     header
       h1.

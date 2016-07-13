@@ -11,12 +11,19 @@ main = ->
       path: '/js/openpgp.worker.min.js'
     openpgp.config.aead_protect = true
     @pgp = openpgp
+
+    @Vue = Vue
+
     @settings =
       $.extend {watchers: [], ready: false}, JSON.parse(localStorage.getItem('settings'))
     @data = ->
       appName: 'SEMPER'
       isElectron: 'electron' of window
     document.app = this
+
+    if @settings.keys?
+      @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
+      @privateKey.decrypt('thepianohasbeendrinking')
 
     document.onkeyup = (e) =>
       if e.altKey is true and e.key is 'c'
@@ -60,6 +67,12 @@ main = ->
               '/policyAdd':
                 name: 'policyAdd'
                 component: require '../../src/vue/dashboard/policyAdd.vue'
+              '/policy/:policy':
+                name: 'policy'
+                component: require '../../src/vue/dashboard/policy.vue'
+              '/event/:event':
+                name: 'event'
+                component: require '../../src/vue/dashboard/event.vue'
 
     @router.afterEach (transition) =>
       methods = transition.to.matched.slice(-1)[0].handler.component.options.methods

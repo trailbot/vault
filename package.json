@@ -21,6 +21,7 @@
     "grunt-contrib-less": "^1.3.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-iced-coffee": "^0.7.0",
+    "horizon": "^1.1.3",
     "iced-coffee-script": "^108.0.11",
     "jade": "^1.11.0",
     "node-pgp": "0.0.1",
