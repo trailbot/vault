@@ -30,22 +30,13 @@
         };
       };
       document.app = this;
-      if (this.settings.keys != null) {
-        this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        this.privateKey.decrypt('thepianohasbeendrinking');
-      }
-      document.onkeyup = (function(_this) {
-        return function(e) {
-          if (e.altKey === true && e.key === 'c') {
-            _this.clear();
-            return document.location.reload();
-          }
-        };
-      })(this);
       this.router = new VueRouter();
       this.router.map({
         '/': {
           component: require('../../src/vue/empty.vue')
+        },
+        '/unlock': {
+          component: require('../../src/vue/unlock.vue')
         },
         '/wizard': {
           component: require('../../src/vue/wizard/main.vue'),
@@ -115,13 +106,30 @@
         };
       })(this));
       this.router.start(App, '#app');
-      if (this.settings.ready) {
-        return this.router.replace('/dashboard');
+      if (this.settings.keys != null) {
+        this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
+        this.router.replace('/unlock');
       } else {
-        return this.router.replace('/wizard');
+        this.router.replace('/wizard');
       }
+      document.onkeyup = (function(_this) {
+        return function(e) {
+          if (e.altKey === true && e.key === 'c') {
+            _this.clear();
+            return document.location.reload();
+          }
+        };
+      })(this);
+      return document.onkeydown = (function(_this) {
+        return function(e) {
+          if (e.key === 'Enter') {
+            return e.preventDefault();
+          }
+        };
+      })(this);
     });
     this.save = function() {
+      console.log('SAVING APP');
       return localStorage.setItem('settings', JSON.stringify(this.settings));
     };
     this.copy = function(text) {
@@ -188,37 +196,45 @@
           if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
             fingerprint = app.settings.keys.fingerprint;
             _this.updateFingerprint(fingerprint);
-            _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
+            return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
               return console.log('New settings', settings);
             }, function(error) {
               return console.error(error);
             }, function() {
               return console.log('Settings completed!');
             });
-            console.log("Retrieving events newer than " + app.settings.lastSync);
-            return _this.diffs.order('datetime', 'descending').above({
-              datetime: new Date(app.settings.lastSync || 0)
-            }).findAll(_this.toMe).watch({
-              rawChanges: true
-            }).subscribe(function(changes) {
-              if (changes.new_val != null) {
-                _this.eventAdd(changes.new_val);
-                app.settings.lastSync = new Date();
-                return app.save();
-              } else if (changes.type === 'state' && changes.state === 'synced') {
-                console.log('Finished syncing!');
-                app.settings.lastSync = new Date();
-                return app.save();
-              } else {
-                return console.log('There are other changes');
-              }
-            });
           }
         });
-        app.save();
-        return document.vault = _this;
+        document.vault = _this;
+        return app.save();
       };
     })(this));
+    this.retrieveEvents = (function(_this) {
+      return function() {
+        console.log("Retrieving events newer than " + app.settings.lastSync);
+        return _this.diffs.order('datetime', 'descending').above({
+          datetime: new Date(app.settings.lastSync || 0)
+        }).findAll(_this.toMe).watch({
+          rawChanges: true
+        }).subscribe(function(changes) {
+          if (changes.new_val != null) {
+            _this.eventAdd(changes.new_val);
+            app.settings.lastSync = new Date();
+            return setTimeout(function() {
+              return app.save();
+            });
+          } else if (changes.type === 'state' && changes.state === 'synced') {
+            console.log('Finished syncing!');
+            app.settings.lastSync = new Date();
+            return setTimeout(function() {
+              return app.save();
+            });
+          } else {
+            return console.log('There are other changes');
+          }
+        });
+      };
+    })(this);
     this.updateFingerprint = (function(_this) {
       return function(fingerprint) {
         _this.fromMe = {
@@ -257,7 +273,6 @@
       return function(_arg) {
         var content, creator, id, message, pgp, privateKey, reader;
         content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
-        console.log('There is a new diff');
         pgp = app.pgp;
         message = pgp.message.readArmored(content);
         privateKey = app.privateKey;
@@ -266,6 +281,11 @@
           packets = _arg1.packets;
           _ref = packets.findPacket(pgp.enums.packet.literal), filename = _ref.filename, date = _ref.date, data = _ref.data;
           data = pgp.util.Uint8Array2str(data);
+          console.log('There is a new diff ' + JSON.stringify({
+            filename: filename,
+            date: date,
+            data: data
+          }));
           watcher = app.settings.watchers.find(function(e) {
             return e.fingerprint === creator;
           });

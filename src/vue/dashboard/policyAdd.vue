@@ -3,6 +3,25 @@ input
 select
   box-sizing: border-box
   width: 100%
+
+fieldset.git
+  position: relative
+  &:after
+    display: block
+    position: absolute
+    top: 35px
+    right: 10px
+    padding: 2px 5px
+    border-radius: 100%
+    color: white
+    font-size: .8em
+    opacity: .7
+  &[data-valid]:after
+    content: '✔'
+    background: #5aa02c
+  &:not([data-valid]):after
+    content: '✖'
+    background: #d40000
 </style>
 
 <template lang="jade">
@@ -17,10 +36,10 @@ article.form.policyAdd(transition='driftFade')
       #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Policies').cool Click here] to learn how to write your own policies.
     fieldset
       label(for='name') Policy name
-      input(name='name', v-model='name', placeholder='e.g.: Mail me when syslog is modified')
-    fieldset
+      input(name='name', v-model='name', placeholder='e.g.: Mail me when syslog is modified', v-focus-auto)
+    fieldset(data-valid='{{branches}}').git
       label(for='gitURL') Git HTTPS URL
-      input(type='text', name='gitURL', v-model='gitURL', @blur='getBranches', disabled='{{branches}}', lazy)
+      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')
       span.tip.
         Please consign the #[strong HTTPS URL] for the git repository of the policy package to be added.
     fieldset(v-if='branches')
@@ -32,16 +51,17 @@ article.form.policyAdd(transition='driftFade')
       input(name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
   footer
     button.ok(v-if='valid && name', @click='submit').
-      Add policy #[i {{policyName}}]
+      Add policy #[i {{name}}]
 </template>
 
 <script lang="coffee">
 app = document.app
 module.exports =
+  mixins: [ (require 'vue-focus').mixin ]
   data: ->
     $.extend app.data(),
       fileName: @$parent.fileName
-      policyName: null
+      name: null
       git: null
       branches: null
       gitURL: null
@@ -60,6 +80,7 @@ module.exports =
       if @valid
         alert 'Ready to submit'
       else
+        return unless @gitURL.match new RegExp /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
         @path = "/tmp/git_#{@gitURL.split('/').pop().replace('.', '_')}"
         window.mkdir @path
         @git = window.git(@path).init()
@@ -93,4 +114,8 @@ module.exports =
         params: @params
       document.vault.replace 'settings', @$parent.watcher.settings
       app.save()
+      app.router.go
+        name: 'policy'
+        params:
+          policy: @$parent.file.policies.length - 1
 </script>

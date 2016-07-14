@@ -215,7 +215,7 @@ section.dashboard
 </style>
 
 <template lang="jade">
-section.dashboard
+section.dashboard(transition='fade')
   header
     h1
       img(src='/img/logo.svg', alt='{{appName}}')

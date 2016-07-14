@@ -15,7 +15,7 @@ article.form.fileAdd(transition='driftFade')
       Recommended files to watch are those containing the system and access logs, such as #[code /var/log/syslog] and #[code /var/log/auth.log].
     fieldset
       label(for='path') File path
-      input(type='text', name='path', placeholder='/var/log/syslog', v-model='path', lazy)
+      input(type='text', name='path', placeholder='/var/log/syslog', v-model='path', v-focus-auto, lazy)
       span.tip.
         Please consign the #[strong absolute path] of the file to watch.
   footer
@@ -26,6 +26,7 @@ article.form.fileAdd(transition='driftFade')
 <script lang="coffee">
 app = document.app
 module.exports =
+  mixins: [ (require 'vue-focus').mixin ]
   data: ->
     $.extend app.data(),
       path: ''

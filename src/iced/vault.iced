@@ -32,21 +32,24 @@ vault = ->
         , () =>
           console.log 'Settings completed!'
 
-        console.log "Retrieving events newer than #{app.settings.lastSync}"
-        @diffs.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
-          if changes.new_val?
-            @eventAdd changes.new_val
-            app.settings.lastSync = new Date()
-            app.save()
-          else if changes.type is 'state' and changes.state is 'synced'
-            console.log 'Finished syncing!'
-            app.settings.lastSync = new Date()
-            app.save()
-          else
-            console.log 'There are other changes'
-
-    app.save()
     document.vault = this
+    app.save()
+
+  @retrieveEvents = () =>
+    console.log "Retrieving events newer than #{app.settings.lastSync}"
+    @diffs.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
+      if changes.new_val?
+        @eventAdd changes.new_val
+        app.settings.lastSync = new Date()
+        setTimeout ->
+          app.save()
+      else if changes.type is 'state' and changes.state is 'synced'
+        console.log 'Finished syncing!'
+        app.settings.lastSync = new Date()
+        setTimeout ->
+          app.save()
+      else
+        console.log 'There are other changes'
 
   @updateFingerprint = (fingerprint) =>
     @fromMe =
@@ -73,7 +76,6 @@ vault = ->
         console.error error
 
   @eventAdd = ({content, creator, reader, id}) =>
-    console.log 'There is a new diff'
     pgp = app.pgp
     message = pgp.message.readArmored content
     privateKey = app.privateKey
@@ -81,6 +83,7 @@ vault = ->
       .then ({packets}) ->
         {filename, date, data} = packets.findPacket(pgp.enums.packet.literal)
         data = pgp.util.Uint8Array2str data
+        console.log 'There is a new diff ' + JSON.stringify {filename, date, data}
         watcher = app.settings.watchers.find (e) ->
           e.fingerprint == creator
         if watcher

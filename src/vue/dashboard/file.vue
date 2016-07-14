@@ -96,6 +96,7 @@ module.exports =
       d = new Date(zulu || Date.now())
       "#{d.toLocaleDateString()} @ #{d.toLocaleTimeString()}"
     countByType: (changes, type) ->
+      return unless changes
       changes.reduce (acc, change, i, a) ->
         if change.type? and change.type is type
           acc + change.lines.length

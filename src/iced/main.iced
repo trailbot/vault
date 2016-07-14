@@ -21,19 +21,12 @@ main = ->
       isElectron: 'electron' of window
     document.app = this
 
-    if @settings.keys?
-      @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
-      @privateKey.decrypt('thepianohasbeendrinking')
-
-    document.onkeyup = (e) =>
-      if e.altKey is true and e.key is 'c'
-        @clear()
-        document.location.reload()
-
     @router = new VueRouter()
     @router.map
       '/':
         component: require '../../src/vue/empty.vue'
+      '/unlock':
+        component: require '../../src/vue/unlock.vue'
       '/wizard':
         component: require '../../src/vue/wizard/main.vue'
         subRoutes:
@@ -80,12 +73,22 @@ main = ->
         methods.run this.router.app.$route, transition
     @router.start App, '#app'
 
-    if @settings.ready
-      @router.replace '/dashboard'
+    if @settings.keys?
+      @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
+      @router.replace '/unlock'
     else
       @router.replace '/wizard'
 
+    document.onkeyup = (e) =>
+      if e.altKey is true and e.key is 'c'
+        @clear()
+        document.location.reload()
+    document.onkeydown = (e) =>
+      if e.key is 'Enter'
+        e.preventDefault()
+
   @save = ->
+    console.log 'SAVING APP'
     localStorage.setItem 'settings', JSON.stringify @settings
 
   @copy = (text) ->

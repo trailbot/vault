@@ -31,22 +31,13 @@
         };
       };
       document.app = this;
-      if (this.settings.keys != null) {
-        this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        this.privateKey.decrypt('thepianohasbeendrinking');
-      }
-      document.onkeyup = (function(_this) {
-        return function(e) {
-          if (e.altKey === true && e.key === 'c') {
-            _this.clear();
-            return document.location.reload();
-          }
-        };
-      })(this);
       this.router = new VueRouter();
       this.router.map({
         '/': {
           component: require('../../src/vue/empty.vue')
+        },
+        '/unlock': {
+          component: require('../../src/vue/unlock.vue')
         },
         '/wizard': {
           component: require('../../src/vue/wizard/main.vue'),
@@ -116,13 +107,30 @@
         };
       })(this));
       this.router.start(App, '#app');
-      if (this.settings.ready) {
-        return this.router.replace('/dashboard');
+      if (this.settings.keys != null) {
+        this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
+        this.router.replace('/unlock');
       } else {
-        return this.router.replace('/wizard');
+        this.router.replace('/wizard');
       }
+      document.onkeyup = (function(_this) {
+        return function(e) {
+          if (e.altKey === true && e.key === 'c') {
+            _this.clear();
+            return document.location.reload();
+          }
+        };
+      })(this);
+      return document.onkeydown = (function(_this) {
+        return function(e) {
+          if (e.key === 'Enter') {
+            return e.preventDefault();
+          }
+        };
+      })(this);
     });
     this.save = function() {
+      console.log('SAVING APP');
       return localStorage.setItem('settings', JSON.stringify(this.settings));
     };
     this.copy = function(text) {
@@ -189,37 +197,45 @@
           if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
             fingerprint = app.settings.keys.fingerprint;
             _this.updateFingerprint(fingerprint);
-            _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
+            return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
               return console.log('New settings', settings);
             }, function(error) {
               return console.error(error);
             }, function() {
               return console.log('Settings completed!');
             });
-            console.log("Retrieving events newer than " + app.settings.lastSync);
-            return _this.diffs.order('datetime', 'descending').above({
-              datetime: new Date(app.settings.lastSync || 0)
-            }).findAll(_this.toMe).watch({
-              rawChanges: true
-            }).subscribe(function(changes) {
-              if (changes.new_val != null) {
-                _this.eventAdd(changes.new_val);
-                app.settings.lastSync = new Date();
-                return app.save();
-              } else if (changes.type === 'state' && changes.state === 'synced') {
-                console.log('Finished syncing!');
-                app.settings.lastSync = new Date();
-                return app.save();
-              } else {
-                return console.log('There are other changes');
-              }
-            });
           }
         });
-        app.save();
-        return document.vault = _this;
+        document.vault = _this;
+        return app.save();
       };
     })(this));
+    this.retrieveEvents = (function(_this) {
+      return function() {
+        console.log("Retrieving events newer than " + app.settings.lastSync);
+        return _this.diffs.order('datetime', 'descending').above({
+          datetime: new Date(app.settings.lastSync || 0)
+        }).findAll(_this.toMe).watch({
+          rawChanges: true
+        }).subscribe(function(changes) {
+          if (changes.new_val != null) {
+            _this.eventAdd(changes.new_val);
+            app.settings.lastSync = new Date();
+            return setTimeout(function() {
+              return app.save();
+            });
+          } else if (changes.type === 'state' && changes.state === 'synced') {
+            console.log('Finished syncing!');
+            app.settings.lastSync = new Date();
+            return setTimeout(function() {
+              return app.save();
+            });
+          } else {
+            return console.log('There are other changes');
+          }
+        });
+      };
+    })(this);
     this.updateFingerprint = (function(_this) {
       return function(fingerprint) {
         _this.fromMe = {
@@ -258,7 +274,6 @@
       return function(_arg) {
         var content, creator, id, message, pgp, privateKey, reader;
         content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
-        console.log('There is a new diff');
         pgp = app.pgp;
         message = pgp.message.readArmored(content);
         privateKey = app.privateKey;
@@ -267,6 +282,11 @@
           packets = _arg1.packets;
           _ref = packets.findPacket(pgp.enums.packet.literal), filename = _ref.filename, date = _ref.date, data = _ref.data;
           data = pgp.util.Uint8Array2str(data);
+          console.log('There is a new diff ' + JSON.stringify({
+            filename: filename,
+            date: date,
+            data: data
+          }));
           watcher = app.settings.watchers.find(function(e) {
             return e.fingerprint === creator;
           });
@@ -303,7 +323,7 @@
 
 }).call(this);
 
-},{"../../src/vue/dashboard/event.vue":8,"../../src/vue/dashboard/file.vue":9,"../../src/vue/dashboard/fileAdd.vue":10,"../../src/vue/dashboard/main.vue":11,"../../src/vue/dashboard/policy.vue":12,"../../src/vue/dashboard/policyAdd.vue":13,"../../src/vue/empty.vue":14,"../../src/vue/wizard/congrats.vue":15,"../../src/vue/wizard/export.vue":16,"../../src/vue/wizard/generate.vue":17,"../../src/vue/wizard/import.vue":18,"../../src/vue/wizard/main.vue":19,"../../src/vue/wizard/preImport.vue":20,"../../src/vue/wizard/watcherGuide.vue":21,"../../src/vue/wizard/welcome.vue":22,"./openpgp.min.js":2,"vue":6,"vue-router":5}],2:[function(require,module,exports){
+},{"../../src/vue/dashboard/event.vue":9,"../../src/vue/dashboard/file.vue":10,"../../src/vue/dashboard/fileAdd.vue":11,"../../src/vue/dashboard/main.vue":12,"../../src/vue/dashboard/policy.vue":13,"../../src/vue/dashboard/policyAdd.vue":14,"../../src/vue/empty.vue":15,"../../src/vue/unlock.vue":16,"../../src/vue/wizard/congrats.vue":17,"../../src/vue/wizard/export.vue":18,"../../src/vue/wizard/generate.vue":19,"../../src/vue/wizard/import.vue":20,"../../src/vue/wizard/main.vue":21,"../../src/vue/wizard/preImport.vue":22,"../../src/vue/wizard/watcherGuide.vue":23,"../../src/vue/wizard/welcome.vue":24,"./openpgp.min.js":2,"vue":7,"vue-router":6}],2:[function(require,module,exports){
 (function (global){
 /*! OpenPGP.js v2.3.2 - 2016-06-08 - this is LGPL licensed code, see LICENSE/our website http://openpgpjs.org/ for more information. */!function(a){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=a();else if("function"==typeof define&&define.amd)define([],a);else{var b;b="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,b.openpgp=a()}}(function(){var a;return function b(a,c,d){function e(g,h){if(!c[g]){if(!a[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);var j=new Error("Cannot find module '"+g+"'");throw j.code="MODULE_NOT_FOUND",j}var k=c[g]={exports:{}};a[g][0].call(k.exports,function(b){var c=a[g][1][b];return e(c?c:b)},k,k.exports,b,a,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(b,c,d){!function(b,d){function e(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function f(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function g(){var a=Error.apply(this,arguments);this.message=a.message,this.stack=a.stack}function h(a,b){b=!!b;for(var c=a.length,d=new Uint8Array(b?4*c:c),e=0,f=0;c>e;e++){var g=a.charCodeAt(e);if(b&&g>=55296&&56319>=g){if(++e>=c)throw new Error("Malformed string, low surrogate expected at position "+e);g=(55296^g)<<10|65536|56320^a.charCodeAt(e)}else if(!b&&g>>>8)throw new Error("Wide characters are not allowed.");!b||127>=g?d[f++]=g:2047>=g?(d[f++]=192|g>>6,d[f++]=128|63&g):65535>=g?(d[f++]=224|g>>12,d[f++]=128|g>>6&63,d[f++]=128|63&g):(d[f++]=240|g>>18,d[f++]=128|g>>12&63,d[f++]=128|g>>6&63,d[f++]=128|63&g)}return d.subarray(0,f)}function i(a,b){b=!!b;for(var c=a.length,d=new Array(c),e=0,f=0;c>e;e++){var g=a[e];if(!b||128>g)d[f++]=g;else if(g>=192&&224>g&&c>e+1)d[f++]=(31&g)<<6|63&a[++e];else if(g>=224&&240>g&&c>e+2)d[f++]=(15&g)<<12|(63&a[++e])<<6|63&a[++e];else{if(!(g>=240&&248>g&&c>e+3))throw new Error("Malformed UTF8 character at byte offset "+e);var h=(7&g)<<18|(63&a[++e])<<12|(63&a[++e])<<6|63&a[++e];65535>=h?d[f++]=h:(h^=65536,d[f++]=55296|h>>10,d[f++]=56320|1023&h)}}for(var i="",j=16384,e=0;f>e;e+=j)i+=String.fromCharCode.apply(String,d.slice(e,f>=e+j?e+j:f));return i}function j(a){for(var b="",c=0;c<a.length;c++){var d=(255&a[c]).toString(16);d.length<2&&(b+="0"),b+=d}return b}function k(a){return btoa(i(a))}function l(a){return"number"==typeof a}function m(a){return"string"==typeof a}function n(a){return a instanceof ArrayBuffer}function o(a){return a instanceof Uint8Array}function p(a,b){var c=b.heap,d=c?c.byteLength:b.heapSize||65536;if(4095&d||0>=d)throw new Error("heap size must be a positive integer and a multiple of 4096");return c=c||new a(new ArrayBuffer(d))}function q(a,b,c,d,e){var f=a.length-b,g=e>f?f:e;return a.set(c.subarray(d,d+g),b),g}function r(a){a=a||{},this.heap=p(Uint8Array,a).subarray(da.HEAP_DATA),this.asm=a.asm||da(d,null,this.heap.buffer),this.mode=null,this.key=null,this.reset(a)}function s(a){if(void 0!==a){if(n(a)||o(a))a=new Uint8Array(a);else{if(!m(a))throw new TypeError("unexpected key type");a=h(a)}var b=a.length;if(16!==b&&24!==b&&32!==b)throw new f("illegal key size");var c=new DataView(a.buffer,a.byteOffset,a.byteLength);this.asm.set_key(b>>2,c.getUint32(0),c.getUint32(4),c.getUint32(8),c.getUint32(12),b>16?c.getUint32(16):0,b>16?c.getUint32(20):0,b>24?c.getUint32(24):0,b>24?c.getUint32(28):0),this.key=a}else if(!this.key)throw new Error("key is required")}function t(a){if(void 0!==a){if(n(a)||o(a))a=new Uint8Array(a);else{if(!m(a))throw new TypeError("unexpected iv type");a=h(a)}if(16!==a.length)throw new f("illegal iv size");var b=new DataView(a.buffer,a.byteOffset,a.byteLength);this.iv=a,this.asm.set_iv(b.getUint32(0),b.getUint32(4),b.getUint32(8),b.getUint32(12))}else this.iv=null,this.asm.set_iv(0,0,0,0)}function u(a){void 0!==a?this.padding=!!a:this.padding=!0}function v(a){return a=a||{},this.result=null,this.pos=0,this.len=0,s.call(this,a.key),this.hasOwnProperty("iv")&&t.call(this,a.iv),this.hasOwnProperty("padding")&&u.call(this,a.padding),this}function w(a){if(m(a)&&(a=h(a)),n(a)&&(a=new Uint8Array(a)),!o(a))throw new TypeError("data isn't of expected type");for(var b=this.asm,c=this.heap,d=da.ENC[this.mode],e=da.HEAP_DATA,f=this.pos,g=this.len,i=0,j=a.length||0,k=0,l=g+j&-16,p=0,r=new Uint8Array(l);j>0;)p=q(c,f+g,a,i,j),g+=p,i+=p,j-=p,p=b.cipher(d,e+f,g),p&&r.set(c.subarray(f,f+p),k),k+=p,g>p?(f+=p,g-=p):(f=0,g=0);return this.result=r,this.pos=f,this.len=g,this}function x(a){var b=null,c=0;void 0!==a&&(b=w.call(this,a).result,c=b.length);var d=this.asm,e=this.heap,g=da.ENC[this.mode],h=da.HEAP_DATA,i=this.pos,j=this.len,k=16-j%16,l=j;if(this.hasOwnProperty("padding")){if(this.padding){for(var m=0;k>m;++m)e[i+j+m]=k;j+=k,l=j}else if(j%16)throw new f("data length must be a multiple of the block size")}else j+=k;var n=new Uint8Array(c+l);return c&&n.set(b),j&&d.cipher(g,h+i,j),l&&n.set(e.subarray(i,i+l),c),this.result=n,this.pos=0,this.len=0,this}function y(a){if(m(a)&&(a=h(a)),n(a)&&(a=new Uint8Array(a)),!o(a))throw new TypeError("data isn't of expected type");var b=this.asm,c=this.heap,d=da.DEC[this.mode],e=da.HEAP_DATA,f=this.pos,g=this.len,i=0,j=a.length||0,k=0,l=g+j&-16,p=0,r=0;this.hasOwnProperty("padding")&&this.padding&&(p=g+j-l||16,l-=p);for(var s=new Uint8Array(l);j>0;)r=q(c,f+g,a,i,j),g+=r,i+=r,j-=r,r=b.cipher(d,e+f,g-(j?0:p)),r&&s.set(c.subarray(f,f+r),k),k+=r,g>r?(f+=r,g-=r):(f=0,g=0);return this.result=s,this.pos=f,this.len=g,this}function z(a){var b=null,c=0;void 0!==a&&(b=y.call(this,a).result,c=b.length);var d=this.asm,e=this.heap,h=da.DEC[this.mode],i=da.HEAP_DATA,j=this.pos,k=this.len,l=k;if(k>0){if(k%16){if(this.hasOwnProperty("padding"))throw new f("data length must be a multiple of the block size");k+=16-k%16}if(d.cipher(h,i+j,k),this.hasOwnProperty("padding")&&this.padding){var m=e[j+l-1];if(1>m||m>16||m>l)throw new g("bad padding");for(var n=0,o=m;o>1;o--)n|=m^e[j+l-o];if(n)throw new g("bad padding");l-=m}}var p=new Uint8Array(c+l);return c>0&&p.set(b),l>0&&p.set(e.subarray(j,j+l),c),this.result=p,this.pos=0,this.len=0,this}function A(a){this.iv=null,r.call(this,a),this.mode="CFB"}function B(a){A.call(this,a)}function C(a){A.call(this,a)}function D(a){this.nonce=null,this.counter=0,this.counterSize=0,r.call(this,a),this.mode="CTR"}function E(a){D.call(this,a)}function F(a,b,c){if(void 0!==c){if(8>c||c>48)throw new f("illegal counter size");this.counterSize=c;var d=Math.pow(2,c)-1;this.asm.set_mask(0,0,d/4294967296|0,0|d)}else this.counterSize=c=48,this.asm.set_mask(0,0,65535,4294967295);if(void 0===a)throw new Error("nonce is required");if(n(a)||o(a))a=new Uint8Array(a);else{if(!m(a))throw new TypeError("unexpected nonce type");a=h(a)}var e=a.length;if(!e||e>16)throw new f("illegal nonce size");this.nonce=a;var g=new DataView(new ArrayBuffer(16));if(new Uint8Array(g.buffer).set(a),this.asm.set_nonce(g.getUint32(0),g.getUint32(4),g.getUint32(8),g.getUint32(12)),void 0!==b){if(!l(b))throw new TypeError("unexpected counter type");if(0>b||b>=Math.pow(2,c))throw new f("illegal counter value");this.counter=b,this.asm.set_counter(0,0,b/4294967296|0,0|b)}else this.counter=b=0}function G(a){return a=a||{},v.call(this,a),F.call(this,a.nonce,a.counter,a.counterSize),this}function H(a){for(var b=this.heap,c=this.asm,d=0,e=a.length||0,f=0;e>0;){for(f=q(b,0,a,d,e),d+=f,e-=f;15&f;)b[f++]=0;c.mac(da.MAC.GCM,da.HEAP_DATA,f)}}function I(a){this.nonce=null,this.adata=null,this.iv=null,this.counter=1,this.tagSize=16,r.call(this,a),this.mode="GCM"}function J(a){I.call(this,a)}function K(a){I.call(this,a)}function L(a){a=a||{},v.call(this,a);var b=this.asm,c=this.heap;b.gcm_init();var d=a.tagSize;if(void 0!==d){if(!l(d))throw new TypeError("tagSize must be a number");if(4>d||d>16)throw new f("illegal tagSize value");this.tagSize=d}else this.tagSize=16;var e=a.nonce;if(void 0===e)throw new Error("nonce is required");if(o(e)||n(e))e=new Uint8Array(e);else{if(!m(e))throw new TypeError("unexpected nonce type");e=h(e)}this.nonce=e;var g=e.length||0,i=new Uint8Array(16);12!==g?(H.call(this,e),c[0]=c[1]=c[2]=c[3]=c[4]=c[5]=c[6]=c[7]=c[8]=c[9]=c[10]=0,c[11]=g>>>29,c[12]=g>>>21&255,c[13]=g>>>13&255,c[14]=g>>>5&255,c[15]=g<<3&255,b.mac(da.MAC.GCM,da.HEAP_DATA,16),b.get_iv(da.HEAP_DATA),b.set_iv(),i.set(c.subarray(0,16))):(i.set(e),i[15]=1);var j=new DataView(i.buffer);this.gamma0=j.getUint32(12),b.set_nonce(j.getUint32(0),j.getUint32(4),j.getUint32(8),0),b.set_mask(0,0,0,4294967295);var k=a.adata;if(void 0!==k&&null!==k){if(o(k)||n(k))k=new Uint8Array(k);else{if(!m(k))throw new TypeError("unexpected adata type");k=h(k)}if(k.length>ja)throw new f("illegal adata length");k.length?(this.adata=k,H.call(this,k)):this.adata=null}else this.adata=null;var p=a.counter;if(void 0!==p){if(!l(p))throw new TypeError("counter must be a number");if(1>p||p>4294967295)throw new RangeError("counter must be a positive 32-bit integer");this.counter=p,b.set_counter(0,0,0,this.gamma0+p|0)}else this.counter=1,b.set_counter(0,0,0,this.gamma0+1|0);var q=a.iv;if(void 0!==q){if(!l(p))throw new TypeError("counter must be a number");this.iv=q,t.call(this,q)}return this}function M(a){if(m(a)&&(a=h(a)),n(a)&&(a=new Uint8Array(a)),!o(a))throw new TypeError("data isn't of expected type");var b=0,c=a.length||0,d=this.asm,e=this.heap,f=this.counter,g=this.pos,i=this.len,j=0,k=i+c&-16,l=0;if((f-1<<4)+i+c>ja)throw new RangeError("counter overflow");for(var p=new Uint8Array(k);c>0;)l=q(e,g+i,a,b,c),i+=l,b+=l,c-=l,l=d.cipher(da.ENC.CTR,da.HEAP_DATA+g,i),l=d.mac(da.MAC.GCM,da.HEAP_DATA+g,l),l&&p.set(e.subarray(g,g+l),j),f+=l>>>4,j+=l,i>l?(g+=l,i-=l):(g=0,i=0);return this.result=p,this.counter=f,this.pos=g,this.len=i,this}function N(){var a=this.asm,b=this.heap,c=this.counter,d=this.tagSize,e=this.adata,f=this.pos,g=this.len,h=new Uint8Array(g+d);a.cipher(da.ENC.CTR,da.HEAP_DATA+f,g+15&-16),g&&h.set(b.subarray(f,f+g));for(var i=g;15&i;i++)b[f+i]=0;a.mac(da.MAC.GCM,da.HEAP_DATA+f,i);var j=null!==e?e.length:0,k=(c-1<<4)+g;return b[0]=b[1]=b[2]=0,b[3]=j>>>29,b[4]=j>>>21,b[5]=j>>>13&255,b[6]=j>>>5&255,b[7]=j<<3&255,b[8]=b[9]=b[10]=0,b[11]=k>>>29,b[12]=k>>>21&255,b[13]=k>>>13&255,b[14]=k>>>5&255,b[15]=k<<3&255,a.mac(da.MAC.GCM,da.HEAP_DATA,16),a.get_iv(da.HEAP_DATA),a.set_counter(0,0,0,this.gamma0),a.cipher(da.ENC.CTR,da.HEAP_DATA,16),h.set(b.subarray(0,d),g),this.result=h,this.counter=1,this.pos=0,this.len=0,this}function O(a){var b=M.call(this,a).result,c=N.call(this).result,d=new Uint8Array(b.length+c.length);return b.length&&d.set(b),c.length&&d.set(c,b.length),this.result=d,this}function P(a){if(m(a)&&(a=h(a)),n(a)&&(a=new Uint8Array(a)),!o(a))throw new TypeError("data isn't of expected type");var b=0,c=a.length||0,d=this.asm,e=this.heap,f=this.counter,g=this.tagSize,i=this.pos,j=this.len,k=0,l=j+c>g?j+c-g&-16:0,p=j+c-l,r=0;if((f-1<<4)+j+c>ja)throw new RangeError("counter overflow");for(var s=new Uint8Array(l);c>p;)r=q(e,i+j,a,b,c-p),j+=r,b+=r,c-=r,r=d.mac(da.MAC.GCM,da.HEAP_DATA+i,r),r=d.cipher(da.DEC.CTR,da.HEAP_DATA+i,r),r&&s.set(e.subarray(i,i+r),k),f+=r>>>4,k+=r,i=0,j=0;return c>0&&(j+=q(e,0,a,b,c)),this.result=s,this.counter=f,this.pos=i,this.len=j,this}function Q(){var a=this.asm,b=this.heap,c=this.tagSize,d=this.adata,f=this.counter,h=this.pos,i=this.len,j=i-c,k=0;if(c>i)throw new e("authentication tag not found");for(var l=new Uint8Array(j),m=new Uint8Array(b.subarray(h+j,h+i)),n=j;15&n;n++)b[h+n]=0;k=a.mac(da.MAC.GCM,da.HEAP_DATA+h,n),k=a.cipher(da.DEC.CTR,da.HEAP_DATA+h,n),j&&l.set(b.subarray(h,h+j));var o=null!==d?d.length:0,p=(f-1<<4)+i-c;b[0]=b[1]=b[2]=0,b[3]=o>>>29,b[4]=o>>>21,b[5]=o>>>13&255,b[6]=o>>>5&255,b[7]=o<<3&255,b[8]=b[9]=b[10]=0,b[11]=p>>>29,b[12]=p>>>21&255,b[13]=p>>>13&255,b[14]=p>>>5&255,b[15]=p<<3&255,a.mac(da.MAC.GCM,da.HEAP_DATA,16),a.get_iv(da.HEAP_DATA),a.set_counter(0,0,0,this.gamma0),a.cipher(da.ENC.CTR,da.HEAP_DATA,16);for(var q=0,n=0;c>n;++n)q|=m[n]^b[n];if(q)throw new g("data integrity check failed");return this.result=l,this.counter=1,this.pos=0,this.len=0,this}function R(a){var b=P.call(this,a).result,c=Q.call(this).result,d=new Uint8Array(b.length+c.length);return b.length&&d.set(b),c.length&&d.set(c,b.length),this.result=d,this}function S(a,b,c){if(void 0===a)throw new SyntaxError("data required");if(void 0===b)throw new SyntaxError("key required");return new A({heap:na,asm:oa,key:b,iv:c}).encrypt(a).result}function T(a,b,c){if(void 0===a)throw new SyntaxError("data required");if(void 0===b)throw new SyntaxError("key required");return new A({heap:na,asm:oa,key:b,iv:c}).decrypt(a).result}function U(a,b,c,d,e){if(void 0===a)throw new SyntaxError("data required");if(void 0===b)throw new SyntaxError("key required");if(void 0===c)throw new SyntaxError("nonce required");return new I({heap:na,asm:oa,key:b,nonce:c,adata:d,tagSize:e}).encrypt(a).result}function V(a,b,c,d,e){if(void 0===a)throw new SyntaxError("data required");if(void 0===b)throw new SyntaxError("key required");if(void 0===c)throw new SyntaxError("nonce required");return new I({heap:na,asm:oa,key:b,nonce:c,adata:d,tagSize:e}).decrypt(a).result}function W(){return this.result=null,this.pos=0,this.len=0,this.asm.reset(),this}function X(a){if(null!==this.result)throw new e("state must be reset before processing new data");if(m(a)&&(a=h(a)),n(a)&&(a=new Uint8Array(a)),!o(a))throw new TypeError("data isn't of expected type");for(var b=this.asm,c=this.heap,d=this.pos,f=this.len,g=0,i=a.length,j=0;i>0;)j=q(c,d+f,a,g,i),f+=j,g+=j,i-=j,j=b.process(d,f),d+=j,f-=j,f||(d=0);return this.pos=d,this.len=f,this}function Y(){if(null!==this.result)throw new e("state must be reset before processing new data");return this.asm.finish(this.pos,this.len,0),this.result=new Uint8Array(this.HASH_SIZE),this.result.set(this.heap.subarray(0,this.HASH_SIZE)),this.pos=0,this.len=0,this}function Z(a,b,c){"use asm";var d=0,e=0,f=0,g=0,h=0,i=0,j=0,k=0,l=0,m=0;var n=0,o=0,p=0,q=0,r=0,s=0,t=0,u=0,v=0,w=0,x=0,y=0,z=0,A=0,B=0,C=0;var D=new a.Uint8Array(c);function E(a,b,c,l,m,n,o,p,q,r,s,t,u,v,w,x){a=a|0;b=b|0;c=c|0;l=l|0;m=m|0;n=n|0;o=o|0;p=p|0;q=q|0;r=r|0;s=s|0;t=t|0;u=u|0;v=v|0;w=w|0;x=x|0;var y=0,z=0,A=0,B=0,C=0,D=0,E=0,F=0,G=0;y=d;z=e;A=f;B=g;C=h;D=i;E=j;F=k;G=a+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x428a2f98|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=b+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x71374491|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=c+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xb5c0fbcf|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=l+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xe9b5dba5|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=m+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x3956c25b|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=n+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x59f111f1|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=o+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x923f82a4|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=p+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xab1c5ed5|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=q+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xd807aa98|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=r+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x12835b01|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=s+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x243185be|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=t+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x550c7dc3|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=u+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x72be5d74|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=v+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x80deb1fe|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=w+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x9bdc06a7|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;G=x+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xc19bf174|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;a=G=(b>>>7^b>>>18^b>>>3^b<<25^b<<14)+(w>>>17^w>>>19^w>>>10^w<<15^w<<13)+a+r|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xe49b69c1|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;b=G=(c>>>7^c>>>18^c>>>3^c<<25^c<<14)+(x>>>17^x>>>19^x>>>10^x<<15^x<<13)+b+s|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xefbe4786|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;c=G=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+c+t|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x0fc19dc6|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;l=G=(m>>>7^m>>>18^m>>>3^m<<25^m<<14)+(b>>>17^b>>>19^b>>>10^b<<15^b<<13)+l+u|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x240ca1cc|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;m=G=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(c>>>17^c>>>19^c>>>10^c<<15^c<<13)+m+v|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x2de92c6f|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;n=G=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+n+w|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x4a7484aa|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;o=G=(p>>>7^p>>>18^p>>>3^p<<25^p<<14)+(m>>>17^m>>>19^m>>>10^m<<15^m<<13)+o+x|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x5cb0a9dc|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;p=G=(q>>>7^q>>>18^q>>>3^q<<25^q<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+p+a|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x76f988da|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;q=G=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+q+b|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x983e5152|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;r=G=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(p>>>17^p>>>19^p>>>10^p<<15^p<<13)+r+c|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xa831c66d|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;s=G=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(q>>>17^q>>>19^q>>>10^q<<15^q<<13)+s+l|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xb00327c8|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;t=G=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+t+m|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xbf597fc7|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;u=G=(v>>>7^v>>>18^v>>>3^v<<25^v<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+n|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xc6e00bf3|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;v=G=(w>>>7^w>>>18^w>>>3^w<<25^w<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+v+o|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xd5a79147|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;w=G=(x>>>7^x>>>18^x>>>3^x<<25^x<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+w+p|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x06ca6351|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;x=G=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(v>>>17^v>>>19^v>>>10^v<<15^v<<13)+x+q|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x14292967|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;a=G=(b>>>7^b>>>18^b>>>3^b<<25^b<<14)+(w>>>17^w>>>19^w>>>10^w<<15^w<<13)+a+r|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x27b70a85|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;b=G=(c>>>7^c>>>18^c>>>3^c<<25^c<<14)+(x>>>17^x>>>19^x>>>10^x<<15^x<<13)+b+s|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x2e1b2138|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;c=G=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+c+t|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x4d2c6dfc|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;l=G=(m>>>7^m>>>18^m>>>3^m<<25^m<<14)+(b>>>17^b>>>19^b>>>10^b<<15^b<<13)+l+u|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x53380d13|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;m=G=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(c>>>17^c>>>19^c>>>10^c<<15^c<<13)+m+v|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x650a7354|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;n=G=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+n+w|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x766a0abb|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;o=G=(p>>>7^p>>>18^p>>>3^p<<25^p<<14)+(m>>>17^m>>>19^m>>>10^m<<15^m<<13)+o+x|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x81c2c92e|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;p=G=(q>>>7^q>>>18^q>>>3^q<<25^q<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+p+a|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x92722c85|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;q=G=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+q+b|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xa2bfe8a1|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;r=G=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(p>>>17^p>>>19^p>>>10^p<<15^p<<13)+r+c|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xa81a664b|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;s=G=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(q>>>17^q>>>19^q>>>10^q<<15^q<<13)+s+l|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xc24b8b70|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;t=G=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+t+m|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xc76c51a3|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;u=G=(v>>>7^v>>>18^v>>>3^v<<25^v<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+n|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xd192e819|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;v=G=(w>>>7^w>>>18^w>>>3^w<<25^w<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+v+o|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xd6990624|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;w=G=(x>>>7^x>>>18^x>>>3^x<<25^x<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+w+p|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xf40e3585|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;x=G=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(v>>>17^v>>>19^v>>>10^v<<15^v<<13)+x+q|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x106aa070|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;a=G=(b>>>7^b>>>18^b>>>3^b<<25^b<<14)+(w>>>17^w>>>19^w>>>10^w<<15^w<<13)+a+r|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x19a4c116|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;b=G=(c>>>7^c>>>18^c>>>3^c<<25^c<<14)+(x>>>17^x>>>19^x>>>10^x<<15^x<<13)+b+s|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x1e376c08|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;c=G=(l>>>7^l>>>18^l>>>3^l<<25^l<<14)+(a>>>17^a>>>19^a>>>10^a<<15^a<<13)+c+t|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x2748774c|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;l=G=(m>>>7^m>>>18^m>>>3^m<<25^m<<14)+(b>>>17^b>>>19^b>>>10^b<<15^b<<13)+l+u|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x34b0bcb5|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;m=G=(n>>>7^n>>>18^n>>>3^n<<25^n<<14)+(c>>>17^c>>>19^c>>>10^c<<15^c<<13)+m+v|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x391c0cb3|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;n=G=(o>>>7^o>>>18^o>>>3^o<<25^o<<14)+(l>>>17^l>>>19^l>>>10^l<<15^l<<13)+n+w|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x4ed8aa4a|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;o=G=(p>>>7^p>>>18^p>>>3^p<<25^p<<14)+(m>>>17^m>>>19^m>>>10^m<<15^m<<13)+o+x|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x5b9cca4f|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;p=G=(q>>>7^q>>>18^q>>>3^q<<25^q<<14)+(n>>>17^n>>>19^n>>>10^n<<15^n<<13)+p+a|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x682e6ff3|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;q=G=(r>>>7^r>>>18^r>>>3^r<<25^r<<14)+(o>>>17^o>>>19^o>>>10^o<<15^o<<13)+q+b|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x748f82ee|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;r=G=(s>>>7^s>>>18^s>>>3^s<<25^s<<14)+(p>>>17^p>>>19^p>>>10^p<<15^p<<13)+r+c|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x78a5636f|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;s=G=(t>>>7^t>>>18^t>>>3^t<<25^t<<14)+(q>>>17^q>>>19^q>>>10^q<<15^q<<13)+s+l|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x84c87814|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;t=G=(u>>>7^u>>>18^u>>>3^u<<25^u<<14)+(r>>>17^r>>>19^r>>>10^r<<15^r<<13)+t+m|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x8cc70208|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;u=G=(v>>>7^v>>>18^v>>>3^v<<25^v<<14)+(s>>>17^s>>>19^s>>>10^s<<15^s<<13)+u+n|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0x90befffa|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;v=G=(w>>>7^w>>>18^w>>>3^w<<25^w<<14)+(t>>>17^t>>>19^t>>>10^t<<15^t<<13)+v+o|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xa4506ceb|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;w=G=(x>>>7^x>>>18^x>>>3^x<<25^x<<14)+(u>>>17^u>>>19^u>>>10^u<<15^u<<13)+w+p|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xbef9a3f7|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;x=G=(a>>>7^a>>>18^a>>>3^a<<25^a<<14)+(v>>>17^v>>>19^v>>>10^v<<15^v<<13)+x+q|0;G=G+F+(C>>>6^C>>>11^C>>>25^C<<26^C<<21^C<<7)+(E^C&(D^E))+0xc67178f2|0;F=E;E=D;D=C;C=B+G|0;B=A;A=z;z=y;y=G+(z&A^B&(z^A))+(z>>>2^z>>>13^z>>>22^z<<30^z<<19^z<<10)|0;d=d+y|0;e=e+z|0;f=f+A|0;g=g+B|0;h=h+C|0;i=i+D|0;j=j+E|0;k=k+F|0}function F(a){a=a|0;E(D[a|0]<<24|D[a|1]<<16|D[a|2]<<8|D[a|3],D[a|4]<<24|D[a|5]<<16|D[a|6]<<8|D[a|7],D[a|8]<<24|D[a|9]<<16|D[a|10]<<8|D[a|11],D[a|12]<<24|D[a|13]<<16|D[a|14]<<8|D[a|15],D[a|16]<<24|D[a|17]<<16|D[a|18]<<8|D[a|19],D[a|20]<<24|D[a|21]<<16|D[a|22]<<8|D[a|23],D[a|24]<<24|D[a|25]<<16|D[a|26]<<8|D[a|27],D[a|28]<<24|D[a|29]<<16|D[a|30]<<8|D[a|31],D[a|32]<<24|D[a|33]<<16|D[a|34]<<8|D[a|35],D[a|36]<<24|D[a|37]<<16|D[a|38]<<8|D[a|39],D[a|40]<<24|D[a|41]<<16|D[a|42]<<8|D[a|43],D[a|44]<<24|D[a|45]<<16|D[a|46]<<8|D[a|47],D[a|48]<<24|D[a|49]<<16|D[a|50]<<8|D[a|51],D[a|52]<<24|D[a|53]<<16|D[a|54]<<8|D[a|55],D[a|56]<<24|D[a|57]<<16|D[a|58]<<8|D[a|59],D[a|60]<<24|D[a|61]<<16|D[a|62]<<8|D[a|63])}function G(a){a=a|0;D[a|0]=d>>>24;D[a|1]=d>>>16&255;D[a|2]=d>>>8&255;D[a|3]=d&255;D[a|4]=e>>>24;D[a|5]=e>>>16&255;D[a|6]=e>>>8&255;D[a|7]=e&255;D[a|8]=f>>>24;D[a|9]=f>>>16&255;D[a|10]=f>>>8&255;D[a|11]=f&255;D[a|12]=g>>>24;D[a|13]=g>>>16&255;D[a|14]=g>>>8&255;D[a|15]=g&255;D[a|16]=h>>>24;D[a|17]=h>>>16&255;D[a|18]=h>>>8&255;D[a|19]=h&255;D[a|20]=i>>>24;D[a|21]=i>>>16&255;D[a|22]=i>>>8&255;D[a|23]=i&255;D[a|24]=j>>>24;D[a|25]=j>>>16&255;D[a|26]=j>>>8&255;D[a|27]=j&255;D[a|28]=k>>>24;D[a|29]=k>>>16&255;D[a|30]=k>>>8&255;D[a|31]=k&255}function H(){d=0x6a09e667;e=0xbb67ae85;f=0x3c6ef372;g=0xa54ff53a;h=0x510e527f;i=0x9b05688c;j=0x1f83d9ab;k=0x5be0cd19;l=m=0}function I(a,b,c,n,o,p,q,r,s,t){a=a|0;b=b|0;c=c|0;n=n|0;o=o|0;p=p|0;q=q|0;r=r|0;s=s|0;t=t|0;d=a;e=b;f=c;g=n;h=o;i=p;j=q;k=r;l=s;m=t}function J(a,b){a=a|0;b=b|0;var c=0;if(a&63)return-1;while((b|0)>=64){F(a);a=a+64|0;b=b-64|0;c=c+64|0}l=l+c|0;if(l>>>0<c>>>0)m=m+1|0;return c|0}function K(a,b,c){a=a|0;b=b|0;c=c|0;var d=0,e=0;if(a&63)return-1;if(~c)if(c&31)return-1;if((b|0)>=64){d=J(a,b)|0;if((d|0)==-1)return-1;a=a+d|0;b=b-d|0}d=d+b|0;l=l+b|0;if(l>>>0<b>>>0)m=m+1|0;D[a|b]=0x80;if((b|0)>=56){for(e=b+1|0;(e|0)<64;e=e+1|0)D[a|e]=0x00;F(a);b=0;D[a|0]=0}for(e=b+1|0;(e|0)<59;e=e+1|0)D[a|e]=0;D[a|56]=m>>>21&255;D[a|57]=m>>>13&255;D[a|58]=m>>>5&255;D[a|59]=m<<3&255|l>>>29;D[a|60]=l>>>21&255;D[a|61]=l>>>13&255;D[a|62]=l>>>5&255;D[a|63]=l<<3&255;F(a);if(~c)G(c);return d|0}function L(){d=n;e=o;f=p;g=q;h=r;i=s;j=t;k=u;l=64;m=0}function M(){d=v;e=w;f=x;g=y;h=z;i=A;j=B;k=C;l=64;m=0}function N(a,b,c,D,F,G,I,J,K,L,M,N,O,P,Q,R){a=a|0;b=b|0;c=c|0;D=D|0;F=F|0;G=G|0;I=I|0;J=J|0;K=K|0;L=L|0;M=M|0;N=N|0;O=O|0;P=P|0;Q=Q|0;R=R|0;H();E(a^0x5c5c5c5c,b^0x5c5c5c5c,c^0x5c5c5c5c,D^0x5c5c5c5c,F^0x5c5c5c5c,G^0x5c5c5c5c,I^0x5c5c5c5c,J^0x5c5c5c5c,K^0x5c5c5c5c,L^0x5c5c5c5c,M^0x5c5c5c5c,N^0x5c5c5c5c,O^0x5c5c5c5c,P^0x5c5c5c5c,Q^0x5c5c5c5c,R^0x5c5c5c5c);v=d;w=e;x=f;y=g;z=h;A=i;B=j;C=k;H();E(a^0x36363636,b^0x36363636,c^0x36363636,D^0x36363636,F^0x36363636,G^0x36363636,I^0x36363636,J^0x36363636,K^0x36363636,L^0x36363636,M^0x36363636,N^0x36363636,O^0x36363636,P^0x36363636,Q^0x36363636,R^0x36363636);n=d;o=e;p=f;q=g;r=h;s=i;t=j;u=k;l=64;m=0}function O(a,b,c){a=a|0;b=b|0;c=c|0;var l=0,m=0,n=0,o=0,p=0,q=0,r=0,s=0,t=0;if(a&63)return-1;if(~c)if(c&31)return-1;t=K(a,b,-1)|0;l=d,m=e,n=f,o=g,p=h,q=i,r=j,s=k;M();E(l,m,n,o,p,q,r,s,0x80000000,0,0,0,0,0,0,768);if(~c)G(c);return t|0}function P(a,b,c,l,m){a=a|0;b=b|0;c=c|0;l=l|0;m=m|0;var n=0,o=0,p=0,q=0,r=0,s=0,t=0,u=0,v=0,w=0,x=0,y=0,z=0,A=0,B=0,C=0;if(a&63)return-1;if(~m)if(m&31)return-1;D[a+b|0]=c>>>24;D[a+b+1|0]=c>>>16&255;D[a+b+2|0]=c>>>8&255;D[a+b+3|0]=c&255;O(a,b+4|0,-1)|0;n=v=d,o=w=e,p=x=f,q=y=g,r=z=h,s=A=i,t=B=j,u=C=k;l=l-1|0;while((l|0)>0){L();E(v,w,x,y,z,A,B,C,0x80000000,0,0,0,0,0,0,768);v=d,w=e,x=f,y=g,z=h,A=i,B=j,C=k;M();E(v,w,x,y,z,A,B,C,0x80000000,0,0,0,0,0,0,768);v=d,w=e,x=f,y=g,z=h,A=i,B=j,C=k;n=n^d;o=o^e;p=p^f;q=q^g;r=r^h;s=s^i;t=t^j;u=u^k;l=l-1|0}d=n;e=o;f=p;g=q;h=r;i=s;j=t;
 k=u;if(~m)G(m);return 0}return{reset:H,init:I,process:J,finish:K,hmac_reset:L,hmac_init:N,hmac_finish:O,pbkdf2_generate_block:P}}function $(a){a=a||{},this.heap=p(Uint8Array,a),this.asm=a.asm||Z(d,null,this.heap.buffer),this.BLOCK_SIZE=pa,this.HASH_SIZE=qa,this.reset()}function _(){return null===sa&&(sa=new $({heapSize:1048576})),sa}function aa(a){if(void 0===a)throw new SyntaxError("data required");return _().reset().process(a).finish().result}function ba(a){var b=aa(a);return j(b)}function ca(a){var b=aa(a);return k(b)}e.prototype=Object.create(Error.prototype,{name:{value:"IllegalStateError"}}),f.prototype=Object.create(Error.prototype,{name:{value:"IllegalArgumentError"}}),g.prototype=Object.create(Error.prototype,{name:{value:"SecurityError"}});d.Float64Array||d.Float32Array;d.IllegalStateError=e,d.IllegalArgumentError=f,d.SecurityError=g;var da=function(){"use strict";function a(){e=[],f=[];var a,b,c=1;for(a=0;255>a;a++)e[a]=c,b=128&c,c<<=1,c&=255,128===b&&(c^=27),c^=e[a],f[e[a]]=a;e[255]=e[0],f[0]=0,k=!0}function b(a,b){var c=e[(f[a]+f[b])%255];return(0===a||0===b)&&(c=0),c}function c(a){var b=e[255-f[a]];return 0===a&&(b=0),b}function d(){function d(a){var b,d,e;for(d=e=c(a),b=0;4>b;b++)d=255&(d<<1|d>>>7),e^=d;return e^=99}k||a(),g=[],h=[],i=[[],[],[],[]],j=[[],[],[],[]];for(var e=0;256>e;e++){var f=d(e);g[e]=f,h[f]=e,i[0][e]=b(2,f)<<24|f<<16|f<<8|b(3,f),j[0][f]=b(14,e)<<24|b(9,e)<<16|b(13,e)<<8|b(11,e);for(var l=1;4>l;l++)i[l][e]=i[l-1][e]>>>8|i[l-1][e]<<24,j[l][f]=j[l-1][f]>>>8|j[l-1][f]<<24}}var e,f,g,h,i,j,k=!1,l=!1,m=function(a,b,c){function e(a,b,c,d,e,h,i,k,l){var n=f.subarray(0,60),o=f.subarray(256,316);n.set([b,c,d,e,h,i,k,l]);for(var p=a,q=1;4*a+28>p;p++){var r=n[p-1];(p%a===0||8===a&&p%a===4)&&(r=g[r>>>24]<<24^g[r>>>16&255]<<16^g[r>>>8&255]<<8^g[255&r]),p%a===0&&(r=r<<8^r>>>24^q<<24,q=q<<1^(128&q?27:0)),n[p]=n[p-a]^r}for(var s=0;p>s;s+=4)for(var t=0;4>t;t++){var r=n[p-(4+s)+(4-t)%4];4>s||s>=p-4?o[s+t]=r:o[s+t]=j[0][g[r>>>24]]^j[1][g[r>>>16&255]]^j[2][g[r>>>8&255]]^j[3][g[255&r]]}m.set_rounds(a+5)}l||d();var f=new Uint32Array(c);f.set(g,512),f.set(h,768);for(var k=0;4>k;k++)f.set(i[k],4096+1024*k>>2),f.set(j[k],8192+1024*k>>2);var m=function(a,b,c){"use asm";var d=0,e=0,f=0,g=0,h=0,i=0,j=0,k=0,l=0,m=0,n=0,o=0,p=0,q=0,r=0,s=0,t=0,u=0,v=0,w=0,x=0;var y=new a.Uint32Array(c),z=new a.Uint8Array(c);function A(a,b,c,h,i,j,k,l){a=a|0;b=b|0;c=c|0;h=h|0;i=i|0;j=j|0;k=k|0;l=l|0;var m=0,n=0,o=0,p=0,q=0,r=0,s=0,t=0;m=c|0x400,n=c|0x800,o=c|0xc00;i=i^y[(a|0)>>2],j=j^y[(a|4)>>2],k=k^y[(a|8)>>2],l=l^y[(a|12)>>2];for(t=16;(t|0)<=h<<4;t=t+16|0){p=y[(c|i>>22&1020)>>2]^y[(m|j>>14&1020)>>2]^y[(n|k>>6&1020)>>2]^y[(o|l<<2&1020)>>2]^y[(a|t|0)>>2],q=y[(c|j>>22&1020)>>2]^y[(m|k>>14&1020)>>2]^y[(n|l>>6&1020)>>2]^y[(o|i<<2&1020)>>2]^y[(a|t|4)>>2],r=y[(c|k>>22&1020)>>2]^y[(m|l>>14&1020)>>2]^y[(n|i>>6&1020)>>2]^y[(o|j<<2&1020)>>2]^y[(a|t|8)>>2],s=y[(c|l>>22&1020)>>2]^y[(m|i>>14&1020)>>2]^y[(n|j>>6&1020)>>2]^y[(o|k<<2&1020)>>2]^y[(a|t|12)>>2];i=p,j=q,k=r,l=s}d=y[(b|i>>22&1020)>>2]<<24^y[(b|j>>14&1020)>>2]<<16^y[(b|k>>6&1020)>>2]<<8^y[(b|l<<2&1020)>>2]^y[(a|t|0)>>2],e=y[(b|j>>22&1020)>>2]<<24^y[(b|k>>14&1020)>>2]<<16^y[(b|l>>6&1020)>>2]<<8^y[(b|i<<2&1020)>>2]^y[(a|t|4)>>2],f=y[(b|k>>22&1020)>>2]<<24^y[(b|l>>14&1020)>>2]<<16^y[(b|i>>6&1020)>>2]<<8^y[(b|j<<2&1020)>>2]^y[(a|t|8)>>2],g=y[(b|l>>22&1020)>>2]<<24^y[(b|i>>14&1020)>>2]<<16^y[(b|j>>6&1020)>>2]<<8^y[(b|k<<2&1020)>>2]^y[(a|t|12)>>2]}function B(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;A(0x0000,0x0800,0x1000,x,a,b,c,d)}function C(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;var f=0;A(0x0400,0x0c00,0x2000,x,a,d,c,b);f=e,e=g,g=f}function D(a,b,c,l){a=a|0;b=b|0;c=c|0;l=l|0;A(0x0000,0x0800,0x1000,x,h^a,i^b,j^c,k^l);h=d,i=e,j=f,k=g}function E(a,b,c,l){a=a|0;b=b|0;c=c|0;l=l|0;var m=0;A(0x0400,0x0c00,0x2000,x,a,l,c,b);m=e,e=g,g=m;d=d^h,e=e^i,f=f^j,g=g^k;h=a,i=b,j=c,k=l}function F(a,b,c,l){a=a|0;b=b|0;c=c|0;l=l|0;A(0x0000,0x0800,0x1000,x,h,i,j,k);h=d=d^a,i=e=e^b,j=f=f^c,k=g=g^l}function G(a,b,c,l){a=a|0;b=b|0;c=c|0;l=l|0;A(0x0000,0x0800,0x1000,x,h,i,j,k);d=d^a,e=e^b,f=f^c,g=g^l;h=a,i=b,j=c,k=l}function H(a,b,c,l){a=a|0;b=b|0;c=c|0;l=l|0;A(0x0000,0x0800,0x1000,x,h,i,j,k);h=d,i=e,j=f,k=g;d=d^a,e=e^b,f=f^c,g=g^l}function I(a,b,c,h){a=a|0;b=b|0;c=c|0;h=h|0;A(0x0000,0x0800,0x1000,x,l,m,n,o);o=~s&o|s&o+1,n=~r&n|r&n+((o|0)==0),m=~q&m|q&m+((n|0)==0),l=~p&l|p&l+((m|0)==0);d=d^a,e=e^b,f=f^c,g=g^h}function J(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;var e=0,f=0,g=0,l=0,m=0,n=0,o=0,p=0,q=0,r=0;a=a^h,b=b^i,c=c^j,d=d^k;e=t|0,f=u|0,g=v|0,l=w|0;for(;(q|0)<128;q=q+1|0){if(e>>>31){m=m^a,n=n^b,o=o^c,p=p^d}e=e<<1|f>>>31,f=f<<1|g>>>31,g=g<<1|l>>>31,l=l<<1;r=d&1;d=d>>>1|c<<31,c=c>>>1|b<<31,b=b>>>1|a<<31,a=a>>>1;if(r)a=a^0xe1000000}h=m,i=n,j=o,k=p}function K(a){a=a|0;x=a}function L(a,b,c,h){a=a|0;b=b|0;c=c|0;h=h|0;d=a,e=b,f=c,g=h}function M(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;h=a,i=b,j=c,k=d}function N(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;l=a,m=b,n=c,o=d}function O(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;p=a,q=b,r=c,s=d}function P(a,b,c,d){a=a|0;b=b|0;c=c|0;d=d|0;o=~s&o|s&d,n=~r&n|r&c,m=~q&m|q&b,l=~p&l|p&a}function Q(a){a=a|0;if(a&15)return-1;z[a|0]=d>>>24,z[a|1]=d>>>16&255,z[a|2]=d>>>8&255,z[a|3]=d&255,z[a|4]=e>>>24,z[a|5]=e>>>16&255,z[a|6]=e>>>8&255,z[a|7]=e&255,z[a|8]=f>>>24,z[a|9]=f>>>16&255,z[a|10]=f>>>8&255,z[a|11]=f&255,z[a|12]=g>>>24,z[a|13]=g>>>16&255,z[a|14]=g>>>8&255,z[a|15]=g&255;return 16}function R(a){a=a|0;if(a&15)return-1;z[a|0]=h>>>24,z[a|1]=h>>>16&255,z[a|2]=h>>>8&255,z[a|3]=h&255,z[a|4]=i>>>24,z[a|5]=i>>>16&255,z[a|6]=i>>>8&255,z[a|7]=i&255,z[a|8]=j>>>24,z[a|9]=j>>>16&255,z[a|10]=j>>>8&255,z[a|11]=j&255,z[a|12]=k>>>24,z[a|13]=k>>>16&255,z[a|14]=k>>>8&255,z[a|15]=k&255;return 16}function S(){B(0,0,0,0);t=d,u=e,v=f,w=g}function T(a,b,c){a=a|0;b=b|0;c=c|0;var h=0;if(b&15)return-1;while((c|0)>=16){V[a&7](z[b|0]<<24|z[b|1]<<16|z[b|2]<<8|z[b|3],z[b|4]<<24|z[b|5]<<16|z[b|6]<<8|z[b|7],z[b|8]<<24|z[b|9]<<16|z[b|10]<<8|z[b|11],z[b|12]<<24|z[b|13]<<16|z[b|14]<<8|z[b|15]);z[b|0]=d>>>24,z[b|1]=d>>>16&255,z[b|2]=d>>>8&255,z[b|3]=d&255,z[b|4]=e>>>24,z[b|5]=e>>>16&255,z[b|6]=e>>>8&255,z[b|7]=e&255,z[b|8]=f>>>24,z[b|9]=f>>>16&255,z[b|10]=f>>>8&255,z[b|11]=f&255,z[b|12]=g>>>24,z[b|13]=g>>>16&255,z[b|14]=g>>>8&255,z[b|15]=g&255;h=h+16|0,b=b+16|0,c=c-16|0}return h|0}function U(a,b,c){a=a|0;b=b|0;c=c|0;var d=0;if(b&15)return-1;while((c|0)>=16){W[a&1](z[b|0]<<24|z[b|1]<<16|z[b|2]<<8|z[b|3],z[b|4]<<24|z[b|5]<<16|z[b|6]<<8|z[b|7],z[b|8]<<24|z[b|9]<<16|z[b|10]<<8|z[b|11],z[b|12]<<24|z[b|13]<<16|z[b|14]<<8|z[b|15]);d=d+16|0,b=b+16|0,c=c-16|0}return d|0}var V=[B,C,D,E,F,G,H,I];var W=[D,J];return{set_rounds:K,set_state:L,set_iv:M,set_nonce:N,set_mask:O,set_counter:P,get_state:Q,get_iv:R,gcm_init:S,cipher:T,mac:U}}(a,b,c);return m.set_key=e,m};return m.ENC={ECB:0,CBC:2,CFB:4,OFB:6,CTR:7},m.DEC={ECB:1,CBC:3,CFB:5,OFB:6,CTR:7},m.MAC={CBC:0,GCM:1},m.HEAP_DATA=16384,m}(),ea=A.prototype;ea.BLOCK_SIZE=16,ea.reset=v,ea.encrypt=x,ea.decrypt=z;var fa=B.prototype;fa.BLOCK_SIZE=16,fa.reset=v,fa.process=w,fa.finish=x;var ga=C.prototype;ga.BLOCK_SIZE=16,ga.reset=v,ga.process=y,ga.finish=z;var ha=D.prototype;ha.BLOCK_SIZE=16,ha.reset=G,ha.encrypt=x,ha.decrypt=x;var ia=E.prototype;ia.BLOCK_SIZE=16,ia.reset=G,ia.process=w,ia.finish=x;var ja=68719476704,ka=I.prototype;ka.BLOCK_SIZE=16,ka.reset=L,ka.encrypt=O,ka.decrypt=R;var la=J.prototype;la.BLOCK_SIZE=16,la.reset=L,la.process=M,la.finish=N;var ma=K.prototype;ma.BLOCK_SIZE=16,ma.reset=L,ma.process=P,ma.finish=Q;var na=new Uint8Array(1048576),oa=da(d,null,na.buffer);b.AES_CFB=A,b.AES_CFB.encrypt=S,b.AES_CFB.decrypt=T,b.AES_CFB.Encrypt=B,b.AES_CFB.Decrypt=C,b.AES_GCM=I,b.AES_GCM.encrypt=U,b.AES_GCM.decrypt=V,b.AES_GCM.Encrypt=J,b.AES_GCM.Decrypt=K;var pa=64,qa=32;$.BLOCK_SIZE=pa,$.HASH_SIZE=qa;var ra=$.prototype;ra.reset=W,ra.process=X,ra.finish=Y;var sa=null;return $.bytes=aa,$.hex=ba,$.base64=ca,b.SHA256=$,"function"==typeof a&&a.amd?a([],function(){return b}):"object"==typeof c&&c.exports?c.exports=b:d.asmCrypto=b,b}({},function(){return this}())},{}],2:[function(b,c,d){(function(d,e){(function(){"use strict";function f(a){return"function"==typeof a||"object"==typeof a&&null!==a}function g(a){return"function"==typeof a}function h(a){U=a}function i(a){Y=a}function j(){return function(){d.nextTick(o)}}function k(){return function(){T(o)}}function l(){var a=0,b=new _(o),c=document.createTextNode("");return b.observe(c,{characterData:!0}),function(){c.data=a=++a%2}}function m(){var a=new MessageChannel;return a.port1.onmessage=o,function(){a.port2.postMessage(0)}}function n(){return function(){setTimeout(o,1)}}function o(){for(var a=0;X>a;a+=2){var b=ca[a],c=ca[a+1];b(c),ca[a]=void 0,ca[a+1]=void 0}X=0}function p(){try{var a=b,c=a("vertx");return T=c.runOnLoop||c.runOnContext,k()}catch(d){return n()}}function q(a,b){var c=this,d=c._state;if(d===ga&&!a||d===ha&&!b)return this;var e=new this.constructor(s),f=c._result;if(d){var g=arguments[d-1];Y(function(){I(d,e,g,f)})}else E(c,e,a,b);return e}function r(a){var b=this;if(a&&"object"==typeof a&&a.constructor===b)return a;var c=new b(s);return A(c,a),c}function s(){}function t(){return new TypeError("You cannot resolve a promise with itself")}function u(){return new TypeError("A promises callback cannot return that same promise.")}function v(a){try{return a.then}catch(b){return ia.error=b,ia}}function w(a,b,c,d){try{a.call(b,c,d)}catch(e){return e}}function x(a,b,c){Y(function(a){var d=!1,e=w(c,b,function(c){d||(d=!0,b!==c?A(a,c):C(a,c))},function(b){d||(d=!0,D(a,b))},"Settle: "+(a._label||" unknown promise"));!d&&e&&(d=!0,D(a,e))},a)}function y(a,b){b._state===ga?C(a,b._result):b._state===ha?D(a,b._result):E(b,void 0,function(b){A(a,b)},function(b){D(a,b)})}function z(a,b,c){b.constructor===a.constructor&&c===da&&constructor.resolve===ea?y(a,b):c===ia?D(a,ia.error):void 0===c?C(a,b):g(c)?x(a,b,c):C(a,b)}function A(a,b){a===b?D(a,t()):f(b)?z(a,b,v(b)):C(a,b)}function B(a){a._onerror&&a._onerror(a._result),F(a)}function C(a,b){a._state===fa&&(a._result=b,a._state=ga,0!==a._subscribers.length&&Y(F,a))}function D(a,b){a._state===fa&&(a._state=ha,a._result=b,Y(B,a))}function E(a,b,c,d){var e=a._subscribers,f=e.length;a._onerror=null,e[f]=b,e[f+ga]=c,e[f+ha]=d,0===f&&a._state&&Y(F,a)}function F(a){var b=a._subscribers,c=a._state;if(0!==b.length){for(var d,e,f=a._result,g=0;g<b.length;g+=3)d=b[g],e=b[g+c],d?I(c,d,e,f):e(f);a._subscribers.length=0}}function G(){this.error=null}function H(a,b){try{return a(b)}catch(c){return ja.error=c,ja}}function I(a,b,c,d){var e,f,h,i,j=g(c);if(j){if(e=H(c,d),e===ja?(i=!0,f=e.error,e=null):h=!0,b===e)return void D(b,u())}else e=d,h=!0;b._state!==fa||(j&&h?A(b,e):i?D(b,f):a===ga?C(b,e):a===ha&&D(b,e))}function J(a,b){try{b(function(b){A(a,b)},function(b){D(a,b)})}catch(c){D(a,c)}}function K(a){return new pa(this,a).promise}function L(a){function b(a){A(e,a)}function c(a){D(e,a)}var d=this,e=new d(s);if(!W(a))return D(e,new TypeError("You must pass an array to race.")),e;for(var f=a.length,g=0;e._state===fa&&f>g;g++)E(d.resolve(a[g]),void 0,b,c);return e}function M(a){var b=this,c=new b(s);return D(c,a),c}function N(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function O(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function P(a){this._id=na++,this._state=void 0,this._result=void 0,this._subscribers=[],s!==a&&("function"!=typeof a&&N(),this instanceof P?J(this,a):O())}function Q(a,b){this._instanceConstructor=a,this.promise=new a(s),Array.isArray(b)?(this._input=b,this.length=b.length,this._remaining=b.length,this._result=new Array(this.length),0===this.length?C(this.promise,this._result):(this.length=this.length||0,this._enumerate(),0===this._remaining&&C(this.promise,this._result))):D(this.promise,this._validationError())}function R(){var a;if("undefined"!=typeof e)a=e;else if("undefined"!=typeof self)a=self;else try{a=Function("return this")()}catch(b){throw new Error("polyfill failed because global object is unavailable in this environment")}var c=a.Promise;(!c||"[object Promise]"!==Object.prototype.toString.call(c.resolve())||c.cast)&&(a.Promise=oa)}var S;S=Array.isArray?Array.isArray:function(a){return"[object Array]"===Object.prototype.toString.call(a)};var T,U,V,W=S,X=0,Y=function(a,b){ca[X]=a,ca[X+1]=b,X+=2,2===X&&(U?U(o):V())},Z="undefined"!=typeof window?window:void 0,$=Z||{},_=$.MutationObserver||$.WebKitMutationObserver,aa="undefined"!=typeof d&&"[object process]"==={}.toString.call(d),ba="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,ca=new Array(1e3);V=aa?j():_?l():ba?m():void 0===Z&&"function"==typeof b?p():n();var da=q,ea=r,fa=void 0,ga=1,ha=2,ia=new G,ja=new G,ka=K,la=L,ma=M,na=0,oa=P;P.all=ka,P.race=la,P.resolve=ea,P.reject=ma,P._setScheduler=h,P._setAsap=i,P._asap=Y,P.prototype={constructor:P,then:da,"catch":function(a){return this.then(null,a)}};var pa=Q;Q.prototype._validationError=function(){return new Error("Array Methods must be provided an Array")},Q.prototype._enumerate=function(){for(var a=this.length,b=this._input,c=0;this._state===fa&&a>c;c++)this._eachEntry(b[c],c)},Q.prototype._eachEntry=function(a,b){var c=this._instanceConstructor,d=c.resolve;if(d===ea){var e=v(a);if(e===da&&a._state!==fa)this._settledAt(a._state,b,a._result);else if("function"!=typeof e)this._remaining--,this._result[b]=a;else if(c===oa){var f=new c(s);z(f,a,e),this._willSettleAt(f,b)}else this._willSettleAt(new c(function(b){b(a)}),b)}else this._willSettleAt(d(a),b)},Q.prototype._settledAt=function(a,b,c){var d=this.promise;d._state===fa&&(this._remaining--,a===ha?D(d,c):this._result[b]=c),0===this._remaining&&C(d,this._result)},Q.prototype._willSettleAt=function(a,b){var c=this;E(a,void 0,function(a){c._settledAt(ga,b,a)},function(a){c._settledAt(ha,b,a)})};var qa=R,ra={Promise:oa,polyfill:qa};"function"==typeof a&&a.amd?a(function(){return ra}):"undefined"!=typeof c&&c.exports?c.exports=ra:"undefined"!=typeof this&&(this.ES6Promise=ra),qa()}).call(this)}).call(this,b("_process"),"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{_process:3}],3:[function(a,b,c){function d(){k=!1,h.length?j=h.concat(j):l=-1,j.length&&e()}function e(){if(!k){var a=setTimeout(d);k=!0;for(var b=j.length;b;){for(h=j,j=[];++l<b;)h&&h[l].run();l=-1,b=j.length}h=null,k=!1,clearTimeout(a)}}function f(a,b){this.fun=a,this.array=b}function g(){}var h,i=b.exports={},j=[],k=!1,l=-1;i.nextTick=function(a){var b=new Array(arguments.length-1);if(arguments.length>1)for(var c=1;c<arguments.length;c++)b[c-1]=arguments[c];j.push(new f(a,b)),1!==j.length||k||setTimeout(e,0)},f.prototype.run=function(){this.fun.apply(null,this.array)},i.title="browser",i.browser=!0,i.env={},i.argv=[],i.version="",i.versions={},i.on=g,i.addListener=g,i.once=g,i.off=g,i.removeListener=g,i.removeAllListeners=g,i.emit=g,i.binding=function(a){throw new Error("process.binding is not supported")},i.cwd=function(){return"/"},i.chdir=function(a){throw new Error("process.chdir is not supported")},i.umask=function(){return 0}},{}],4:[function(a,b,c){(function(a){!function(){function c(a){"use strict";var b={fill:0},f=function(a){for(a+=9;a%64>0;a+=1);return a},g=function(a,b){for(var c=b>>2;c<a.length;c++)a[c]=0},h=function(a,b,c){a[b>>2]|=128<<24-(b%4<<3),a[((b>>2)+2&-16)+14]=c>>29,a[((b>>2)+2&-16)+15]=c<<3},i=function(a,b,c,d,e){var f,g=this,h=e%4,i=d%4,j=d-i;if(j>0)switch(h){case 0:a[e+3|0]=g.charCodeAt(c);case 1:a[e+2|0]=g.charCodeAt(c+1);case 2:a[e+1|0]=g.charCodeAt(c+2);case 3:a[0|e]=g.charCodeAt(c+3)}for(f=h;j>f;f=f+4|0)b[e+f>>2]=g.charCodeAt(c+f)<<24|g.charCodeAt(c+f+1)<<16|g.charCodeAt(c+f+2)<<8|g.charCodeAt(c+f+3);switch(i){case 3:a[e+j+1|0]=g.charCodeAt(c+j+2);case 2:a[e+j+2|0]=g.charCodeAt(c+j+1);case 1:a[e+j+3|0]=g.charCodeAt(c+j)}},j=function(a,b,c,d,e){var f,g=this,h=e%4,i=d%4,j=d-i;if(j>0)switch(h){case 0:a[e+3|0]=g[c];case 1:a[e+2|0]=g[c+1];case 2:a[e+1|0]=g[c+2];case 3:a[0|e]=g[c+3]}for(f=4-h;j>f;f=f+=4)b[e+f>>2]=g[c+f]<<24|g[c+f+1]<<16|g[c+f+2]<<8|g[c+f+3];switch(i){case 3:a[e+j+1|0]=g[c+j+2];case 2:a[e+j+2|0]=g[c+j+1];case 1:a[e+j+3|0]=g[c+j]}},k=function(a,b,c,d,f){var g,h=this,i=f%4,j=d%4,k=d-j,l=new Uint8Array(e.readAsArrayBuffer(h.slice(c,c+d)));if(k>0)switch(i){case 0:a[f+3|0]=l[0];case 1:a[f+2|0]=l[1];case 2:a[f+1|0]=l[2];case 3:a[0|f]=l[3]}for(g=4-i;k>g;g=g+=4)b[f+g>>2]=l[g]<<24|l[g+1]<<16|l[g+2]<<8|l[g+3];switch(j){case 3:a[f+k+1|0]=l[k+2];case 2:a[f+k+2|0]=l[k+1];case 1:a[f+k+3|0]=l[k]}},l=function(a){switch(d.getDataType(a)){case"string":return i.bind(a);case"array":return j.bind(a);case"buffer":return j.bind(a);case"arraybuffer":return j.bind(new Uint8Array(a));case"view":return j.bind(new Uint8Array(a.buffer,a.byteOffset,a.byteLength));case"blob":return k.bind(a)}},m=function(a){var b,c,d="0123456789abcdef",e=[],f=new Uint8Array(a);for(b=0;b<f.length;b++)c=f[b],e[b]=d.charAt(c>>4&15)+d.charAt(c>>0&15);return e.join("")},n=function(a){var b;if(65536>=a)return 65536;if(16777216>a)for(b=1;a>b;b<<=1);else for(b=16777216;a>b;b+=16777216);return b},o=function(a){if(a%64>0)throw new Error("Chunk size must be a multiple of 128 bit");b.maxChunkLen=a,b.padMaxChunkLen=f(a),b.heap=new ArrayBuffer(n(b.padMaxChunkLen+320+20)),b.h32=new Int32Array(b.heap),b.h8=new Int8Array(b.heap),b.core=new c._core({Int32Array:Int32Array,DataView:DataView},{},b.heap),b.buffer=null};o(a||65536);var p=function(a,b){var c=new Int32Array(a,b+320,5);c[0]=1732584193,c[1]=-271733879,c[2]=-1732584194,c[3]=271733878,c[4]=-1009589776},q=function(a,c){var d=f(a),e=new Int32Array(b.heap,0,d>>2);return g(e,a),h(e,a,c),d},r=function(a,c,d){l(a)(b.h8,b.h32,c,d,0)},s=function(a,c,d,e,f){var g=d;f&&(g=q(d,e)),r(a,c,d),b.core.hash(g,b.padMaxChunkLen)},t=function(a,b){var c=new Int32Array(a,b+320,5),d=new Int32Array(5),e=new DataView(d.buffer);return e.setInt32(0,c[0],!1),e.setInt32(4,c[1],!1),e.setInt32(8,c[2],!1),e.setInt32(12,c[3],!1),e.setInt32(16,c[4],!1),d},u=this.rawDigest=function(a){var c=a.byteLength||a.length||a.size||0;p(b.heap,b.padMaxChunkLen);var d=0,e=b.maxChunkLen;for(d=0;c>d+e;d+=e)s(a,d,e,c,!1);return s(a,d,c-d,c,!0),t(b.heap,b.padMaxChunkLen)};this.digest=this.digestFromString=this.digestFromBuffer=this.digestFromArrayBuffer=function(a){return m(u(a).buffer)}}var d={getDataType:function(b){if("string"==typeof b)return"string";if(b instanceof Array)return"array";if("undefined"!=typeof a&&a.Buffer&&a.Buffer.isBuffer(b))return"buffer";if(b instanceof ArrayBuffer)return"arraybuffer";if(b.buffer instanceof ArrayBuffer)return"view";if(b instanceof Blob)return"blob";throw new Error("Unsupported data type.")}};if(c._core=function g(a,b,c){"use asm";var d=new a.Int32Array(c);function e(a,b){a=a|0;b=b|0;var c=0,e=0,f=0,g=0,h=0,i=0,j=0,k=0,l=0,m=0,n=0,o=0,p=0,q=0;f=d[b+320>>2]|0;h=d[b+324>>2]|0;j=d[b+328>>2]|0;l=d[b+332>>2]|0;n=d[b+336>>2]|0;for(c=0;(c|0)<(a|0);c=c+64|0){g=f;i=h;k=j;m=l;o=n;for(e=0;(e|0)<64;e=e+4|0){q=d[c+e>>2]|0;p=((f<<5|f>>>27)+(h&j|~h&l)|0)+((q+n|0)+1518500249|0)|0;n=l;l=j;j=h<<30|h>>>2;h=f;f=p;d[a+e>>2]=q}for(e=a+64|0;(e|0)<(a+80|0);e=e+4|0){q=(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])<<1|(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])>>>31;p=((f<<5|f>>>27)+(h&j|~h&l)|0)+((q+n|0)+1518500249|0)|0;n=l;l=j;j=h<<30|h>>>2;h=f;f=p;d[e>>2]=q}for(e=a+80|0;(e|0)<(a+160|0);e=e+4|0){q=(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])<<1|(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])>>>31;p=((f<<5|f>>>27)+(h^j^l)|0)+((q+n|0)+1859775393|0)|0;n=l;l=j;j=h<<30|h>>>2;h=f;f=p;d[e>>2]=q}for(e=a+160|0;(e|0)<(a+240|0);e=e+4|0){q=(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])<<1|(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])>>>31;p=((f<<5|f>>>27)+(h&j|h&l|j&l)|0)+((q+n|0)-1894007588|0)|0;n=l;l=j;j=h<<30|h>>>2;h=f;f=p;d[e>>2]=q}for(e=a+240|0;(e|0)<(a+320|0);e=e+4|0){q=(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])<<1|(d[e-12>>2]^d[e-32>>2]^d[e-56>>2]^d[e-64>>2])>>>31;p=((f<<5|f>>>27)+(h^j^l)|0)+((q+n|0)-899497514|0)|0;n=l;l=j;j=h<<30|h>>>2;h=f;f=p;d[e>>2]=q}f=f+g|0;h=h+i|0;j=j+k|0;l=l+m|0;n=n+o|0}d[b+320>>2]=f;d[b+324>>2]=h;d[b+328>>2]=j;d[b+332>>2]=l;d[b+336>>2]=n}return{hash:e}},"undefined"!=typeof b?b.exports=c:"undefined"!=typeof window&&(window.Rusha=c),"undefined"!=typeof FileReaderSync){var e=new FileReaderSync,f=new c(4194304);self.onmessage=function(a){var b,c=a.data.data;try{b=f.digest(c),self.postMessage({id:a.data.id,hash:b})}catch(d){self.postMessage({id:a.data.id,error:d.name})}}}}()}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{}],5:[function(a,b,c){"use strict";function d(a){return a&&a.__esModule?a:{"default":a}}function e(a,b){return this instanceof e?(this.text=a.replace(/\r/g,"").replace(/[\t ]+\n/g,"\n").replace(/\n/g,"\r\n"),void(this.packets=b||new k["default"].List)):new e(a,b)}function f(a){var b=o["default"].decode(a);if(b.type!==m["default"].armor.signed)throw new Error("No cleartext signed message.");var c=new k["default"].List;c.read(b.data),g(b.headers,c);var d=new e(b.text,c);return d}function g(a,b){var c=function(a){function c(a){return b[d].hashAlgorithm===a}for(var d=0;d<b.length;d++)if(b[d].tag===m["default"].packet.signature&&!a.some(c))return!1;return!0},d=null,e=[];if(a.forEach(function(a){if(d=a.match(/Hash: (.+)/),!d)throw new Error('Only "Hash" header allowed in cleartext signed message');d=d[1].replace(/\s/g,""),d=d.split(","),d=d.map(function(a){a=a.toLowerCase();try{return m["default"].write(m["default"].hash,a)}catch(b){throw new Error("Unknown hash algorithm in armor header: "+a)}}),e=e.concat(d)}),!e.length&&!c([m["default"].hash.md5]))throw new Error('If no "Hash" header in cleartext signed message, then only MD5 signatures allowed');if(!c(e))throw new Error("Hash algorithm mismatch in armor header and signature")}Object.defineProperty(c,"__esModule",{value:!0}),c.CleartextMessage=e,c.readArmored=f;var h=a("./config"),i=d(h),j=a("./packet"),k=d(j),l=a("./enums.js"),m=d(l),n=a("./encoding/armor.js"),o=d(n);e.prototype.getSigningKeyIds=function(){var a=[],b=this.packets.filterByTag(m["default"].packet.signature);return b.forEach(function(b){a.push(b.issuerKeyId)}),a},e.prototype.sign=function(a){var b=new k["default"].List,c=new k["default"].Literal;c.setText(this.text);for(var d=0;d<a.length;d++){if(a[d].isPublic())throw new Error("Need private key for signing");var e=new k["default"].Signature;e.signatureType=m["default"].signature.text,e.hashAlgorithm=i["default"].prefer_hash_algorithm;var f=a[d].getSigningKeyPacket();if(e.publicKeyAlgorithm=f.algorithm,!f.isDecrypted)throw new Error("Private key is not decrypted.");e.sign(f,c),b.push(e)}this.packets=b},e.prototype.verify=function(a){var b=[],c=this.packets.filterByTag(m["default"].packet.signature),d=new k["default"].Literal;d.setText(this.text);for(var e=0;e<c.length;e++){for(var f=null,g=0;g<a.length&&!(f=a[g].getSigningKeyPacket(c[e].issuerKeyId));g++);var h={};f?(h.keyid=c[e].issuerKeyId,h.valid=c[e].verify(f,d)):(h.keyid=c[e].issuerKeyId,h.valid=null),b.push(h)}return b},e.prototype.getText=function(){return this.text.replace(/\r\n/g,"\n")},e.prototype.armor=function(){var a={hash:m["default"].read(m["default"].hash,i["default"].prefer_hash_algorithm).toUpperCase(),text:this.text,data:this.packets.write()};return o["default"].encode(m["default"].armor.signed,a)}},{"./config":10,"./encoding/armor.js":33,"./enums.js":35,"./packet":47}],6:[function(a,b,c){(function(){"use strict";function a(a,b){var c=a.split("."),d=n;!(c[0]in d)&&d.execScript&&d.execScript("var "+c[0]);for(var e;c.length&&(e=c.shift());)c.length||b===l?d=d[e]?d[e]:d[e]={}:d[e]=b}function b(a,b){if(this.index="number"==typeof b?b:0,this.d=0,this.buffer=a instanceof(o?Uint8Array:Array)?a:new(o?Uint8Array:Array)(32768),2*this.buffer.length<=this.index)throw Error("invalid index");this.buffer.length<=this.index&&c(this)}function c(a){var b,c=a.buffer,d=c.length,e=new(o?Uint8Array:Array)(d<<1);if(o)e.set(c);else for(b=0;d>b;++b)e[b]=c[b];return a.buffer=e}function d(a){this.buffer=new(o?Uint16Array:Array)(2*a),this.length=0}function e(a,b){this.e=w,this.f=0,this.input=o&&a instanceof Array?new Uint8Array(a):a,this.c=0,b&&(b.lazy&&(this.f=b.lazy),"number"==typeof b.compressionType&&(this.e=b.compressionType),b.outputBuffer&&(this.b=o&&b.outputBuffer instanceof Array?new Uint8Array(b.outputBuffer):b.outputBuffer),"number"==typeof b.outputIndex&&(this.c=b.outputIndex)),this.b||(this.b=new(o?Uint8Array:Array)(32768))}function f(a,b){this.length=a,this.g=b}function g(a,b){function c(a,b){var c,d=a.g,e=[],f=0;c=z[a.length],e[f++]=65535&c,e[f++]=c>>16&255,e[f++]=c>>24;var g;switch(m){case 1===d:g=[0,d-1,0];break;case 2===d:g=[1,d-2,0];break;case 3===d:g=[2,d-3,0];break;case 4===d:g=[3,d-4,0];break;case 6>=d:g=[4,d-5,1];break;case 8>=d:g=[5,d-7,1];break;case 12>=d:g=[6,d-9,2];break;case 16>=d:g=[7,d-13,2];break;case 24>=d:g=[8,d-17,3];break;case 32>=d:g=[9,d-25,3];break;case 48>=d:g=[10,d-33,4];break;case 64>=d:g=[11,d-49,4];break;case 96>=d:g=[12,d-65,5];break;case 128>=d:g=[13,d-97,5];break;case 192>=d:g=[14,d-129,6];break;case 256>=d:g=[15,d-193,6];break;case 384>=d:g=[16,d-257,7];break;case 512>=d:g=[17,d-385,7];break;case 768>=d:g=[18,d-513,8];break;case 1024>=d:g=[19,d-769,8];break;case 1536>=d:g=[20,d-1025,9];break;case 2048>=d:g=[21,d-1537,9];break;case 3072>=d:g=[22,d-2049,10];break;case 4096>=d:g=[23,d-3073,10];break;case 6144>=d:g=[24,d-4097,11];break;case 8192>=d:g=[25,d-6145,11];break;case 12288>=d:g=[26,d-8193,12];break;case 16384>=d:g=[27,d-12289,12];break;case 24576>=d:g=[28,d-16385,13];break;case 32768>=d:g=[29,d-24577,13];break;default:throw"invalid distance"}c=g,e[f++]=c[0],e[f++]=c[1],e[f++]=c[2];var h,i;for(h=0,i=e.length;i>h;++h)r[s++]=e[h];u[e[0]]++,v[e[3]]++,t=a.length+b-1,n=null}var d,e,f,g,i,j,k,n,p,q={},r=o?new Uint16Array(2*b.length):[],s=0,t=0,u=new(o?Uint32Array:Array)(286),v=new(o?Uint32Array:Array)(30),w=a.f;if(!o){for(f=0;285>=f;)u[f++]=0;for(f=0;29>=f;)v[f++]=0}for(u[256]=1,d=0,e=b.length;e>d;++d){for(f=i=0,g=3;g>f&&d+f!==e;++f)i=i<<8|b[d+f];if(q[i]===l&&(q[i]=[]),j=q[i],!(0<t--)){for(;0<j.length&&32768<d-j[0];)j.shift();if(d+3>=e){for(n&&c(n,-1),f=0,g=e-d;g>f;++f)p=b[d+f],r[s++]=p,++u[p];break}0<j.length?(k=h(b,d,j),n?n.length<k.length?(p=b[d-1],r[s++]=p,++u[p],c(k,0)):c(n,-1):k.length<w?n=k:c(k,0)):n?c(n,-1):(p=b[d],r[s++]=p,++u[p])}j.push(d)}return r[s++]=256,u[256]++,a.j=u,a.i=v,o?r.subarray(0,s):r}function h(a,b,c){var d,e,g,h,i,j,k=0,l=a.length;h=0,j=c.length;a:for(;j>h;h++){if(d=c[j-h-1],g=3,k>3){for(i=k;i>3;i--)if(a[d+i-1]!==a[b+i-1])continue a;g=k}for(;258>g&&l>b+g&&a[d+g]===a[b+g];)++g;if(g>k&&(e=d,k=g),258===g)break}return new f(k,b-e)}function i(a,b){var c,e,f,g,h,i=a.length,k=new d(572),l=new(o?Uint8Array:Array)(i);if(!o)for(g=0;i>g;g++)l[g]=0;for(g=0;i>g;++g)0<a[g]&&k.push(g,a[g]);if(c=Array(k.length/2),e=new(o?Uint32Array:Array)(k.length/2),1===c.length)return l[k.pop().index]=1,l;for(g=0,h=k.length/2;h>g;++g)c[g]=k.pop(),e[g]=c[g].value;for(f=j(e,e.length,b),g=0,h=c.length;h>g;++g)l[c[g].index]=f[g];return l}function j(a,b,c){function d(a){var c=n[a][p[a]];c===b?(d(a+1),d(a+1)):--l[c],++p[a]}var e,f,g,h,i,j=new(o?Uint16Array:Array)(c),k=new(o?Uint8Array:Array)(c),l=new(o?Uint8Array:Array)(b),m=Array(c),n=Array(c),p=Array(c),q=(1<<c)-b,r=1<<c-1;for(j[c-1]=b,f=0;c>f;++f)r>q?k[f]=0:(k[f]=1,q-=r),q<<=1,j[c-2-f]=(j[c-1-f]/2|0)+b;for(j[0]=k[0],m[0]=Array(j[0]),n[0]=Array(j[0]),f=1;c>f;++f)j[f]>2*j[f-1]+k[f]&&(j[f]=2*j[f-1]+k[f]),m[f]=Array(j[f]),n[f]=Array(j[f]);for(e=0;b>e;++e)l[e]=c;for(g=0;g<j[c-1];++g)m[c-1][g]=a[g],n[c-1][g]=g;for(e=0;c>e;++e)p[e]=0;for(1===k[c-1]&&(--l[0],++p[c-1]),f=c-2;f>=0;--f){for(h=e=0,i=p[f+1],g=0;g<j[f];g++)h=m[f+1][i]+m[f+1][i+1],h>a[e]?(m[f][g]=h,n[f][g]=b,i+=2):(m[f][g]=a[e],n[f][g]=e,++e);p[f]=0,1===k[f]&&d(f)}return l}function k(a){var b,c,d,e,f=new(o?Uint16Array:Array)(a.length),g=[],h=[],i=0;for(b=0,c=a.length;c>b;b++)g[a[b]]=(0|g[a[b]])+1;for(b=1,c=16;c>=b;b++)h[b]=i,i+=0|g[b],i<<=1;for(b=0,c=a.length;c>b;b++)for(i=h[a[b]],h[a[b]]+=1,d=f[b]=0,e=a[b];e>d;d++)f[b]=f[b]<<1|1&i,i>>>=1;return f}var l=void 0,m=!0,n=this,o="undefined"!=typeof Uint8Array&&"undefined"!=typeof Uint16Array&&"undefined"!=typeof Uint32Array&&"undefined"!=typeof DataView;b.prototype.a=function(a,b,d){var e,f=this.buffer,g=this.index,h=this.d,i=f[g];if(d&&b>1&&(a=b>8?(u[255&a]<<24|u[a>>>8&255]<<16|u[a>>>16&255]<<8|u[a>>>24&255])>>32-b:u[a]>>8-b),8>b+h)i=i<<b|a,h+=b;else for(e=0;b>e;++e)i=i<<1|a>>b-e-1&1,8===++h&&(h=0,f[g++]=u[i],i=0,g===f.length&&(f=c(this)));f[g]=i,this.buffer=f,this.d=h,this.index=g},b.prototype.finish=function(){var a,b=this.buffer,c=this.index;return 0<this.d&&(b[c]<<=8-this.d,b[c]=u[b[c]],c++),o?a=b.subarray(0,c):(b.length=c,a=b),a};var p,q=new(o?Uint8Array:Array)(256);for(p=0;256>p;++p){for(var r=p,s=r,t=7,r=r>>>1;r;r>>>=1)s<<=1,s|=1&r,--t;q[p]=(s<<t&255)>>>0}var u=q;d.prototype.getParent=function(a){return 2*((a-2)/4|0)},d.prototype.push=function(a,b){var c,d,e,f=this.buffer;for(c=this.length,f[this.length++]=b,f[this.length++]=a;c>0&&(d=this.getParent(c),f[c]>f[d]);)e=f[c],f[c]=f[d],f[d]=e,e=f[c+1],f[c+1]=f[d+1],f[d+1]=e,c=d;return this.length},d.prototype.pop=function(){var a,b,c,d,e,f=this.buffer;for(b=f[0],a=f[1],this.length-=2,f[0]=f[this.length],f[1]=f[this.length+1],e=0;(d=2*e+2,!(d>=this.length))&&(d+2<this.length&&f[d+2]>f[d]&&(d+=2),f[d]>f[e]);)c=f[e],f[e]=f[d],f[d]=c,c=f[e+1],f[e+1]=f[d+1],f[d+1]=c,e=d;return{index:a,value:b,length:this.length}};var v,w=2,x=[];for(v=0;288>v;v++)switch(m){case 143>=v:x.push([v+48,8]);break;case 255>=v:x.push([v-144+400,9]);break;case 279>=v:x.push([v-256+0,7]);break;case 287>=v:x.push([v-280+192,8]);break;default:throw"invalid literal: "+v}e.prototype.h=function(){var a,c,d,e,f=this.input;switch(this.e){case 0:for(d=0,e=f.length;e>d;){c=o?f.subarray(d,d+65535):f.slice(d,d+65535),d+=c.length;var h=c,j=d===e,n=l,p=l,q=l,r=l,s=l,t=this.b,u=this.c;if(o){for(t=new Uint8Array(this.b.buffer);t.length<=u+h.length+5;)t=new Uint8Array(t.length<<1);t.set(this.b)}if(n=j?1:0,t[u++]=0|n,p=h.length,q=~p+65536&65535,t[u++]=255&p,t[u++]=p>>>8&255,t[u++]=255&q,t[u++]=q>>>8&255,o)t.set(h,u),u+=h.length,t=t.subarray(0,u);else{for(r=0,s=h.length;s>r;++r)t[u++]=h[r];t.length=u}this.c=u,this.b=t}break;case 1:var v=new b(o?new Uint8Array(this.b.buffer):this.b,this.c);v.a(1,1,m),v.a(1,2,m);var y,z,A,B=g(this,f);for(y=0,z=B.length;z>y;y++)if(A=B[y],b.prototype.a.apply(v,x[A]),A>256)v.a(B[++y],B[++y],m),v.a(B[++y],5),v.a(B[++y],B[++y],m);else if(256===A)break;this.b=v.finish(),this.c=this.b.length;break;case w:var C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R=new b(o?new Uint8Array(this.b.buffer):this.b,this.c),S=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],T=Array(19);for(C=w,R.a(1,1,m),R.a(C,2,m),D=g(this,f),H=i(this.j,15),I=k(H),J=i(this.i,7),K=k(J),E=286;E>257&&0===H[E-1];E--);for(F=30;F>1&&0===J[F-1];F--);var U,V,W,X,Y,Z,$=E,_=F,aa=new(o?Uint32Array:Array)($+_),ba=new(o?Uint32Array:Array)(316),ca=new(o?Uint8Array:Array)(19);for(U=V=0;$>U;U++)aa[V++]=H[U];for(U=0;_>U;U++)aa[V++]=J[U];if(!o)for(U=0,X=ca.length;X>U;++U)ca[U]=0;for(U=Y=0,X=aa.length;X>U;U+=V){for(V=1;X>U+V&&aa[U+V]===aa[U];++V);if(W=V,0===aa[U])if(3>W)for(;0<W--;)ba[Y++]=0,ca[0]++;else for(;W>0;)Z=138>W?W:138,Z>W-3&&W>Z&&(Z=W-3),10>=Z?(ba[Y++]=17,ba[Y++]=Z-3,ca[17]++):(ba[Y++]=18,ba[Y++]=Z-11,ca[18]++),W-=Z;else if(ba[Y++]=aa[U],ca[aa[U]]++,W--,3>W)for(;0<W--;)ba[Y++]=aa[U],ca[aa[U]]++;else for(;W>0;)Z=6>W?W:6,Z>W-3&&W>Z&&(Z=W-3),ba[Y++]=16,ba[Y++]=Z-3,ca[16]++,W-=Z}for(a=o?ba.subarray(0,Y):ba.slice(0,Y),L=i(ca,7),P=0;19>P;P++)T[P]=L[S[P]];for(G=19;G>4&&0===T[G-1];G--);for(M=k(L),R.a(E-257,5,m),R.a(F-1,5,m),R.a(G-4,4,m),P=0;G>P;P++)R.a(T[P],3,m);for(P=0,Q=a.length;Q>P;P++)if(N=a[P],R.a(M[N],L[N],m),N>=16){switch(P++,N){case 16:O=2;break;case 17:O=3;break;case 18:O=7;break;default:throw"invalid code: "+N}R.a(a[P],O,m)}var da,ea,fa,ga,ha,ia,ja,ka,la=[I,H],ma=[K,J];
@@ -413,6 +433,136 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var Vue = require('vue');
+var Vue__default = 'default' in Vue ? Vue['default'] : Vue;
+
+// @NOTE: We have to use Vue.nextTick because the element might not be
+//        present at the time model changes, but will be in the next batch.
+//        But because we use Vue.nextTick, the directive may already be unbound
+//        by the time the callback executes, so we have to make sure it was not.
+
+var focus = {
+  priority: 1000,
+
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    this.focus = function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    };
+
+    this.blur = function() {
+      if (self.bound === true) {
+        self.el.blur();
+      }
+    };
+  },
+
+  update: function(value) {
+    if (value) {
+      Vue__default.nextTick(this.focus);
+    } else {
+      Vue__default.nextTick(this.blur);
+    }
+  },
+
+  unbind: function() {
+    this.bound = false;
+  },
+};
+
+var focusModel = {
+  twoWay: true,
+  priority: 1000,
+
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    this.focus = function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    };
+
+    this.blur = function() {
+      if (self.bound === true) {
+        self.el.blur();
+      }
+    };
+
+    this.focusHandler = function() {
+      self.set(true);
+    };
+
+    this.blurHandler = function() {
+      self.set(false);
+    };
+
+    Vue.util.on(this.el, 'focus', this.focusHandler);
+    Vue.util.on(this.el, 'blur', this.blurHandler);
+  },
+
+  update: function(value) {
+    if (value === true) {
+      Vue__default.nextTick(this.focus);
+    } else if (value === false) {
+      Vue__default.nextTick(this.blur);
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+        Vue.util.warn(
+          this.name + '="' +
+          this.expression + '" expects a boolean value, ' +
+          'got ' + JSON.stringify(value)
+        );
+      }
+    }
+  },
+
+  unbind: function() {
+    Vue.util.off(this.el, 'focus', this.focusHandler);
+    Vue.util.off(this.el, 'blur', this.blurHandler);
+    this.bound = false;
+  },
+};
+
+var focusAuto = {
+  priority: 100,
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    Vue__default.nextTick(function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    });
+  },
+  unbind: function(){
+    this.bound = false;
+  },
+};
+
+var mixin = {
+  directives: {
+    focus: focus,
+    focusModel: focusModel,
+    focusAuto: focusAuto,
+  },
+};
+
+exports.focus = focus;
+exports.focusModel = focusModel;
+exports.focusAuto = focusAuto;
+exports.mixin = mixin;
+}).call(this,require('_process'))
+},{"_process":3,"vue":7}],5:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -712,7 +862,7 @@ function format (id) {
   return id.match(/[^\/]+\.vue$/)[0]
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*!
  * vue-router v0.7.13
  * (c) 2016 Evan You
@@ -3422,10 +3572,10 @@ function format (id) {
   return Router;
 
 }));
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (process,global){
 /*!
- * Vue.js v1.0.24
+ * Vue.js v1.0.26
  * (c) 2016 Evan You
  * Released under the MIT License.
  */
@@ -3824,10 +3974,15 @@ var devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
 
 // UA sniffing for working around browser-specific quirks
 var UA = inBrowser && window.navigator.userAgent.toLowerCase();
+var isIE = UA && UA.indexOf('trident') > 0;
 var isIE9 = UA && UA.indexOf('msie 9.0') > 0;
 var isAndroid = UA && UA.indexOf('android') > 0;
 var isIos = UA && /(iphone|ipad|ipod|ios)/i.test(UA);
-var isWechat = UA && UA.indexOf('micromessenger') > 0;
+var iosVersionMatch = isIos && UA.match(/os ([\d_]+)/);
+var iosVersion = iosVersionMatch && iosVersionMatch[1].split('_');
+
+// detecting iOS UIWebView by indexedDB
+var hasMutationObserverBug = iosVersion && Number(iosVersion[0]) >= 9 && Number(iosVersion[1]) >= 3 && !window.indexedDB;
 
 var transitionProp = undefined;
 var transitionEndEvent = undefined;
@@ -3868,7 +4023,7 @@ var nextTick = (function () {
   }
 
   /* istanbul ignore if */
-  if (typeof MutationObserver !== 'undefined' && !(isWechat && isIos)) {
+  if (typeof MutationObserver !== 'undefined' && !hasMutationObserverBug) {
     var counter = 1;
     var observer = new MutationObserver(nextTickHandler);
     var textNode = document.createTextNode(counter);
@@ -3940,12 +4095,12 @@ var p = Cache.prototype;
 
 p.put = function (key, value) {
   var removed;
-  if (this.size === this.limit) {
-    removed = this.shift();
-  }
 
   var entry = this.get(key, true);
   if (!entry) {
+    if (this.size === this.limit) {
+      removed = this.shift();
+    }
     entry = {
       key: key
     };
@@ -4190,7 +4345,7 @@ function compileRegex() {
   var unsafeOpen = escapeRegex(config.unsafeDelimiters[0]);
   var unsafeClose = escapeRegex(config.unsafeDelimiters[1]);
   tagRE = new RegExp(unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '|' + open + '((?:.|\\n)+?)' + close, 'g');
-  htmlRE = new RegExp('^' + unsafeOpen + '.*' + unsafeClose + '$');
+  htmlRE = new RegExp('^' + unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '$');
   // reset cache
   cache = new Cache(1000);
 }
@@ -4977,7 +5132,8 @@ if (process.env.NODE_ENV !== 'production') {
       return (/HTMLUnknownElement/.test(el.toString()) &&
         // Chrome returns unknown for several HTML5 elements.
         // https://code.google.com/p/chromium/issues/detail?id=540526
-        !/^(data|time|rtc|rb)$/.test(tag)
+        // Firefox returns unknown for some "Interactive elements."
+        !/^(data|time|rtc|rb|details|dialog|summary)$/.test(tag)
       );
     }
   };
@@ -5313,7 +5469,9 @@ function mergeOptions(parent, child, vm) {
   }
   if (child.mixins) {
     for (var i = 0, l = child.mixins.length; i < l; i++) {
-      parent = mergeOptions(parent, child.mixins[i], vm);
+      var mixin = child.mixins[i];
+      var mixinOptions = mixin.prototype instanceof Vue ? mixin.options : mixin;
+      parent = mergeOptions(parent, mixinOptions, vm);
     }
   }
   for (key in parent) {
@@ -5741,10 +5899,13 @@ var util = Object.freeze({
 	hasProto: hasProto,
 	inBrowser: inBrowser,
 	devtools: devtools,
+	isIE: isIE,
 	isIE9: isIE9,
 	isAndroid: isAndroid,
 	isIos: isIos,
-	isWechat: isWechat,
+	iosVersionMatch: iosVersionMatch,
+	iosVersion: iosVersion,
+	hasMutationObserverBug: hasMutationObserverBug,
 	get transitionProp () { return transitionProp; },
 	get transitionEndEvent () { return transitionEndEvent; },
 	get animationProp () { return animationProp; },
@@ -6232,7 +6393,9 @@ var saveRE = /[\{,]\s*[\w\$_]+\s*:|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\
 var restoreRE = /"(\d+)"/g;
 var pathTestRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 var identRE = /[^\w$\.](?:[A-Za-z_$][\w$]*)/g;
-var booleanLiteralRE = /^(?:true|false)$/;
+var literalValueRE$1 = /^(?:true|false|null|undefined|Infinity|NaN)$/;
+
+function noop() {}
 
 /**
  * Save / Rewrite / Restore
@@ -6314,7 +6477,7 @@ function compileGetter(exp) {
   // save strings and object literal keys
   var body = exp.replace(saveRE, save).replace(wsRE, '');
   // rewrite all paths
-  // pad 1 space here becaue the regex matches 1 extra char
+  // pad 1 space here because the regex matches 1 extra char
   body = (' ' + body).replace(identRE, rewrite).replace(restoreRE, restore);
   return makeGetterFn(body);
 }
@@ -6335,7 +6498,15 @@ function makeGetterFn(body) {
     return new Function('scope', 'return ' + body + ';');
     /* eslint-enable no-new-func */
   } catch (e) {
-    process.env.NODE_ENV !== 'production' && warn('Invalid expression. ' + 'Generated function body: ' + body);
+    if (process.env.NODE_ENV !== 'production') {
+      /* istanbul ignore if */
+      if (e.toString().match(/unsafe-eval|CSP/)) {
+        warn('It seems you are using the default build of Vue.js in an environment ' + 'with Content Security Policy that prohibits unsafe-eval. ' + 'Use the CSP-compliant build instead: ' + 'http://vuejs.org/guide/installation.html#CSP-compliant-build');
+      } else {
+        warn('Invalid expression. ' + 'Generated function body: ' + body);
+      }
+    }
+    return noop;
   }
 }
 
@@ -6397,8 +6568,8 @@ function parseExpression(exp, needSet) {
 
 function isSimplePath(exp) {
   return pathTestRE.test(exp) &&
-  // don't treat true/false as paths
-  !booleanLiteralRE.test(exp) &&
+  // don't treat literal values as paths
+  !literalValueRE$1.test(exp) &&
   // Math constants e.g. Math.PI, Math.E etc.
   exp.slice(0, 5) !== 'Math.';
 }
@@ -6814,7 +6985,7 @@ function traverse(val, seen) {
   }
   var isA = isArray(val);
   var isO = isObject(val);
-  if (isA || isO) {
+  if ((isA || isO) && Object.isExtensible(val)) {
     if (val.__ob__) {
       var depId = val.__ob__.dep.id;
       if (seen.has(depId)) {
@@ -6877,6 +7048,7 @@ function isRealTemplate(node) {
 
 var tagRE$1 = /<([\w:-]+)/;
 var entityRE = /&#?\w+?;/;
+var commentRE = /<!--/;
 
 /**
  * Convert a string template to a DocumentFragment.
@@ -6899,8 +7071,9 @@ function stringToFragment(templateString, raw) {
   var frag = document.createDocumentFragment();
   var tagMatch = templateString.match(tagRE$1);
   var entityMatch = entityRE.test(templateString);
+  var commentMatch = commentRE.test(templateString);
 
-  if (!tagMatch && !entityMatch) {
+  if (!tagMatch && !entityMatch && !commentMatch) {
     // text only, return a single text node.
     frag.appendChild(document.createTextNode(templateString));
   } else {
@@ -7867,7 +8040,7 @@ var vFor = {
    * the filters. This is passed to and called by the watcher.
    *
    * It is necessary for this to be called during the
-   * wathcer's dependency collection phase because we want
+   * watcher's dependency collection phase because we want
    * the v-for to update when the source Object is mutated.
    */
 
@@ -8210,7 +8383,10 @@ var text$2 = {
   },
 
   update: function update(value) {
-    this.el.value = _toString(value);
+    // #3029 only update when the value changes. This prevent
+    // browsers from overwriting values like selectionStart
+    value = _toString(value);
+    if (value !== this.el.value) this.el.value = value;
   },
 
   unbind: function unbind() {
@@ -8259,6 +8435,8 @@ var radio = {
 var select = {
 
   bind: function bind() {
+    var _this = this;
+
     var self = this;
     var el = this.el;
 
@@ -8290,7 +8468,12 @@ var select = {
     // selectedIndex with value -1 to 0 when the element
     // is appended to a new parent, therefore we have to
     // force a DOM update whenever that happens...
-    this.vm.$on('hook:attached', this.forceUpdate);
+    this.vm.$on('hook:attached', function () {
+      nextTick(_this.forceUpdate);
+    });
+    if (!inDoc(el)) {
+      nextTick(this.forceUpdate);
+    }
   },
 
   update: function update(value) {
@@ -9560,7 +9743,7 @@ function processPropValue(vm, prop, rawValue, fn) {
   if (value === undefined) {
     value = getPropDefaultValue(vm, prop);
   }
-  value = coerceProp(prop, value);
+  value = coerceProp(prop, value, vm);
   var coerced = value !== rawValue;
   if (!assertProp(prop, value, vm)) {
     value = undefined;
@@ -9679,13 +9862,17 @@ function assertProp(prop, value, vm) {
  * @return {*}
  */
 
-function coerceProp(prop, value) {
+function coerceProp(prop, value, vm) {
   var coerce = prop.options.coerce;
   if (!coerce) {
     return value;
   }
-  // coerce is a function
-  return coerce(value);
+  if (typeof coerce === 'function') {
+    return coerce(value);
+  } else {
+    process.env.NODE_ENV !== 'production' && warn('Invalid coerce for prop "' + prop.name + '": expected function, got ' + typeof coerce + '.', vm);
+    return value;
+  }
 }
 
 /**
@@ -10217,10 +10404,9 @@ var transition$1 = {
     // resolve on owner vm
     var hooks = resolveAsset(this.vm.$options, 'transitions', id);
     id = id || 'v';
+    oldId = oldId || 'v';
     el.__v_trans = new Transition(el, id, hooks, this.vm);
-    if (oldId) {
-      removeClass(el, oldId + '-transition');
-    }
+    removeClass(el, oldId + '-transition');
     addClass(el, id + '-transition');
   }
 };
@@ -10645,7 +10831,7 @@ function makeTextNodeLinkFn(tokens, frag) {
           if (token.html) {
             replace(node, parseTemplate(value, true));
           } else {
-            node.data = value;
+            node.data = _toString(value);
           }
         } else {
           vm._bindDir(token.descriptor, node, host, scope);
@@ -11629,7 +11815,7 @@ function eventsMixin (Vue) {
   };
 }
 
-function noop() {}
+function noop$1() {}
 
 /**
  * A directive links a DOM element with a piece of data,
@@ -11728,7 +11914,7 @@ Directive.prototype._bind = function () {
         }
       };
     } else {
-      this._update = noop;
+      this._update = noop$1;
     }
     var preProcess = this._preProcess ? bind(this._preProcess, this) : null;
     var postProcess = this._postProcess ? bind(this._postProcess, this) : null;
@@ -13166,7 +13352,7 @@ var filters = {
 
   json: {
     read: function read(value, indent) {
-      return typeof value === 'string' ? value : JSON.stringify(value, null, Number(indent) || 2);
+      return typeof value === 'string' ? value : JSON.stringify(value, null, arguments.length > 1 ? indent : 2);
     },
     write: function write(value) {
       try {
@@ -13239,7 +13425,13 @@ var filters = {
 
   pluralize: function pluralize(value) {
     var args = toArray(arguments, 1);
-    return args.length > 1 ? args[value % 10 - 1] || args[args.length - 1] : args[0] + (value === 1 ? '' : 's');
+    var length = args.length;
+    if (length > 1) {
+      var index = value % 10 - 1;
+      return index in args ? args[index] : args[length - 1];
+    } else {
+      return args[0] + (value === 1 ? '' : 's');
+    }
   },
 
   /**
@@ -13424,7 +13616,9 @@ function installGlobalAPI (Vue) {
           }
         }
         if (type === 'component' && isPlainObject(definition)) {
-          definition.name = id;
+          if (!definition.name) {
+            definition.name = id;
+          }
           definition = Vue.extend(definition);
         }
         this.options[type + 's'][id] = definition;
@@ -13439,7 +13633,7 @@ function installGlobalAPI (Vue) {
 
 installGlobalAPI(Vue);
 
-Vue.version = '1.0.24';
+Vue.version = '1.0.26';
 
 // devtools global hook
 /* istanbul ignore next */
@@ -13455,7 +13649,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":3}],7:[function(require,module,exports){
+},{"_process":3}],8:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -13475,7 +13669,7 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("article[_v-cb267b7a] {\n  padding: 0 !important;\n  overflow: auto;\n}\narticle table.diff[_v-cb267b7a] {\n  display: block;\n  width: 100%;\n  background: #fff;\n  border-collapse: collapse;\n  overflow: hidden;\n}\narticle table.diff tr[_v-cb267b7a] {\n  position: relative;\n}\narticle table.diff tr td.index[_v-cb267b7a] {\n  padding: 0 8px;\n  background: #f2f2f2;\n  border-right: 1px solid #ccc;\n  font-size: 0.7em;\n  text-align: center;\n  color: #999;\n}\narticle table.diff tr td.type span[_v-cb267b7a] {\n  display: block;\n  width: 20px;\n  text-align: center;\n}\narticle table.diff tr td.text[_v-cb267b7a] {\n  width: 100%;\n  padding-right: 15px;\n}\narticle table.diff tr td.ellipsis[_v-cb267b7a] {\n  padding-right: 15px;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n}\narticle table.diff tr td.ellipsis span[_v-cb267b7a] {\n  display: block;\n  width: 100%;\n  padding: 10px 0;\n}\narticle table.diff tr.add td[_v-cb267b7a] {\n  background: #e3f4d7;\n  color: #5aa02c;\n  font-weight: 700;\n}\narticle table.diff tr.rem td[_v-cb267b7a] {\n  background: #f5dad7;\n  color: #d40000;\n  font-weight: 700;\n}\narticle hr.eof[_v-cb267b7a] {\n  margin: 0;\n  border: none;\n}\narticle hr.eof[_v-cb267b7a]:after {\n  content: 'EOF';\n  display: block;\n  padding: 10px 0 10px 70px;\n  background: #f2f2f2;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n")
 var app;
@@ -13573,7 +13767,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-cb267b7a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],9:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],10:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("nav[_v-6da909e3] {\n  background: #f9f9f9;\n}\nnav div + header[_v-6da909e3] {\n  border-top: 1px solid #ccc;\n}\nnav li[_v-6da909e3] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-6da909e3] {\n  color: #666;\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-6da909e3] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-6da909e3] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-6da909e3] {\n  color: #5aa02c;\n}\nnav li p.stats span.rem[_v-6da909e3] {\n  color: #d40000;\n}\nnav li[_v-6da909e3]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #ccc transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-6da909e3] {\n  color: #666;\n}\nnav li.selected[_v-6da909e3] {\n  background: #fefefe;\n}\nnav li.selected[_v-6da909e3]:after {\n  right: 0;\n}\narticle article[_v-6da909e3] {\n  position: absolute;\n  top: 0;\n  left: 251px;\n}\n")
 var app;
@@ -13613,6 +13807,9 @@ module.exports = {
       return (d.toLocaleDateString()) + " @ " + (d.toLocaleTimeString());
     },
     countByType: function(changes, type) {
+      if (!changes) {
+        return;
+      }
       return changes.reduce(function(acc, change, i, a) {
         if ((change.type != null) && change.type === type) {
           return acc + change.lines.length;
@@ -13696,7 +13893,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6da909e3", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],10:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],11:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("input[name='path'][_v-178deb6e] {\n  box-sizing: border-box;\n  width: 100%;\n}\n")
 var app;
@@ -13704,6 +13901,7 @@ var app;
 app = document.app;
 
 module.exports = {
+  mixins: [(require('vue-focus')).mixin],
   data: function() {
     return $.extend(app.data(), {
       path: '',
@@ -13731,7 +13929,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-178deb6e=\"\"><form _v-178deb6e=\"\"><header _v-178deb6e=\"\"><h1 _v-178deb6e=\"\">Start watching a file in <strong _v-178deb6e=\"\">{{watcher.name}}</strong></h1></header><p _v-178deb6e=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-178deb6e=\"\">Recommended files to watch are those containing the system and access logs, such as <code _v-178deb6e=\"\">/var/log/syslog</code> and <code _v-178deb6e=\"\">/var/log/auth.log</code>.</p><fieldset _v-178deb6e=\"\"><label for=\"path\" _v-178deb6e=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" lazy=\"lazy\" _v-178deb6e=\"\"><span class=\"tip\" _v-178deb6e=\"\">Please consign the <strong _v-178deb6e=\"\">absolute path</strong> of the file to watch.</span></fieldset></form><footer _v-178deb6e=\"\"><button @click=\"submit\" class=\"ok\" _v-178deb6e=\"\">Start watching <i _v-178deb6e=\"\">{{path.split('/').pop()}}</i></button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-178deb6e=\"\"><form _v-178deb6e=\"\"><header _v-178deb6e=\"\"><h1 _v-178deb6e=\"\">Start watching a file in <strong _v-178deb6e=\"\">{{watcher.name}}</strong></h1></header><p _v-178deb6e=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-178deb6e=\"\">Recommended files to watch are those containing the system and access logs, such as <code _v-178deb6e=\"\">/var/log/syslog</code> and <code _v-178deb6e=\"\">/var/log/auth.log</code>.</p><fieldset _v-178deb6e=\"\"><label for=\"path\" _v-178deb6e=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" v-focus-auto=\"v-focus-auto\" lazy=\"lazy\" _v-178deb6e=\"\"><span class=\"tip\" _v-178deb6e=\"\">Please consign the <strong _v-178deb6e=\"\">absolute path</strong> of the file to watch.</span></fieldset></form><footer _v-178deb6e=\"\"><button @click=\"submit\" class=\"ok\" _v-178deb6e=\"\">Start watching <i _v-178deb6e=\"\">{{path.split('/').pop()}}</i></button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -13746,7 +13944,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-178deb6e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],11:[function(require,module,exports){
+},{"vue":7,"vue-focus":4,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],12:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("section.dashboard > header {\n  display: block;\n  border-bottom: 1px solid #ccc;\n  height: 60px;\n  background: #fff;\n  overflow: hidden;\n}\nsection.dashboard > header h1 {\n  float: right;\n  margin: 16px 15px 0 0;\n}\nsection.dashboard > header h1 img {\n  height: 30px;\n}\nsection.dashboard > header nav {\n  padding-left: 15px;\n}\nsection.dashboard > header nav .tab {\n  position: relative;\n  bottom: -14px;\n  float: left;\n  padding: 12px 20px 15px 20px;\n  border: 1px solid #ccc;\n  border-bottom: none;\n  font-weight: 700;\n  color: #666;\n  text-decoration: none;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\nsection.dashboard > header nav .tab:not(:first-child) {\n  border-left: none;\n}\nsection.dashboard > header nav .tab:first-child {\n  border-radius: 4px 0 0 0;\n}\nsection.dashboard > header nav .tab:last-child {\n  border-radius: 0 4px 0 0;\n}\nsection.dashboard > header nav .tab:hover {\n  background: #fafafa;\n  color: #642b6e;\n  cursor: pointer;\n}\nsection.dashboard > header nav .tab.selected {\n  background: -webkit-linear-gradient(315deg, #d22e69 0%, #642b6e 100%);\n  background: linear-gradient(135deg, #d22e69 0%, #642b6e 100%);\n  color: #fff;\n}\nsection.dashboard > header nav .tab.add {\n  font-size: 1.5em;\n  padding-top: 7px;\n}\nsection.dashboard > header nav .tab.add:hover {\n  background: #ad8;\n  color: #fff;\n}\nsection.dashboard > nav,\nsection.dashboard > article nav {\n  width: 250px;\n  position: fixed;\n  top: 61px;\n  bottom: 0;\n  border-right: 1px solid #ccc;\n  overflow: auto;\n}\nsection.dashboard > nav header,\nsection.dashboard > article nav header {\n  padding: 15px 20px;\n  background: #fff;\n  border-bottom: 1px solid #ccc;\n}\nsection.dashboard > nav header h1,\nsection.dashboard > article nav header h1 {\n  display: inline-block;\n  margin: 0;\n  font-size: 0.9em;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #642b6e;\n}\nsection.dashboard > nav header button,\nsection.dashboard > article nav header button {\n  position: absolute;\n  top: 6px;\n  right: 5px;\n  margin: 0;\n  border: none;\n  border-radius: 100%;\n  font-size: 15px;\n  font-weight: 700;\n  padding: 10px 15px;\n}\nsection.dashboard > nav.files,\nsection.dashboard > article nav.files {\n  left: 0;\n  background: #f2f2f2;\n}\nsection.dashboard > nav.files ul li,\nsection.dashboard > article nav.files ul li {\n  overflow: hidden;\n}\nsection.dashboard > nav.files ul li:after,\nsection.dashboard > article nav.files ul li:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 23px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #ccc transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nsection.dashboard > nav.files ul li.selected,\nsection.dashboard > article nav.files ul li.selected {\n  background: #f9f9f9;\n}\nsection.dashboard > nav.files ul li.selected:after,\nsection.dashboard > article nav.files ul li.selected:after {\n  right: 0;\n}\nsection.dashboard > nav.files ul li .path,\nsection.dashboard > article nav.files ul li .path {\n  color: #999;\n}\nsection.dashboard > nav.files ul li .path strong,\nsection.dashboard > article nav.files ul li .path strong {\n  color: #642b6e;\n}\nsection.dashboard > nav ul,\nsection.dashboard > article nav ul {\n  list-style-type: none;\n  padding: 0;\n  margin: 0;\n}\nsection.dashboard > nav ul li,\nsection.dashboard > article nav ul li {\n  position: relative;\n  padding: 20px;\n  border-bottom: 1px solid #ccc;\n  cursor: pointer;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n}\nsection.dashboard > nav:after,\nsection.dashboard > article nav:after {\n  content: '';\n  display: block;\n  background: -webkit-linear-gradient(left, rgba(0,0,0,0) 0%, #000 200%);\n  background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 200%);\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 30px;\n  opacity: 0.08;\n  pointer-events: none;\n}\nsection.dashboard > nav .empty,\nsection.dashboard > article nav .empty {\n  display: block;\n  margin: 0;\n  padding: 15px 20px;\n  color: #999;\n  font-style: italic;\n}\nsection.dashboard a.cool {\n  text-decoration: none;\n  color: #642b6e;\n}\nsection.dashboard article {\n  position: fixed;\n  top: 61px;\n  right: 0;\n  bottom: 0;\n  left: 251px;\n  background: #fff;\n}\nsection.dashboard article.form {\n  padding: 30px;\n  color: #444;\n}\nsection.dashboard article.form header {\n  margin-bottom: 20px;\n}\nsection.dashboard article.form header h1 {\n  margin: 0;\n  font-size: 2em;\n  font-weight: 300;\n  color: #642b6e;\n}\nsection.dashboard article.form p {\n  line-height: 1.6em;\n}\nsection.dashboard article.form p code {\n  position: relative;\n  top: -1px;\n  padding: 4px 5px 4px 5px;\n  background: #555;\n  color: #fff;\n  border-radius: 2px;\n}\nsection.dashboard article.form form {\n  padding: 30px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 50px;\n  overflow: auto;\n}\nsection.dashboard article.form form fieldset {\n  padding: 0;\n  border: none;\n}\nsection.dashboard article.form form fieldset label,\nsection.dashboard article.form form fieldset .label-alike {\n  display: block;\n  position: relative;\n  top: 1px;\n  width: 200px;\n  margin-right: 30px;\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\nsection.dashboard article.form form fieldset input,\nsection.dashboard article.form form fieldset select {\n  padding: 10px;\n  background: #fff;\n  border: 1px solid #ccc;\n  border-radius: 4px;\n}\nsection.dashboard article.form form fieldset input:focus,\nsection.dashboard article.form form fieldset select:focus {\n  border-color: #642b6e;\n}\nsection.dashboard article.form form fieldset .tip {\n  display: block;\n  padding: 5px;\n  font-style: italic;\n  color: #999;\n}\nsection.dashboard article.form form :last-child {\n  margin-bottom: 15px;\n}\nsection.dashboard article.form footer {\n  position: absolute;\n  bottom: 0;\n  right: 0;\n  left: 0;\n  height: 50px;\n  background: #f9f9f9;\n  border-top: 1px solid #ccc;\n}\nsection.dashboard article.form footer button {\n  margin: 0;\n  padding: 0 30px;\n  height: 100%;\n  border: none;\n  border-radius: 0;\n  font-weight: 600;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.dashboard article.form footer button.ok {\n  float: right;\n  border-left: 1px solid #ccc;\n}\n")
 var app;
@@ -13866,7 +14064,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section class=\"dashboard\"><header><h1><img src=\"/img/logo.svg\" alt=\"{{appName}}\"/></h1><nav><a v-for=\"(index, watcher) in watchers\" v-link=\"{ name: 'watcher', params: { watcher: index }}\" v-bind:class=\"{ 'selected': index == ($route.params.watcher || 0) }\" class=\"tab\">{{watcher.name}}</a><a v-link=\"{ path : '/wizard/import' }\" class=\"tab add\">+</a></nav></header><nav class=\"files\"><header><button v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"add\">+</button><h1>Watched files</h1></header><ul v-if=\"hasFiles\"><li v-for=\"(path, file) of currentWatcher.settings.files\" v-link=\"{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}\" @contextmenu=\"contextMenu\" data-path=\"{{path}}\"><span class=\"path\">{{{path | decoratePath}}}</span></li></ul><div v-else=\"v-else\" class=\"empty\">No files are being watched.\n<p><b><a v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"cool\">Click here</a></b> to start watching a file.</p></div></nav><router-view></router-view></section>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"dashboard\"><header><h1><img src=\"/img/logo.svg\" alt=\"{{appName}}\"/></h1><nav><a v-for=\"(index, watcher) in watchers\" v-link=\"{ name: 'watcher', params: { watcher: index }}\" v-bind:class=\"{ 'selected': index == ($route.params.watcher || 0) }\" class=\"tab\">{{watcher.name}}</a><a v-link=\"{ path : '/wizard/import' }\" class=\"tab add\">+</a></nav></header><nav class=\"files\"><header><button v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"add\">+</button><h1>Watched files</h1></header><ul v-if=\"hasFiles\"><li v-for=\"(path, file) of currentWatcher.settings.files\" v-link=\"{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}\" @contextmenu=\"contextMenu\" data-path=\"{{path}}\"><span class=\"path\">{{{path | decoratePath}}}</span></li></ul><div v-else=\"v-else\" class=\"empty\">No files are being watched.\n<p><b><a v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"cool\">Click here</a></b> to start watching a file.</p></div></nav><router-view></router-view></section>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -13881,7 +14079,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-ce0098c0", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],12:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],13:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("article header h2[_v-4bc9924e] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-4bc9924e] {\n  display: block;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n  border: 1px solid #ccc;\n  border-radius: 2px;\n  overflow: hidden;\n}\narticle table tr[_v-4bc9924e] {\n  width: 100%;\n}\narticle table tr td[_v-4bc9924e] {\n  padding: 15px;\n  color: #666;\n}\narticle table tr td.key[_v-4bc9924e] {\n  background: #eee;\n  border-right: 1px solid #ccc;\n  font-weight: 600;\n  color: #999;\n  text-align: right;\n}\narticle table tr + tr td[_v-4bc9924e] {\n  padding-top: 0;\n}\narticle h3[_v-4bc9924e] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\n")
 var app;
@@ -13921,18 +14119,19 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-4bc9924e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],13:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],14:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("input[_v-124c12b8],\nselect[_v-124c12b8] {\n  box-sizing: border-box;\n  width: 100%;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("input[_v-124c12b8],\nselect[_v-124c12b8] {\n  box-sizing: border-box;\n  width: 100%;\n}\nfieldset.git[_v-124c12b8] {\n  position: relative;\n}\nfieldset.git[_v-124c12b8]:after {\n  display: block;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  padding: 2px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-124c12b8]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-124c12b8]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n")
 var app;
 
 app = document.app;
 
 module.exports = {
+  mixins: [(require('vue-focus')).mixin],
   data: function() {
     return $.extend(app.data(), {
       fileName: this.$parent.fileName,
-      policyName: null,
+      name: null,
       git: null,
       branches: null,
       gitURL: null,
@@ -13955,6 +14154,9 @@ module.exports = {
       if (this.valid) {
         return alert('Ready to submit');
       } else {
+        if (!this.gitURL.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/))) {
+          return;
+        }
         this.path = "/tmp/git_" + (this.gitURL.split('/').pop().replace('.', '_'));
         window.mkdir(this.path);
         this.git = window.git(this.path).init();
@@ -14005,19 +14207,25 @@ module.exports = {
         params: this.params
       });
       document.vault.replace('settings', this.$parent.watcher.settings);
-      return app.save();
+      app.save();
+      return app.router.go({
+        name: 'policy',
+        params: {
+          policy: this.$parent.file.policies.length - 1
+        }
+      });
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-124c12b8=\"\"><form _v-124c12b8=\"\"><header _v-124c12b8=\"\"><h1 _v-124c12b8=\"\">Add a new policy for <strong _v-124c12b8=\"\">{{fileName}}</strong></h1></header><p _v-124c12b8=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-124c12b8=\"\">Policies are Node.js packages and are downloaded from public git repositories.</p><p _v-124c12b8=\"\"><a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Policies\" class=\"cool\" _v-124c12b8=\"\">Click here</a> to learn how to write your own policies.</p><fieldset _v-124c12b8=\"\"><label for=\"name\" _v-124c12b8=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-124c12b8=\"\"></fieldset><fieldset _v-124c12b8=\"\"><label for=\"gitURL\" _v-124c12b8=\"\">Git HTTPS URL</label><input type=\"text\" name=\"gitURL\" v-model=\"gitURL\" @blur=\"getBranches\" disabled=\"{{branches}}\" lazy=\"lazy\" _v-124c12b8=\"\"><span class=\"tip\" _v-124c12b8=\"\">Please consign the <strong _v-124c12b8=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-124c12b8=\"\"><label for=\"gitBranch\" _v-124c12b8=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-124c12b8=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-124c12b8=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-124c12b8=\"\"><label if=\"{{field.label}}\" for=\"{{key}}\" _v-124c12b8=\"\">{{field.label}}</label><input name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-124c12b8=\"\"></fieldset></form><footer _v-124c12b8=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-124c12b8=\"\">Add policy <i _v-124c12b8=\"\">{{policyName}}</i></button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-124c12b8=\"\"><form _v-124c12b8=\"\"><header _v-124c12b8=\"\"><h1 _v-124c12b8=\"\">Add a new policy for <strong _v-124c12b8=\"\">{{fileName}}</strong></h1></header><p _v-124c12b8=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-124c12b8=\"\">Policies are Node.js packages and are downloaded from public git repositories.</p><p _v-124c12b8=\"\"><a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Policies\" class=\"cool\" _v-124c12b8=\"\">Click here</a> to learn how to write your own policies.</p><fieldset _v-124c12b8=\"\"><label for=\"name\" _v-124c12b8=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" v-focus-auto=\"v-focus-auto\" _v-124c12b8=\"\"></fieldset><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-124c12b8=\"\"><label for=\"gitURL\" _v-124c12b8=\"\">Git HTTPS URL</label><input type=\"text\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-124c12b8=\"\"><span class=\"tip\" _v-124c12b8=\"\">Please consign the <strong _v-124c12b8=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-124c12b8=\"\"><label for=\"gitBranch\" _v-124c12b8=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-124c12b8=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-124c12b8=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-124c12b8=\"\"><label if=\"{{field.label}}\" for=\"{{key}}\" _v-124c12b8=\"\">{{field.label}}</label><input name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-124c12b8=\"\"></fieldset></form><footer _v-124c12b8=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-124c12b8=\"\">Add policy <i _v-124c12b8=\"\">{{name}}</i></button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["input[_v-124c12b8],\nselect[_v-124c12b8] {\n  box-sizing: border-box;\n  width: 100%;\n}\n"] = false
+    __vueify_insert__.cache["input[_v-124c12b8],\nselect[_v-124c12b8] {\n  box-sizing: border-box;\n  width: 100%;\n}\nfieldset.git[_v-124c12b8] {\n  position: relative;\n}\nfieldset.git[_v-124c12b8]:after {\n  display: block;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  padding: 2px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-124c12b8]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-124c12b8]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -14026,7 +14234,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-124c12b8", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],14:[function(require,module,exports){
+},{"vue":7,"vue-focus":4,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n")
 "use strict";
@@ -14046,7 +14254,50 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-0964cc31", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],15:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],16:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("section.unlock[_v-31bca690] {\n  background: -webkit-linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  -webkit-animation: fade-in 2s;\n          animation: fade-in 2s;\n}\nsection.unlock article[_v-31bca690] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-31bca690] {\n  min-width: 400px;\n  max-width: 60vw;\n  top: 50px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-31bca690] {\n  padding: 21px 30px 20px 30px;\n  background: #642b6e;\n}\nsection.unlock article.form header h1[_v-31bca690] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #fff;\n  font-weight: 100;\n}\nsection.unlock article form[_v-31bca690] {\n  padding: 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article form fieldset[_v-31bca690] {\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article form fieldset label[_v-31bca690] {\n  display: inline-block;\n  width: 140px;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n}\nsection.unlock article form fieldset input[_v-31bca690] {\n  padding: 10px;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n}\nsection.unlock article form fieldset input[name=pass][_v-31bca690] {\n  width: calc(100% - 170px);\n}\nsection.unlock article form fieldset[_v-31bca690]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article form p[_v-31bca690] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #000;\n}\nsection.unlock article form p.error[_v-31bca690] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article form p.error[_v-31bca690]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article footer[_v-31bca690] {\n  display: block;\n  height: 50px;\n  background: #f0f0f0;\n  border-top: 1px solid #ddd;\n  overflow: auto;\n}\nsection.unlock article footer button[_v-31bca690] {\n  min-height: 50px;\n  margin: 0;\n  opacity: 1;\n  border: none;\n  border-radius: 0;\n  background: #eee;\n  text-transform: uppercase;\n  font-weight: 700;\n  font-size: 0.8em;\n  color: #999;\n}\nsection.unlock article footer button[_v-31bca690]:hover {\n  background: #fff;\n  color: #642b6e;\n}\nsection.unlock article footer button.next[_v-31bca690] {\n  float: right;\n  border: none;\n  border-left: 1px solid #ddd;\n}\nsection.unlock article footer div.half button[_v-31bca690] {\n  width: 50%;\n}\nsection.unlock article footer div.half button[_v-31bca690]:not(:first-child) {\n  border-left: 1px solid #ddd;\n}\n")
+var app;
+
+app = document.app;
+
+module.exports = {
+  mixins: [(require('vue-focus')).mixin],
+  data: function() {
+    return $.extend(app.data(), {
+      pass: null,
+      error: null
+    });
+  },
+  methods: {
+    submit: function(e) {
+      if (app.privateKey.decrypt(this.pass)) {
+        app.router.go('/dashboard');
+        return setTimeout(document.vault.retrieveEvents, 2000);
+      } else {
+        return this.error = 'Wrong passphrase';
+      }
+    }
+  }
+};
+
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"unlock\" _v-31bca690=\"\"><article class=\"form\" _v-31bca690=\"\"><header _v-31bca690=\"\"><h1 _v-31bca690=\"\">Unlock your keypar</h1></header><form @keyup.enter=\"submit\" _v-31bca690=\"\"><p _v-31bca690=\"\">All data collected by {{appName}} is encrypted with a keypar whose passphrase is only known by you.</p><p _v-31bca690=\"\">In order to be able of decrypting such data, please introduce the same passphrase that you chose when you generated your keypar.</p><p v-if=\"error\" class=\"error\" _v-31bca690=\"\">{{error}}</p><fieldset class=\"pass\" _v-31bca690=\"\"><label for=\"pass\" _v-31bca690=\"\">Passphrase</label><input name=\"pass\" type=\"password\" v-model=\"pass\" v-focus-auto=\"v-focus-auto\" _v-31bca690=\"\"></fieldset></form><footer _v-31bca690=\"\"><button v-show=\"pass\" @click=\"submit\" class=\"next\" _v-31bca690=\"\">Unlock</button></footer></article></section>"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["section.unlock[_v-31bca690] {\n  background: -webkit-linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  -webkit-animation: fade-in 2s;\n          animation: fade-in 2s;\n}\nsection.unlock article[_v-31bca690] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-31bca690] {\n  min-width: 400px;\n  max-width: 60vw;\n  top: 50px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-31bca690] {\n  padding: 21px 30px 20px 30px;\n  background: #642b6e;\n}\nsection.unlock article.form header h1[_v-31bca690] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #fff;\n  font-weight: 100;\n}\nsection.unlock article form[_v-31bca690] {\n  padding: 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article form fieldset[_v-31bca690] {\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article form fieldset label[_v-31bca690] {\n  display: inline-block;\n  width: 140px;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n}\nsection.unlock article form fieldset input[_v-31bca690] {\n  padding: 10px;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n}\nsection.unlock article form fieldset input[name=pass][_v-31bca690] {\n  width: calc(100% - 170px);\n}\nsection.unlock article form fieldset[_v-31bca690]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article form p[_v-31bca690] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #000;\n}\nsection.unlock article form p.error[_v-31bca690] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article form p.error[_v-31bca690]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article footer[_v-31bca690] {\n  display: block;\n  height: 50px;\n  background: #f0f0f0;\n  border-top: 1px solid #ddd;\n  overflow: auto;\n}\nsection.unlock article footer button[_v-31bca690] {\n  min-height: 50px;\n  margin: 0;\n  opacity: 1;\n  border: none;\n  border-radius: 0;\n  background: #eee;\n  text-transform: uppercase;\n  font-weight: 700;\n  font-size: 0.8em;\n  color: #999;\n}\nsection.unlock article footer button[_v-31bca690]:hover {\n  background: #fff;\n  color: #642b6e;\n}\nsection.unlock article footer button.next[_v-31bca690] {\n  float: right;\n  border: none;\n  border-left: 1px solid #ddd;\n}\nsection.unlock article footer div.half button[_v-31bca690] {\n  width: 50%;\n}\nsection.unlock article footer div.half button[_v-31bca690]:not(:first-child) {\n  border-left: 1px solid #ddd;\n}\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-31bca690", module.exports)
+  } else {
+    hotAPI.update("_v-31bca690", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":7,"vue-focus":4,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],17:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("figure[_v-2ff8d89b] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-2ff8d89b] {\n  height: 100px;\n}\nfigure label[_v-2ff8d89b] {\n  color: #fff;\n}\n.textBody[_v-2ff8d89b] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-2ff8d89b] {\n  display: inline-block;\n  text-transform: uppercase;\n  font-weight: 700;\n  padding: 15px 50px;\n}\n")
 var app;
@@ -14073,7 +14324,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-2ff8d89b", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],16:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("div.or[_v-2bf66388] {\n  text-align: center;\n}\ndiv.or button[_v-2bf66388]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-2bf66388]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-2bf66388]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
 var app;
@@ -14135,7 +14386,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-2bf66388", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],17:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],19:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("article.generating[_v-54824b7d] {\n  width: 300px;\n  height: 300px;\n  top: 50vh;\n  left: 50vw;\n  margin: -150px;\n}\narticle.generating p[_v-54824b7d] {\n  margin: 0;\n  text-align: center;\n}\narticle input[name=pass][_v-54824b7d] {\n  width: calc(100% - 170px);\n}\n")
 var app;
@@ -14225,7 +14476,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-54824b7d", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],18:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],20:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("div.or[_v-5c39cdad] {\n  text-align: center;\n}\ndiv.or button[_v-5c39cdad]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-5c39cdad]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-5c39cdad]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
 var app;
@@ -14333,7 +14584,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-5c39cdad", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],19:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],21:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("section.wizard {\n  background: -webkit-linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%);\n  -webkit-animation: fade-in 2s;\n          animation: fade-in 2s;\n}\nsection.wizard article {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.wizard article.form {\n  min-width: 400px;\n  max-width: 60vw;\n  top: 50px;\n  right: 50px;\n  left: 50px;\n}\nsection.wizard article.form header {\n  padding: 21px 30px 20px 30px;\n  background: #642b6e;\n}\nsection.wizard article.form header h1 {\n  margin: 0;\n  font-size: 1.2em;\n  color: #fff;\n  font-weight: 100;\n}\nsection.wizard article.form form {\n  padding: 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.wizard article.form form fieldset {\n  padding: 5px 0;\n  border: none;\n}\nsection.wizard article.form form fieldset label {\n  display: inline-block;\n  width: 140px;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n}\nsection.wizard article.form form fieldset input {\n  padding: 10px;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n}\nsection.wizard article.form form fieldset:last-of-type {\n  padding-bottom: 30px;\n}\nsection.wizard article.form form p {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #000;\n}\nsection.wizard article.form form p.error {\n  position: block;\n  color: #f00;\n}\nsection.wizard article.form form p.error:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.wizard article.form footer {\n  display: block;\n  height: 50px;\n  background: #f0f0f0;\n  border-top: 1px solid #ddd;\n  overflow: auto;\n}\nsection.wizard article.form footer button {\n  min-height: 50px;\n  margin: 0;\n  opacity: 1;\n  border: none;\n  border-radius: 0;\n  background: #eee;\n  text-transform: uppercase;\n  font-weight: 700;\n  font-size: 0.8em;\n  color: #999;\n}\nsection.wizard article.form footer button:hover {\n  background: #fff;\n  color: #642b6e;\n}\nsection.wizard article.form footer button.next {\n  float: right;\n  border: none;\n  border-left: 1px solid #ddd;\n}\nsection.wizard article.form footer div.half button {\n  width: 50%;\n}\nsection.wizard article.form footer div.half button:not(:first-child) {\n  border-left: 1px solid #ddd;\n}\n")
 module.exports = {
@@ -14356,7 +14607,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-e8f81c7e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}],20:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}],22:[function(require,module,exports){
 var app;
 
 app = document.app;
@@ -14380,7 +14631,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-509a22d0", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4}],21:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5}],23:[function(require,module,exports){
 var app;
 
 app = document.app;
@@ -14404,7 +14655,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-4c045728", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4}],22:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":5}],24:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("figure[_v-544fedec] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-544fedec] {\n  height: 100px;\n}\nfigure label[_v-544fedec] {\n  color: #fff;\n}\n.textBody[_v-544fedec] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-544fedec] {\n  display: inline-block;\n  text-transform: uppercase;\n  font-weight: 700;\n  padding: 15px 50px;\n}\n")
 var app;
@@ -14431,4 +14682,4 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-544fedec", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":4,"vueify/lib/insert-css":7}]},{},[1]);
+},{"vue":7,"vue-hot-reload-api":5,"vueify/lib/insert-css":8}]},{},[1]);
