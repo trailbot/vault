@@ -17,6 +17,7 @@ article
       width: 100%
       td
         padding: 15px
+        vertical-align: top
         color: #66
         &.key
           background: #ee
