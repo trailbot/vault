@@ -1,7 +1,7 @@
 <style lang="stylus">
 section.wizard
   background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%)
-  animation: fade-in 2s
+  animation: fade-in 1s
 
   article
     background: white
@@ -27,7 +27,7 @@ section.wizard
           margin: 0
           font-size: 1.2em
           color: white
-          font-weight: 100
+          font-weight: regular
 
       form
         padding: 30px

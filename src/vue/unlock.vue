@@ -1,7 +1,6 @@
 <style lang="stylus" scoped>
 section.unlock
-  background: linear-gradient(45deg, #eb517a 0%, #f9b581 100%)
-  animation: fade-in 2s
+  background: #44
 
   article
     background: white
@@ -27,7 +26,7 @@ section.unlock
           margin: 0
           font-size: 1.2em
           color: white
-          font-weight: 100
+          font-weight: regular
     form
         padding: 30px
         max-height: calc(100vh - 250px)
@@ -130,8 +129,7 @@ module.exports =
     submit: (e) ->
       if app.privateKey.decrypt @pass
         app.router.go '/dashboard'
-        setTimeout document.vault.retrieveEvents, 2000
+        setTimeout document.vault.retrieveEvents, 1000
       else
         @error = 'Wrong passphrase'
 </script>
-

@@ -44,7 +44,6 @@ article.form(v-else, transition='slide')
       input(name='pass', type='password', v-model='pass')
   footer
     button.next(v-show='pass', @click='submit') Next
-
 </template>
 
 <script lang="coffee">
@@ -66,7 +65,6 @@ module.exports =
         @genKeys()
       else
         @error = 'Please make sure you set a passphrase'
-
     genKeys: ->
       app.pgp.generateKey(
         userIds: [
@@ -81,9 +79,10 @@ module.exports =
           pub: keys.publicKeyArmored
           fingerprint: keys.key.primaryKey.fingerprint
         document.vault.updateFingerprint app.settings.keys.fingerprint
+        app.privateKey = keys.key
+        app.privateKey.decrypt @pass
         app.save()
         @next()
-
     identikit: ->
       try
         user = electron.os.homedir().split('/').pop()
@@ -93,7 +92,6 @@ module.exports =
         host = "#{navigator.appCodeName}.#{navigator.appName}".toLowerCase()
       console.log "#{user}@#{host}.local"
       "#{user}@#{host}.local"
-
     next: ->
       @generating = false
       console.log app.settings.keys

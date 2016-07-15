@@ -6,7 +6,7 @@ input[name='path']
 
 <template lang="jade">
 article.form.fileAdd(transition='driftFade')
-  form
+  form(@keyup.enter='submit')
     header
       h1.
         Start watching a file in #[strong {{watcher.name}}]
@@ -15,7 +15,7 @@ article.form.fileAdd(transition='driftFade')
       Recommended files to watch are those containing the system and access logs, such as #[code /var/log/syslog] and #[code /var/log/auth.log].
     fieldset
       label(for='path') File path
-      input(type='text', name='path', placeholder='/var/log/syslog', v-model='path', v-focus-auto, lazy)
+      input(type='text', name='path', placeholder='/var/log/syslog', v-model='path', v-focus-auto)
       span.tip.
         Please consign the #[strong absolute path] of the file to watch.
   footer

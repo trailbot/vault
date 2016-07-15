@@ -36,6 +36,8 @@ vault = ->
     app.save()
 
   @retrieveEvents = () =>
+    return if @retrieving
+    @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
     @diffs.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
       if changes.new_val?

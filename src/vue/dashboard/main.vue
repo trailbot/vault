@@ -222,7 +222,7 @@ section.dashboard(transition='fade')
     nav
       a.tab(v-for='(index, watcher) in watchers', v-link="{ name: 'watcher', params: { watcher: index }}", v-bind:class="{ 'selected': index == ($route.params.watcher || 0) }") {{watcher.name}}
       a.tab.add(v-link="{ path : '/wizard/import' }") +
-  nav.files
+  nav.files(v-if='watchers.length > 0')
     header
       button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
       h1 Watched files

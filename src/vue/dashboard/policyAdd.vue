@@ -26,7 +26,7 @@ fieldset.git
 
 <template lang="jade">
 article.form.policyAdd(transition='driftFade')
-  form
+  form(@keyup.enter='submit')
     header
       h1.
         Add a new policy for #[strong {{fileName}}]

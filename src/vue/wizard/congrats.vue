@@ -38,4 +38,7 @@ div.welcome(transition='slide')
 app = document.app
 module.exports =
   data: app.data
+  methods:
+    run: ->
+      setTimeout document.vault.retrieveEvents, 1000
 </script>
