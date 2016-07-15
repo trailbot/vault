@@ -220,7 +220,7 @@
           rawChanges: true
         }).subscribe(function(changes) {
           if (changes.new_val != null) {
-            _this.eventAdd(changes.new_val);
+            _this.eventProcess(changes.new_val);
             app.settings.lastSync = new Date();
             return setTimeout(function() {
               return app.save();
@@ -325,17 +325,17 @@
         });
       };
     })(this);
-    this.eventAdd = (function(_this) {
+    this.eventProcess = (function(_this) {
       return function(_arg) {
-        var content, creator, id, message, pgp, privateKey, reader;
+        var content, creator, id, message, pgp, reader;
         content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
         pgp = app.pgp;
         message = pgp.message.readArmored(content);
-        privateKey = app.privateKey;
-        return message.decrypt(privateKey).then(function(_arg1) {
-          var Vue, data, date, event, events, filename, packets, path, watcher, _ref;
+        return message.decrypt(app.privateKey).then(function(_arg1) {
+          var Vue, data, date, event, events, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
           packets = _arg1.packets;
-          _ref = packets.findPacket(pgp.enums.packet.literal), filename = _ref.filename, date = _ref.date, data = _ref.data;
+          literal = packets.findPacket(pgp.enums.packet.literal);
+          filename = literal.filename, date = literal.date, data = literal.data;
           data = pgp.util.Uint8Array2str(data);
           console.log('There is a new diff ' + JSON.stringify({
             filename: filename,
@@ -346,6 +346,19 @@
             return e.fingerprint === creator;
           });
           if (watcher) {
+            sig = packets.findPacket(pgp.enums.packet.signature);
+            keyPacket = null;
+            _ref = pgp.key.readArmored(watcher.key).keys;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              key = _ref[_i];
+              keyPacket = key.getSigningKeyPacket(sig.issuerKeyId);
+              if (keyPacket) {
+                break;
+              }
+            }
+            if (!(keyPacket && sig.verify(keyPacket, literal))) {
+              return console.error("[CRYPTO] Wrong signature");
+            }
             Vue = app.Vue;
             path = filename;
             event = {

@@ -39,7 +39,7 @@ vault = ->
     console.log "Retrieving events newer than #{app.settings.lastSync}"
     @diffs.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
       if changes.new_val?
-        @eventAdd changes.new_val
+        @eventProcess changes.new_val
         app.settings.lastSync = new Date()
         setTimeout ->
           app.save()
@@ -81,18 +81,30 @@ vault = ->
       , (error) =>
         console.error error
 
-  @eventAdd = ({content, creator, reader, id}) =>
+  @eventProcess = ({content, creator, reader, id}) =>
     pgp = app.pgp
     message = pgp.message.readArmored content
-    privateKey = app.privateKey
-    message.decrypt(privateKey)
+    message.decrypt(app.privateKey)
     .then ({packets}) ->
-      {filename, date, data} = packets.findPacket(pgp.enums.packet.literal)
+      literal = packets.findPacket pgp.enums.packet.literal
+      # Data extraction
+      {filename, date, data} = literal
       data = pgp.util.Uint8Array2str data
       console.log 'There is a new diff ' + JSON.stringify {filename, date, data}
       watcher = app.settings.watchers.find (e) ->
         e.fingerprint == creator
+
       if watcher
+        # Signature verification
+        sig = packets.findPacket pgp.enums.packet.signature
+        keyPacket = null
+        for key in pgp.key.readArmored(watcher.key).keys
+          keyPacket = key.getSigningKeyPacket sig.issuerKeyId
+          break if keyPacket
+        unless keyPacket and sig.verify keyPacket, literal
+          return console.error "[CRYPTO] Wrong signature"
+
+        # Event saving and rendering
         Vue = app.Vue
         path = filename
         event =
