@@ -112,7 +112,7 @@ module.exports =
         ref: @gitBranch.split('/').pop()
         lang: @manifest.policy.language
         params: @params
-      document.vault.replace 'settings', @$parent.watcher.settings
+      document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
       app.save()
       app.router.go
         name: 'policy'

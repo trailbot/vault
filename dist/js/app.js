@@ -16,7 +16,6 @@
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'
       });
-      openpgp.config.aead_protect = true;
       this.pgp = openpgp;
       this.Vue = Vue;
       this.settings = $.extend({
@@ -169,7 +168,10 @@
 }).call(this);
 
 (function() {
-  var Vault, app, vault;
+  var Vault, app, iced, vault, __iced_k, __iced_k_noop;
+
+  iced = require('iced-runtime');
+  __iced_k = __iced_k_noop = function() {};
 
   app = document.app;
 
@@ -252,24 +254,78 @@
     })(this);
     this.store = (function(_this) {
       return function(col, obj, cb) {
-        return _this[col].store(obj).subscribe(function(result) {
-          return cb(result.id);
-        }, function(error) {
-          return console.error(error);
+        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+        __iced_k = __iced_k_noop;
+        ___iced_passed_deferral = iced.findDeferral(arguments);
+        (function(__iced_k) {
+          if (obj.encrypt) {
+            delete obj.encrypt;
+            (function(__iced_k) {
+              __iced_deferrals = new iced.Deferrals(__iced_k, {
+                parent: ___iced_passed_deferral,
+                filename: "./src/iced/vault.iced",
+                funcname: "store"
+              });
+              _this.encrypt(obj, __iced_deferrals.defer({
+                assign_fn: (function() {
+                  return function() {
+                    return obj = arguments[0];
+                  };
+                })(),
+                lineno: 65
+              }));
+              __iced_deferrals._fulfill();
+            })(__iced_k);
+          } else {
+            return __iced_k();
+          }
+        })(function() {
+          return _this[col].store(obj).subscribe(function(result) {
+            return cb(result.id);
+          }, function(error) {
+            return console.error(error);
+          });
         });
       };
     })(this);
     this.replace = (function(_this) {
       return function(col, obj, cb) {
+        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+        __iced_k = __iced_k_noop;
+        ___iced_passed_deferral = iced.findDeferral(arguments);
         console.log('Replacing', col, obj);
-        return _this[col].replace(obj).subscribe(function(result) {
-          return cb && cb(result.id);
-        }, function(error) {
-          return console.error(error);
+        (function(__iced_k) {
+          if (obj.encrypt) {
+            delete obj.encrypt;
+            (function(__iced_k) {
+              __iced_deferrals = new iced.Deferrals(__iced_k, {
+                parent: ___iced_passed_deferral,
+                filename: "./src/iced/vault.iced",
+                funcname: "replace"
+              });
+              _this.encrypt(obj, __iced_deferrals.defer({
+                assign_fn: (function() {
+                  return function() {
+                    return obj = arguments[0];
+                  };
+                })(),
+                lineno: 76
+              }));
+              __iced_deferrals._fulfill();
+            })(__iced_k);
+          } else {
+            return __iced_k();
+          }
+        })(function() {
+          return _this[col].replace(obj).subscribe(function(result) {
+            return cb && cb(result.id);
+          }, function(error) {
+            return console.error(error);
+          });
         });
       };
     })(this);
-    return this.eventAdd = (function(_this) {
+    this.eventAdd = (function(_this) {
       return function(_arg) {
         var content, creator, id, message, pgp, privateKey, reader;
         content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
@@ -307,6 +363,38 @@
             events.push(event);
             return Vue.set(watcher.events, path, events);
           }
+        })["catch"](function(error) {
+          return console.error(error);
+        });
+      };
+    })(this);
+    return this.encrypt = (function(_this) {
+      return function(object, cb) {
+        var creator, data, id, pgp, reader, v, watcher;
+        id = object.id, v = object.v, creator = object.creator, reader = object.reader;
+        pgp = app.pgp;
+        watcher = app.settings.watchers.find(function(e) {
+          return e.fingerprint === object.reader;
+        });
+        data = $.extend({}, object);
+        delete data.id;
+        delete data.v;
+        delete data.creator;
+        delete data.reader;
+        return pgp.encrypt({
+          data: JSON.stringify(data),
+          publicKeys: pgp.key.readArmored(watcher.key).keys,
+          privateKeys: app.privateKey
+        }).then(function(cyphertext) {
+          var content;
+          content = cyphertext.data;
+          return cb({
+            id: id,
+            v: v,
+            creator: creator,
+            reader: reader,
+            content: content
+          });
         })["catch"](function(error) {
           return console.error(error);
         });

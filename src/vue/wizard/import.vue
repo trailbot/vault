@@ -56,7 +56,7 @@ module.exports =
           reader: fingerprint
           files: {}
         watcher = {key, name, fingerprint, settings}
-        document.vault.store 'settings', settings, (id) =>
+        document.vault.store 'settings', $.extend(settings, {encrypt: true}), (id) =>
           watcher.settings.id = id
           @settings.watchers.push watcher
           @settings.ready = true

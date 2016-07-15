@@ -9,7 +9,6 @@ main = ->
     openpgp = require './openpgp.min.js'
     openpgp.initWorker
       path: '/js/openpgp.worker.min.js'
-    openpgp.config.aead_protect = true
     @pgp = openpgp
 
     @Vue = Vue

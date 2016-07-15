@@ -40,7 +40,7 @@ module.exports =
       settings.files[@path] =
         policies: []
       @$parent.$set 'currentWatcher.settings', settings
-      document.vault.replace 'settings', settings
+      document.vault.replace 'settings', $.extend(settings, {encrypt: true})
       app.save()
       app.router.go '/dashboard/' + @index
 </script>

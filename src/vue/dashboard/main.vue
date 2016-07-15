@@ -304,7 +304,7 @@ module.exports =
           delete events[path]
           @$set 'currentWatcher.settings.files', files
           @$set 'currentWatcher.events', events
-          document.vault.replace 'settings', @currentWatcher.settings
+          document.vault.replace 'settings', $.extend(@currentWatcher.settings, {encrypt: true})
           app.save()
           app.router.go '/dashboard'
       catch e

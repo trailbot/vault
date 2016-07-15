@@ -132,7 +132,7 @@ module.exports =
         , (res) =>
           return unless res
           @file.policies.splice index, 1
-          document.vault.replace 'settings', @watcher.settings
+          document.vault.replace 'settings', $.extend(@watcher.settings, {encrypt: true})
           app.save()
           app.router.go
             name: 'file'
