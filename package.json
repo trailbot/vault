@@ -6,7 +6,7 @@
   },
   "scripts": {
     "build": "grunt dev",
-    "postinstall": "./postinstall",
+    "post": "./postinstall",
     "start": "./run",
     "dev": "hz serve --dev --debug no --permissions yes",
     "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
