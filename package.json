@@ -1,7 +1,9 @@
 {
   "name": "trailbot-vault",
   "version": "0.1.0",
-  "dependencies": {},
+  "dependencies": {
+    "horizon": "^1.1.3"
+  },
   "scripts": {
     "start": "hz serve",
     "start-dev": "hz serve --dev --debug no --permissions yes",
