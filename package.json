@@ -6,12 +6,14 @@
   },
   "scripts": {
     "build": "grunt dev",
-    "start": "dist/run serve",
-    "dev": "dist/run serve --dev --debug no --permissions yes",
-    "set-schema": "dist/run set-schema schema.toml --force"
+    "postinstall": "./postinstall",
+    "start": "./run",
+    "dev": "hz serve --dev --debug no --permissions yes",
+    "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
   },
   "bin": {
-    "trailbot-vault": "dist/run"
+    "trailbot-vault": "./run",
+    "hz": "node_modules/.bin/hz"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
