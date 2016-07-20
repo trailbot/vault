@@ -68,4 +68,5 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-browserify'
   grunt.loadNpmTasks 'grunt-contrib-copy'
 
-  grunt.registerTask 'default', ['less', 'coffee', 'copy', 'browserify', 'watch']
+  grunt.registerTask 'dev', ['less', 'coffee', 'copy', 'browserify', 'watch']
+  grunt.registerTask 'default', ['less', 'coffee', 'copy', 'browserify']

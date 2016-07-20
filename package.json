@@ -5,9 +5,13 @@
     "horizon": "^1.1.3"
   },
   "scripts": {
-    "start": "hz serve",
-    "start-dev": "hz serve --dev --debug no --permissions yes",
-    "set-schema": "hz set-schema schema.toml --force"
+    "build": "grunt dev",
+    "start": "dist/run serve",
+    "dev": "dist/run serve --dev --debug no --permissions yes",
+    "set-schema": "dist/run set-schema schema.toml --force"
+  },
+  "bin": {
+    "trailbot-vault": "dist/run"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
@@ -15,7 +19,6 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-runtime": "^6.9.2",
     "coffeeify": "^2.0.1",
-    "electron": "^0.4.1",
     "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
     "grunt-cli": "^1.2.0",

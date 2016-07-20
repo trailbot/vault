@@ -1,0 +1,8 @@
+#!/bin/bash
+
+RELDIR="$(dirname $0)/.."
+ABSDIR="$(realpath $RELDIR)"
+
+export PATH="$ABSDIR/node_modules/.bin:$PATH"
+
+(cd "$ABSDIR"; hz "$@")
