@@ -1,5 +1,6 @@
 #!/bin/bash
-if ! [ `which rethinkdb` ]; then
+if ! [ `which rethinkdb` ]
+then
   echo -e "\e[01;31mERROR: RethinkDB is not installed\e[0m"
   echo "Please go to http://rethinkdb.com/docs/install/ for downloads and installation instructions."
   exit
@@ -21,6 +22,8 @@ EOM
 ) &&
 cp ./schema.toml /etc/trailbot-vault/ &&
 (
+if [ `which systemd` ]
+then
 cat > /etc/systemd/system/trailbot-vault.service <<- EOM
 [Unit]
 Description=Trailbot Vault
@@ -37,10 +40,27 @@ WorkingDirectory=$(pwd)
 [Install]
 WantedBy=multi.user.target
 EOM
+systemctl enable trailbot-vault
+else
+cat > /etc/init/trailbot-vault.conf <<- EOM
+#!upstart
+description "Trailbot Vault"
+
+respawn
+
+start on (local-filesystems and net-device-up IFACE!=lo)
+stop on shutdown
+
+script
+  export HOME="$(pwd)"
+  exec node $(pwd)/run
+end script
+EOM
+chmod +x /etc/init/trailbot-vault.conf
+fi
 ) &&
+service trailbot-vault start
 echo "Setting schema...";
 mkdir .hz 2> /dev/null;
 hz set-schema /etc/trailbot-vault/schema.toml --force --config /etc/trailbot-vault/horizon.toml &&
-systemctl enable trailbot-vault &&
-service trailbot-vault start &&
 echo "Trailbot Vault is now up and running!"
