@@ -30,7 +30,7 @@ Description=Trailbot Vault
 After=network.target
 
 [Service]
-ExecStart=$(pwd)/run
+ExecStart=$(pwd)/start
 ExecStop=$(pwd)/stop
 Restart=always
 User=root
@@ -52,8 +52,7 @@ start on (local-filesystems and net-device-up IFACE!=lo)
 stop on shutdown
 
 script
-  export HOME="$(pwd)"
-  exec node $(pwd)/run
+  exec node $(pwd)/start
 end script
 EOM
 chmod +x /etc/init/trailbot-vault.conf
