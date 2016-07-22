@@ -1,4 +1,9 @@
 #!/bin/bash
+if ! [ `which rethinkdb` ]; then
+  echo -e "\e[01;31mERROR: RethinkDB is not installed\e[0m"
+  echo "Please go to http://rethinkdb.com/docs/install/ for downloads and installation instructions."
+  exit
+fi
 echo "Generating cert files...";
 openssl req -x509 -nodes -batch -newkey rsa:2048 -keyout ./horizon-key.pem -out ./horizon-cert.pem -days 365 > /dev/null 2> /dev/null &&
 mkdir -p /etc/trailbot-vault 2> /dev/null &&

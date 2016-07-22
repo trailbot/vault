@@ -7,12 +7,12 @@
   "scripts": {
     "build": "grunt",
     "setup": "./postinstall",
-    "start": "./run",
+    "start": "./start",
     "dev": "hz serve --dev --debug no --permissions yes",
     "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
   },
   "bin": {
-    "trailbot-vault": "./run",
+    "trailbot-vault": "./start",
     "hz": "node_modules/.bin/hz"
   },
   "devDependencies": {
