@@ -8,7 +8,7 @@ fi
 echo "Generating cert files...";
 openssl req -x509 -nodes -batch -newkey rsa:2048 -keyout ./horizon-key.pem -out ./horizon-cert.pem -days 365 &&
 mkdir -p /etc/trailbot-vault 2> /dev/null &&
-mv ./horizon-*.pem /etc/trailbot-vault/ -f &&
+mv ./horizon-*.pem /srv/ -f &&
 (
 cat > /etc/trailbot-vault/horizon.toml <<-EOM
 project_name = "trailbot_vault"
