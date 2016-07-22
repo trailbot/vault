@@ -7,14 +7,14 @@ Smart policies are simple scripts that receive notifications every time a watche
 Trailbot has three components:
 + [__Watcher__](https://github.com/stampery/trailbot-watcher): server demon that monitors your files and logs, registers file events and enforces the policies.
 + [__Vault__](https://github.com/stampery/trailbot-vault): backend that works as a relay for the watcher's settings and the file changes.
-+ [__Client__](https://github.com/stampery/trailbot-vault): desktop app for managing watchers, defining policies and reading file events.
++ [__Client__](https://github.com/stampery/trailbot-client): desktop app for managing watchers, defining policies and reading file events.
 
 # About the Vault
 
 Trailbot Vault is nothing more than a [__Horizon__](https://github.com/rethinkdb/horizon) installation with a particular set of permissions in its schema.
 
 It has two main purposes:
-+ Serving the static assets for the [__Trailbot Client__](https://github.com/stampery/trailbot-vault) Electron app.
++ Serving the static assets for the [__Trailbot Client__](https://github.com/stampery/trailbot-client) Electron app.
 + Storing and serving [__Trailbot Watcher__](https://github.com/stampery/trailbot-watcher) configuration and file events.
 
 # Default Vault
