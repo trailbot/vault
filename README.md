@@ -30,7 +30,7 @@ In the server where you want to install the Vault, simply do:
 git clone https://github.com/stampery/trailbot-vault
 cd trailbot-vault
 npm install
-sudo npm run post
+sudo npm run setup
 ```
 Now the `trailbot-vault` service should be running and you will be able to connect to `http://yourserverdomain.tld:8181` as long as your firewall configuration allows inbound traffic in the `8181` port.
 

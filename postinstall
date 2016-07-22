@@ -18,7 +18,7 @@ cp ./schema.toml /etc/trailbot-vault/ &&
 (
 cat > /etc/systemd/system/trailbot-vault.service <<- EOM
 [Unit]
-Description=TrailBot Vault
+Description=Trailbot Vault
 After=network.target
 
 [Service]

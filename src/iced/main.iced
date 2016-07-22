@@ -16,7 +16,7 @@ main = ->
     @settings =
       $.extend {watchers: [], ready: false}, JSON.parse(localStorage.getItem('settings'))
     @data = ->
-      appName: 'TrailBot'
+      appName: 'Trailbot'
       isElectron: 'electron' of window
     document.app = this
 

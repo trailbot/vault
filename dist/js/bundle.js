@@ -25,7 +25,7 @@
       }, JSON.parse(localStorage.getItem('settings')));
       this.data = function() {
         return {
-          appName: 'TrailBot',
+          appName: 'Trailbot',
           isElectron: 'electron' in window
         };
       };
