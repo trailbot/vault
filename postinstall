@@ -52,7 +52,7 @@ start on (local-filesystems and net-device-up IFACE!=lo)
 stop on shutdown
 
 script
-  exec node $(pwd)/start
+  exec $(pwd)/start
 end script
 EOM
 chmod +x /etc/init/trailbot-vault.conf
