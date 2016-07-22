@@ -1,17 +1,41 @@
 #!/bin/bash
 echo "Generating cert files...";
 openssl req -x509 -nodes -batch -newkey rsa:2048 -keyout ./horizon-key.pem -out ./horizon-cert.pem -days 365 > /dev/null 2> /dev/null &&
-mkdir -p /etc/trailbot-vault &&
+mkdir -p /etc/trailbot-vault 2> /dev/null &&
 mv ./horizon-*.pem /etc/trailbot-vault/ -f &&
 (
-echo "project_name = \"trailbot_vault\""      > /etc/trailbot-vault/horizon.toml
-echo "key_file = \"/srv/horizon-key.pem\""   >> /etc/trailbot-vault/horizon.toml
-echo "cert_file = \"/srv/horizon-cert.pem\"" >> /etc/trailbot-vault/horizon.toml
-echo "allow_anonymous = true"                >> /etc/trailbot-vault/horizon.toml
-echo "allow_unauthenticated = false"         >> /etc/trailbot-vault/horizon.toml
-echo "token_secret = \"CHZcXtuK+psL1Ci/IIEOhgg0N/MYbGyrZqwQGmj8VyUOrc+fNhaGo+CCEGienEIpt/yY/enuBCRqFdgdpTcJJw==\"" >> /etc/trailbot-vault/horizon.toml
+cat > /etc/trailbot-vault/horizon.toml <<-EOM
+project_name = "trailbot_vault"
+key_file = "/srv/horizon-key.pem"
+cert_file = "/srv/horizon-cert.pem"
+allow_anonymous = true
+token_secret = "$(head -c56 /dev/urandom | base64)"
+start_rethinkdb = true
+serve_static = "./dist"
+EOM
 ) &&
 cp ./schema.toml /etc/trailbot-vault/ &&
+(
+cat > /etc/systemd/system/trailbot-vault.service <<- EOM
+[Unit]
+Description=TrailBot Vault
+After=network.target
+
+[Service]
+ExecStart=$(pwd)/run
+ExecStop=$(pwd)/stop
+Restart=always
+User=root
+Group=root
+WorkingDirectory=$(pwd)
+
+[Install]
+WantedBy=multi.user.target
+EOM
+) &&
 echo "Setting schema...";
-mkdir .hz;
-hz set-schema /etc/trailbot-vault/schema.toml --force --config /etc/trailbot-vault/horizon.toml
+mkdir .hz 2> /dev/null;
+hz set-schema /etc/trailbot-vault/schema.toml --force --config /etc/trailbot-vault/horizon.toml &&
+systemctl enable trailbot-vault &&
+service trailbot-vault start &&
+echo "Trailbot Vault is now up and running!"
