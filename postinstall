@@ -18,6 +18,7 @@ allow_anonymous = true
 token_secret = "$(head -c56 /dev/urandom | base64)"
 start_rethinkdb = true
 serve_static = "./dist"
+bind = ["0.0.0.0"]
 EOM
 ) &&
 cp ./schema.toml /etc/trailbot-vault/ &&
