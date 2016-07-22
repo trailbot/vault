@@ -23,9 +23,10 @@ We run a public instance of the Vault at `vault.trailbot.io`, which you are comp
 
 We are great defenders of technological sovereignty, so we encourage you to run your own instance of the Vault.
 
-# How to deploy your own Vault
+# Installing your own Vault
+Before installing the Vault, you must install the RethinkDB server. Consult [Installing RethinkDB](http://rethinkdb.com/docs/install/) for downloads and installation instructions.
 
-In the server where you want to install the Vault, simply do:
+Once you have installed RethinkDB, simply do:
 ```
 git clone https://github.com/stampery/trailbot-vault
 cd trailbot-vault
