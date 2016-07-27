@@ -28,7 +28,7 @@ article.form(transition='slide')
       strong Have you already installed {{appName}}'s watcher in your server?
   footer
     button(v-link="{ path: '/wizard/import' }") Yes, I have
-    a(v-link="{ path: '/wizard/watcherGuide' }") No, I have not
+    a(v-link="{ path: '/wizard/watcherGuide' }") Not yet, please show me how
 </template>
 
 <script lang="coffee">

@@ -15349,7 +15349,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-33cd845e=\"\"><header _v-33cd845e=\"\"><h1 _v-33cd845e=\"\">Watcher configuration</h1></header><form _v-33cd845e=\"\"><p _v-33cd845e=\"\">{{appName}} uses a special daemon called \"watcher\" to monitor your servers, send alerts and enforce smart policies.</p><hr _v-33cd845e=\"\"><p _v-33cd845e=\"\"><strong _v-33cd845e=\"\">Have you already installed {{appName}}'s watcher in your server?</strong></p></form><footer _v-33cd845e=\"\"><button v-link=\"{ path: '/wizard/import' }\" _v-33cd845e=\"\">Yes, I have</button><a v-link=\"{ path: '/wizard/watcherGuide' }\" _v-33cd845e=\"\">No, I have not</a></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-33cd845e=\"\"><header _v-33cd845e=\"\"><h1 _v-33cd845e=\"\">Watcher configuration</h1></header><form _v-33cd845e=\"\"><p _v-33cd845e=\"\">{{appName}} uses a special daemon called \"watcher\" to monitor your servers, send alerts and enforce smart policies.</p><hr _v-33cd845e=\"\"><p _v-33cd845e=\"\"><strong _v-33cd845e=\"\">Have you already installed {{appName}}'s watcher in your server?</strong></p></form><footer _v-33cd845e=\"\"><button v-link=\"{ path: '/wizard/import' }\" _v-33cd845e=\"\">Yes, I have</button><a v-link=\"{ path: '/wizard/watcherGuide' }\" _v-33cd845e=\"\">Not yet, please show me how</a></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15365,6 +15365,8 @@ if (module.hot) {(function () {  module.hot.accept()
   }
 })()}
 },{"vue":11,"vue-hot-reload-api":9,"vueify/lib/insert-css":12}],27:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("div.or[_v-5e6bd087] {\n  text-align: center;\n}\ndiv.or button[_v-5e6bd087]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-5e6bd087] {\n  padding-left: 30px;\n}\nol li[_v-5e6bd087] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-5e6bd087],\nol li pre[_v-5e6bd087] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-5e6bd087] {\n  position: relative;\n  top: -5px;\n}\n")
 var app;
 
 app = document.app;
@@ -15377,18 +15379,22 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-5e6bd087=\"\"><header _v-5e6bd087=\"\"><h1 _v-5e6bd087=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-5e6bd087=\"\"><p _v-5e6bd087=\"\">{{appName}} uses a special daemon called \"watcher\" to monitor your servers, send alerts and apply policies.</p><p _v-5e6bd087=\"\">Have you already installed {{appName}}'s watcher in your server?</p></form><footer _v-5e6bd087=\"\"><div class=\"half\" _v-5e6bd087=\"\"><button v-link=\"/wizard/watcherGuide\" _v-5e6bd087=\"\">No, I have not</button><button v-link=\"/wizard/import\" _v-5e6bd087=\"\">Yes, I have</button></div></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-5e6bd087=\"\"><header _v-5e6bd087=\"\"><h1 _v-5e6bd087=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-5e6bd087=\"\"><p _v-5e6bd087=\"\">Setting up a watcher is pretty simple:</p><ol _v-5e6bd087=\"\"><li _v-5e6bd087=\"\">Log into you server.</li><li _v-5e6bd087=\"\">Become <strong _v-5e6bd087=\"\">root</strong> (using <code _v-5e6bd087=\"\">sudo su</code>, <code _v-5e6bd087=\"\">su</code> or similar).</li><li _v-5e6bd087=\"\"><span _v-5e6bd087=\"\">Clone the repository and install the dependencies:</span><pre _v-5e6bd087=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li _v-5e6bd087=\"\">Take the public key that you just exported or copied and paste it into <code _v-5e6bd087=\"\">trailbot_client.pub.asc</code></li><li _v-5e6bd087=\"\">Run the setup script:\n<code _v-5e6bd087=\"\">npm run setup</code></li><li _v-5e6bd087=\"\">Export the watcher public key to the clipboard or a local file by running:\n<code _v-5e6bd087=\"\">npm run export</code></li></ol><p _v-5e6bd087=\"\">Choose an option below:</p></form><footer _v-5e6bd087=\"\"><div class=\"half or\" _v-5e6bd087=\"\"><button @click=\"paste\" class=\"or\" _v-5e6bd087=\"\">Take from clipboard</button><button @click=\"import\" class=\"or\" _v-5e6bd087=\"\">Import from filesystem</button></div></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["div.or[_v-5e6bd087] {\n  text-align: center;\n}\ndiv.or button[_v-5e6bd087]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-5e6bd087] {\n  padding-left: 30px;\n}\nol li[_v-5e6bd087] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-5e6bd087],\nol li pre[_v-5e6bd087] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-5e6bd087] {\n  position: relative;\n  top: -5px;\n}\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
   if (!module.hot.data) {
     hotAPI.createRecord("_v-5e6bd087", module.exports)
   } else {
     hotAPI.update("_v-5e6bd087", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":9}],28:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":9,"vueify/lib/insert-css":12}],28:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("figure[_v-32b3f04b] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-32b3f04b] {\n  height: 100px;\n}\nfigure label[_v-32b3f04b] {\n  color: #fff;\n}\n.textBody[_v-32b3f04b] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-32b3f04b] {\n  display: inline-block;\n  text-transform: uppercase;\n  font-weight: bold;\n  padding: 15px 50px;\n}\n")
 var app;

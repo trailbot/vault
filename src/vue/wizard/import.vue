@@ -20,7 +20,6 @@ div.or
         text-transform: uppercase
         font-size: .8em
         color: gray
-
 </style>
 
 <template lang="jade">
