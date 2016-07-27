@@ -28,7 +28,6 @@ article.form(transition='slide')
   header
       h1 Public key export
   form
-    p You have just generated a secure keypar for cyphering all your data.
     p It is very important to export the public key now so that you can later import it in every server you want to monitor.
   footer
     div.half.or

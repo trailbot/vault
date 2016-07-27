@@ -3,10 +3,37 @@
 @dark_red:   darken(@red, 20%);
 @purple:     #642b6e;
 
+@font-face {
+  font-family: Trailbot;
+  src: url(/fonts/regular.otf);
+  font-weight: 400;
+}
+@font-face {
+  font-family: Trailbot;
+  src: url(/fonts/bold.otf);
+  font-weight: 700;
+}
+@font-face {
+  font-family: Trailbot;
+  src: url(/fonts/strong.otf);
+  font-weight: 900;
+}
+
 body {
   margin: 0;
-  font-family: Lato;
+  font-family: Trailbot, Avenir Next, Avenir, Lato, Open Sans, sans-serif;
   background: #444;
+}
+
+strong {
+  font-weight: bold;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
 }
 
 section {
@@ -25,11 +52,10 @@ section {
 button,
 a.button {
   padding: 12px 18px;
-  border-radius: 4px;
-  border: 1px solid @purple;
+  border-radius: 30px;
   background: white;
-  color: @purple;
-  font-weight: 500;
+  color: #3e5368;
+  font-weight: bold;
   cursor: pointer;
   transition: all .1s ease;
   margin-top: 20px;
@@ -38,77 +64,26 @@ a.button {
 
   &:hover {
     color: white;
-    background: @purple;
+    background: #7197bd;
     opacity: 1;
+  }
+
+  &.plain {
+    margin: 0;
+    padding: 0;
+    background: none!important;
+    border: none!important;
+    color: #666;
+
+    &:hover {
+      background: none!important;
+      border: none!important;
+    }
   }
 }
 a.button{
   padding-top: 13px;
 }
-
-.sk-cube-grid {
-  width: 45px;
-  height: 45px;
-  margin: 100px auto 80px auto;
-  transform: rotateZ(45deg);
-}
-
-.sk-cube-grid .sk-cube {
-  width: 31%;
-  height: 31%;
-  background-color: @red;
-  float: left;
-  -webkit-animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-          animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-}
-.sk-cube-grid .sk-cube1 {
-  -webkit-animation-delay: 0.2s;
-          animation-delay: 0.2s; }
-.sk-cube-grid .sk-cube2 {
-  -webkit-animation-delay: 0.3s;
-          animation-delay: 0.3s; }
-.sk-cube-grid .sk-cube3 {
-  -webkit-animation-delay: 0.4s;
-          animation-delay: 0.4s; }
-.sk-cube-grid .sk-cube4 {
-  -webkit-animation-delay: 0.1s;
-          animation-delay: 0.1s; }
-.sk-cube-grid .sk-cube5 {
-  -webkit-animation-delay: 0.2s;
-          animation-delay: 0.2s; }
-.sk-cube-grid .sk-cube6 {
-  -webkit-animation-delay: 0.3s;
-          animation-delay: 0.3s; }
-.sk-cube-grid .sk-cube7 {
-  -webkit-animation-delay: 0s;
-          animation-delay: 0s; }
-.sk-cube-grid .sk-cube8 {
-  -webkit-animation-delay: 0.1s;
-          animation-delay: 0.1s; }
-.sk-cube-grid .sk-cube9 {
-  -webkit-animation-delay: 0.2s;
-          animation-delay: 0.2s; }
-
-@-webkit-keyframes sk-cubeGridScaleDelay {
-  0%, 70%, 100% {
-    -webkit-transform: scale3D(1, 1, 1);
-            transform: scale3D(1, 1, 1);
-  } 35% {
-    -webkit-transform: scale3D(0, 0, 1);
-            transform: scale3D(0, 0, 1);
-  }
-}
-
-@keyframes sk-cubeGridScaleDelay {
-  0%, 70%, 100% {
-    -webkit-transform: scale3D(1, 1, 1);
-            transform: scale3D(1, 1, 1);
-  } 35% {
-    -webkit-transform: scale3D(0, 0, 1);
-            transform: scale3D(0, 0, 1);
-  }
-}
-
 
 .pop-transition {
   display: inline-block;
@@ -222,5 +197,47 @@ a.button{
   100% {
     opacity: 0;
     margin-left: 10px;
+  }
+}
+
+.loader {
+  margin: 60px auto;
+  font-size: 8px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: .7em solid #d8d8d8;
+  border-right: .7em solid #d8d8d8;
+  border-bottom: .7em solid #d8d8d8;
+  border-left: .7em solid transparent;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear;
+}
+.loader,
+.loader:after {
+  border-radius: 50%;
+  width: 10em;
+  height: 10em;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

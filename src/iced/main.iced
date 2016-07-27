@@ -14,7 +14,10 @@ main = ->
     @Vue = Vue
 
     @settings =
-      $.extend {watchers: [], ready: false}, JSON.parse(localStorage.getItem('settings'))
+      $.extend JSON.parse(localStorage.getItem('settings')),
+        watchers: []
+        lastSync: 0
+        ready: false
     @data = ->
       appName: 'Trailbot'
       isElectron: 'electron' of window

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="19px"
+   height="11px"
+   viewBox="0 0 19 11"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="eye.svg">
+  <metadata
+     id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="746"
+     inkscape:window-height="480"
+     id="namedview15"
+     showgrid="false"
+     inkscape:zoom="21.454545"
+     inkscape:cx="3.5105932"
+     inkscape:cy="5.5"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">Show - not active</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8" />
+  <g
+     id="Page-1"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd"
+     style="fill:#666666">
+    <g
+       id="Dashboard---unlock"
+       transform="translate(-823.000000, -430.000000)"
+       fill="#D8D8D8"
+       style="fill:#666666">
+      <g
+         id="MAIN"
+         transform="translate(543.500000, 141.000000)"
+         style="fill:#666666">
+        <g
+           id="Show"
+           transform="translate(280.000000, 289.000000)"
+           style="fill:#666666">
+          <path
+             d="M9.22675017,0 C5.70101235,0 2.50368909,1.92896362 0.144389156,5.06211393 C-0.0481297186,5.31880577 -0.0481297186,5.67741935 0.144389156,5.93411119 C2.50368909,9.07103638 5.70101235,11 9.22675017,11 C12.752488,11 15.9498113,9.07103638 18.3091112,5.93788607 C18.5016301,5.68119423 18.5016301,5.32258065 18.3091112,5.06588881 C15.9498113,1.92896362 12.752488,0 9.22675017,0 L9.22675017,0 Z M9.47966712,9.37302677 C7.13924159,9.52024708 5.20650309,7.59128346 5.3537234,5.24708305 C5.47451956,3.31434454 7.04109472,1.74776939 8.97383322,1.62697323 C11.3142588,1.47975292 13.2469973,3.40871654 13.0997769,5.75291695 C12.9752059,7.68188058 11.4086307,9.24845573 9.47966712,9.37302677 L9.47966712,9.37302677 Z M9.36264585,7.5837337 C8.10183596,7.66300618 7.05996911,6.62491421 7.14301647,5.36410432 C7.20718943,4.32223747 8.05276253,3.48043926 9.09462938,3.41249142 C10.3554393,3.33321894 11.3973061,4.37131091 11.3142588,5.6321208 C11.2463109,6.67776253 10.4007378,7.51956074 9.36264585,7.5837337 L9.36264585,7.5837337 Z"
+             id="Show---not-active"
+             style="fill:#666666" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

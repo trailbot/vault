@@ -10,6 +10,7 @@ vault = ->
     @users = @hz 'users'
     @settings = @hz 'settings'
     @diffs = @hz 'diffs'
+    console.log JSON.stringify @diffs
 
     @hz.onReady ->
       console.log 'Connected to Horizon!'

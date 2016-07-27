@@ -28,7 +28,8 @@ then
 cat > /etc/systemd/system/trailbot-vault.service <<- EOM
 [Unit]
 Description=Trailbot Vault
-After=network.target
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 ExecStart=$(pwd)/start
@@ -60,8 +61,8 @@ EOM
 chmod +x /etc/init/trailbot-vault.conf
 fi
 ) &&
-service trailbot-vault start
 echo "Setting schema...";
 mkdir .hz 2> /dev/null;
 hz set-schema /etc/trailbot-vault/schema.toml --force --config /etc/trailbot-vault/horizon.toml &&
+service trailbot-vault start &&
 echo "Trailbot Vault is now up and running!"

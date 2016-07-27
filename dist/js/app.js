@@ -18,10 +18,11 @@
       });
       this.pgp = openpgp;
       this.Vue = Vue;
-      this.settings = $.extend({
+      this.settings = $.extend(JSON.parse(localStorage.getItem('settings')), {
         watchers: [],
+        lastSync: 0,
         ready: false
-      }, JSON.parse(localStorage.getItem('settings')));
+      });
       this.data = function() {
         return {
           appName: 'Trailbot',
@@ -185,6 +186,7 @@
         _this.users = _this.hz('users');
         _this.settings = _this.hz('settings');
         _this.diffs = _this.hz('diffs');
+        console.log(JSON.stringify(_this.diffs));
         _this.hz.onReady(function() {
           return console.log('Connected to Horizon!');
         });
@@ -276,7 +278,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 67
+                lineno: 68
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -313,7 +315,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 78
+                lineno: 79
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);

@@ -12,20 +12,20 @@ article
 
   input[name=pass]
     width: calc(100% - 170px)
+
+  button.unhide
+    float: right
+    position: absolute
+    top: 35px
+    right: 10px
+    opacity: .5
+    &.show
+      opacity: 1
 </style>
 
 <template lang="jade">
 article.generating(v-if='generating', transition='pop')
-  div.sk-cube-grid
-    div.sk-cube.sk-cube1
-    div.sk-cube.sk-cube2
-    div.sk-cube.sk-cube3
-    div.sk-cube.sk-cube4
-    div.sk-cube.sk-cube5
-    div.sk-cube.sk-cube6
-    div.sk-cube.sk-cube7
-    div.sk-cube.sk-cube8
-    div.sk-cube.sk-cube9
+  div.loader Loading...
   p
     strong Generating keypair...
   p
@@ -35,13 +35,14 @@ article.form(v-else, transition='slide')
   header
     h1 PGP keypar generation
   form(@keyup.enter='submit')
-    p First of all, we need to generate the keys that {{appName}} will use to cypher all the data going between your server and this desktop app.
-    p Your keys will be kept locally in a secure storage. Please never share your private key with anyone so you are the only one who can access the system.
     p Please choose a safe password or passphrase for protecting your keys:
     p.error(v-if='error') {{error}}
     fieldset.pass
       label(for='pass') Passphrase
-      input(name='pass', type='password', v-model='pass')
+      input(v-if='show', type='text', v-model='pass')
+      input(v-else, name='pass', type='password', v-model='pass')
+      button.plain.unhide(@click='unhide', v-bind:class="{'show': show}")
+        img(src='/img/eye.svg')
   footer
     button.next(v-show='pass', @click='submit') Next
 </template>
@@ -53,6 +54,7 @@ module.exports =
     $.extend app.data(),
       generating: false
       pass: null
+      show: false
       error: false
   methods:
     run: ->
@@ -89,6 +91,9 @@ module.exports =
         host = "#{navigator.appCodeName}.#{navigator.appName}".toLowerCase()
       console.log "#{user}@#{host}.local"
       {name: user, email: "#{user}@#{host}.local"}
+    unhide: (e) ->
+      e.preventDefault()
+      @show = !@show
     next: ->
       @generating = false
       console.log app.settings.keys

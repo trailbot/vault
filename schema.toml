@@ -1,5 +1,17 @@
 [collections.settings]
-indexes = ['creator', 'reader']
+indexes = [
+  "reader",
+  "creator",
+  "reader_creator"
+]
+
+[collections.diffs]
+indexes = [
+  "reader",
+  "creator",
+  "reader_creator",
+  "reader_datetime"
+]
 
 [groups.admin]
 [groups.admin.rules.carte_blanche]

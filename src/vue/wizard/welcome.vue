@@ -17,7 +17,7 @@ figure
   .button
     display: inline-block
     text-transform: uppercase
-    font-weight: 700
+    font-weight: bold
     padding: 15px 50px
 </style>
 
@@ -25,7 +25,7 @@ figure
 div.welcome(transition='slide')
   head
     figure
-      img(src='/img/icon.svg')
+      #img(src='/img/icon.svg')
       label
         h1 Welcome to {{appName}}!
   div.textBody
