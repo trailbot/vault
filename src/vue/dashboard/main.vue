@@ -1,80 +1,98 @@
 <style lang="stylus">
 section.dashboard
-  > header
-    display: block
-    border-bottom: 1px solid #cc
-    height: 60px
-    background: white
-    overflow: hidden
-    h1
-      float: right
-      margin: 16px 15px 0 0
-      img
-        height: 30px
-    nav
-      padding-left: 15px
-      .tab
-        position: relative
-        bottom: -14px
-        float: left
-        padding: 12px 20px 15px 20px
-        border: 1px solid #cc
-        border-bottom: none
-        font-weight: 700
-        color: #66
-        text-decoration: none
-        transition: all .2s ease
-        &:not(:first-child)
-          border-left: none
-        &:first-child
-          border-radius: 4px 0 0 0
-        &:last-child
-          border-radius: 0 4px 0 0
-        &:hover
-          background: #fa
-          color: #642b6e
-          cursor: pointer
-        &.selected
-          background: linear-gradient(135deg, #d22e69 0%, #642b6e 100%)
-          color: white
-        &.add
-          font-size: 1.5em
-          padding-top: 7px
-          &:hover
-            background: #aadd88
-            color: white
   > nav
   > article nav
-    width: 250px
+    width: 275px
     position: fixed
-    top: 61px
+    top: 0
     bottom: 0
-    border-right: 1px solid #cc
     overflow: auto
+    button.add
+      position: absolute
+      top: 14px
+      right: 16px
+      min-width: auto
+      min-height: auto
+      margin: 0
+      border: none
+      border-radius: 100%
+      font-size: 15px
+      font-weight: normal
+      padding: 0 4px
+      background: none
+      color: white
+      border: 2px solid white
+      opacity: .7
+      &:hover
+        box-shadow: 0 0 10px white
+        transform: rotateZ(90deg)
+        opacity: 1
+    > div
+      position: relative
+      &.watchers
+        background: #2c3e50
+        header
+          padding: 30px 20px 25px 20px
+          border-bottom: 1px solid #34495e
+          h1
+            font-weight: 900
+          button.menu
+            position: absolute
+            top: 30px
+            right: 20px
+            opacity: .7
+            transition: all .2s ease
+            img
+              height: 14px
+            &:hover
+              opacity: 1
+          .tools
+            position: absolute
+            top: -1px
+            right: 55px
+            display: block
+            height: 100%
+            background: #2c3e50
+            animation: fade-in .2s
+            *
+              position: relative
+              float: right
+              right: 0
+              margin-left: 15px
+            button.add
+              top: 27px
+            &:before
+              content: ''
+              display: block
+              position: absolute
+              left: -30px
+              width: 30px
+              height: 100%
+              background: linear-gradient(90deg, rgba(44, 62, 80, 0) 0%, rgba(44, 62, 80, 1) 100%)
+        ul
+          animation: pop-in .2s
+          li a
+            display: block
+            padding: 8px 0 5px 0
+            color: white
+            font-size: .9em
+            font-weight: bold
+            text-decoration: none
+            text-transform: uppercase
+            opacity: .7
     header
-      padding: 15px 20px
-      background: white
-      border-bottom: 1px solid #cc
+      padding: 18px 20px 14px 20px
       h1
         display: inline-block
         margin: 0
         font-size: .9em
         font-weight: 700
         text-transform: uppercase
-        color: #642b6e
-      button
-        position: absolute
-        top: 6px
-        right: 5px
-        margin: 0
-        border: none
-        border-radius: 100%
-        font-size: 15px
-        font-weight: 700
-        padding: 10px 15px
-    &.files
+        color: white
+    &.main
+      color: white
       left: 0
-      background: #f2
+      background: #34495e
       ul
         li
           overflow: hidden
@@ -82,69 +100,60 @@ section.dashboard
             content: ''
             display: block
             position: absolute
-            top: 23px
+            top: 12px
             right: -10px
             width: 0
             height: 0
             border-style: solid
             border-width: 7px 7px 7px 0
-            border-color: transparent #cc transparent transparent
+            border-color: transparent #44586d transparent transparent
             transition: right .2s ease
           &.selected
-            background: #f9
             &:after
               right: 0
           .path
-            color: #99
+            color: rgba(255, 255, 255, .7)
             strong
-              color: #642b6e
+              color: white
     ul
       list-style-type: none
       padding: 0
       margin: 0
       li
         position: relative
-        padding: 20px
-        border-bottom: 1px solid #cc
+        padding: 10px 20px
         cursor: pointer
         transition: all .2s ease
-    &:after
-      content: ''
-      display: block
-      background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 200%)
-      position: absolute
-      top: 0
-      right: 0
-      bottom: 0
-      width: 30px
-      opacity: .08
-      pointer-events: none
     .empty
       display: block
       margin: 0
       padding: 15px 20px
-      color: #99
+      color: white
       font-style: italic
+      opacity: .7
   a.cool
     text-decoration: none
-    color: #642b6e
+    font-weight: bold
+    color: white
   article
     position: fixed
-    top: 61px
+    top: 0
     right: 0
     bottom: 0
-    left: 251px
+    left: 275px
     background: white
     &.form
       padding: 30px
       color: #44
+      a.cool
+        color: #f37e83
       header
         margin-bottom: 20px
         h1
           margin: 0
           font-size: 2em
           font-weight: 300
-          color: #642b6e
+          color: #77
       p
         line-height: 1.6em
         code
@@ -160,9 +169,10 @@ section.dashboard
         top: 0
         left: 0
         right: 0
-        bottom: 50px
+        bottom: 0
         overflow: auto
         fieldset
+          margin-bottom: 10px
           padding: 0
           border: none
           label
@@ -172,19 +182,21 @@ section.dashboard
             top: 1px
             width: 200px
             margin-right: 30px
-            margin-bottom: 10px
+            margin-bottom: 5px
             font-size: .9em
             font-weight: 600
             color: #88
             text-transform: uppercase
           input
           select
+            display: block
+            margin-bottom: 10px
             padding: 10px
             background: white
-            border: 1px solid #cc
-            border-radius: 4px
+            border: 0
+            border-bottom: 1px solid #cc
             &:focus
-              border-color: #642b6e
+              border-color: #9
           .tip
             display: block
             padding: 5px
@@ -193,39 +205,26 @@ section.dashboard
         :last-child
           margin-bottom: 15px
       footer
-        position: absolute
-        bottom: 0
-        right: 0
-        left: 0
-        height: 50px
-        background: #f9
-        border-top: 1px solid #cc
-        button
-          margin: 0
-          padding: 0 30px
-          height: 100%
-          border: none
-          border-radius: 0
-          font-weight: 600
-          font-size: .8em
-          text-transform: uppercase
-          &.ok
-            float: right
-            border-left: 1px solid #cc
+        text-align: center
 </style>
 
 <template lang="jade">
 section.dashboard(transition='fade')
-  header
-    h1
-      img(src='/img/logo.svg', alt='{{appName}}')
-    nav
-      a.tab(v-for='(index, watcher) in watchers', v-link="{ name: 'watcher', params: { watcher: index }}", v-bind:class="{ 'selected': index == ($route.params.watcher || 0) }") {{watcher.name}}
-      a.tab.add(v-link="{ path : '/wizard/import' }") +
-  nav.files(v-if='watchers.length > 0')
-    header
-      button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
-      h1 Watched files
+  nav.main
+    div.watchers
+      header
+        button.plain.menu(@click='open')
+          img(src="/img/menu.svg")
+        div.tools(v-if='isOpen')
+          button.add(v-link="{ path : '/wizard/import' }") +
+        h1 {{currentWatcher.name}}
+      ul(v-if='isOpen')
+        li(v-for='(index, watcher) of watchers', v-if="watcher | other")
+          a(v-link="{ name: 'watcher', params: { watcher: index }}") {{watcher.name}}
+    div.files
+      header
+        button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
+        h1 Watched files
     ul(v-if="hasFiles")
       li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='contextMenu', data-path='{{path}}')
         span.path
@@ -243,6 +242,7 @@ module.exports =
     $.extend app.data(),
       settings: app.settings
       watchers: app.settings.watchers
+      isOpen: false
   computed:
     index: ->
       @$route.params?.watcher || 0
@@ -253,6 +253,8 @@ module.exports =
     hasFiles: ->
       Object.keys(@currentWatcher.settings.files).length > 0
   filters:
+    other: (watcher) ->
+      watcher.fingerprint isnt @currentWatcher.fingerprint
     decoratePath: (path) ->
       chunked = path.split('/')
       filename = chunked.slice(-1)
@@ -263,6 +265,8 @@ module.exports =
         path += "<small>...</small>"
       "#{path}/<strong>#{filename}</strong>"
   methods:
+    open: ->
+      @isOpen = !@isOpen
     contextMenu: (e) ->
       path = $(e.target).closest('li').data 'path'
       try

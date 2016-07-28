@@ -75,7 +75,53 @@ article.form(transition='slide')
 <script lang="coffee">
 app = document.app
 module.exports =
-  data: app.data
+  data: () ->
+    $.extend app.data(),
+      settings:
+        app.settings
   methods:
-    run: ->
+    next: ->
+      app.router.go '/wizard/congrats'
+    newWatcher: (key) ->
+      try
+        keys = app.pgp.key.readArmored(key).keys
+        console.log JSON.stringify keys
+        name = keys[0].users[0].userId.userid.split('@')[1].slice(0, -1)
+        fingerprint = keys[0].primaryKey.fingerprint
+        settings =
+          creator: @settings.keys.fingerprint
+          reader: fingerprint
+          files: {}
+        watcher = {key, name, fingerprint, settings}
+        # Encryption is not enabled the first time
+        document.vault.store 'settings', settings, (id) =>
+          watcher.settings.id = id
+          @settings.watchers.push watcher
+          @settings.ready = true
+          app.save()
+          @next()
+      catch err
+        console.error "[CRYPTO] #{err}"
+    paste: (e) ->
+      e.preventDefault()
+      app.paste (key) =>
+        @newWatcher key
+    import: (e) ->
+      e.preventDefault()
+      try
+        electron.dialog.showOpenDialog
+          title: 'Importing watcher public key'
+          defaultPath: "./#{@appName.toLowerCase()}_watcher.pub.asc"
+          buttonLabel: 'Import'
+          filters: [
+            name: 'PGP keys', extensions: ['pub', 'key', 'pgp', 'gpg', 'asc']
+          ,
+            name: 'All files', extensions: ['*']
+          ]
+        , (path) =>
+          if path
+            key = fs.readFileSync(path[0], 'utf8')
+            @newWatcher key
+      catch err
+        console.error 'This is not Electron'
 </script>

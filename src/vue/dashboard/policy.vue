@@ -6,28 +6,23 @@ article
       font-size: 1em
       color: #66
   table
-    display: block
+    display: table
     width: 100%
     background: #fefefe
     border-collapse: collapse
-    border: 1px solid #cc
-    border-radius: 2px
-    overflow: hidden
     tr
-      width: 100%
+      border-bottom: 1px solid #ee
       td
-        padding: 15px
+        padding: 24px 2px 20px 2px
         vertical-align: top
         color: #66
         &.key
-          background: #ee
-          border-right: 1px solid #cc
-          font-weight: 600
-          color: #99
+          color: #77
+          font-size: .9em
+          font-weight: bold
+          text-transform: uppercase
+        &.val
           text-align: right
-    tr + tr
-      td
-        padding-top: 0
   h3
     margin-bottom: 10px
     font-size: .9em
@@ -42,8 +37,7 @@ article.form.policy(transition="driftFade")
     h1.
       #[strong #[em "{{policy.name}}"]] policy stats
     h2.
-      Instance of #[strong {{policy.uri}}]
-  h3 Parameters
+      Instance of #[a.cool(@click='openExternal', href='{{policy.uri}}') {{policy.uri}}]
   table(v-if='policy.params')
     tr(v-for='(key, val) of policy.params')
       td.key {{key}}
@@ -59,4 +53,9 @@ module.exports =
     index: -> decodeURIComponent @$route.params.policy
     events: -> @$parent.events
     policy: -> @$parent.policies[@index]
+  methods:
+    openExternal: (e) ->
+      e.preventDefault()
+      url = $(e.target).attr 'href'
+      window.electron.shell.openExternal url
 </script>

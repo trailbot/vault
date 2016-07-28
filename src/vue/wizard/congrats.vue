@@ -16,16 +16,14 @@ figure
 
   .button
     display: inline-block
-    text-transform: uppercase
-    font-weight: 700
-    padding: 15px 50px
+    margin-top: 30px
 </style>
 
 <template lang="jade">
 div.welcome(transition='slide')
   head
     figure
-      img(src='/img/icon.svg')
+      img(src='/img/rocket.svg')
       label
         h1 Congratulations!
   div.textBody

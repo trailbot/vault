@@ -1,13 +1,15 @@
 <style lang="stylus" scoped>
 nav
-  background: #f9
+  background: #44586d
+  color: white
   div + header
-    border-top: 1px solid #cc
+    border-top: 1px solid rgba(255, 255, 255, .08)
+  ul + header
+    border-top: 1px solid rgba(255, 255, 255, .08)
   li
     position: relative
     overflow: hidden
     time
-      color: #66
       font-weight: normal
       font-size: .8em
     p.stats
@@ -17,9 +19,9 @@ nav
         font-size: .8em
         margin-right: 5px
         &.add
-          color: #5aa02c
+          color: #b8e986
         &.rem
-          color: #d40000
+          color: #f37e83
     &:after
       content: ''
       display: block
@@ -31,20 +33,19 @@ nav
       height: 0
       border-style: solid
       border-width: 7px 7px 7px 0
-      border-color: transparent #cc transparent transparent
+      border-color: transparent #ff transparent transparent
       transition: right .2s ease
     &.policy
       span
-        color: #66
+        color: white
     &.selected
-      background: #fe
       &:after
         right: 0
 article
   article
     position: absolute
     top: 0
-    left: 251px
+    left: 275px
 </style>
 
 <template lang="jade">
@@ -52,7 +53,7 @@ article.file(transition='driftFade')
   nav
     header
       button.add(v-link="{ name: 'policyAdd'}") +
-      h1 Policies
+      h1 Smart Policies
     ul(v-if='policies && policies.length > 0')
       li(v-for='(i, policy) of policies', v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
         span {{policy.name}}

@@ -92,10 +92,10 @@ section.unlock
           background: #f37e84
           color: white
           text-transform: uppercase
-          font-weight: 700
+          font-weight: bold
           font-size: .8em
           &:hover
-            background: #ff
+            background: white
             color: #f37e84
             box-shadow: 0 0 5px #f37e84
 

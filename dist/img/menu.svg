@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="10px" height="9px" viewBox="0 0 10 9" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>MENU</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="App-v.1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard" transform="translate(-166.000000, -28.000000)" fill="#FFFFFF">
+            <g id="Servers">
+                <g id="First">
+                    <path d="M175.5,33.001 L166.5,33.001 C166.224,33.001 166,32.776 166,32.501 C166,32.225 166.224,32 166.5,32 L175.5,32 C175.775,32 176,32.225 176,32.501 C176,32.776 175.775,33.001 175.5,33.001 L175.5,33.001 Z M175.5,29 L166.5,29 C166.224,29 166,28.776 166,28.5 C166,28.225 166.224,28 166.5,28 L175.5,28 C175.775,28 176,28.225 176,28.5 C176,28.776 175.775,29 175.5,29 L175.5,29 Z M166.5,36.001 L175.5,36.001 C175.775,36.001 176,36.225 176,36.5 C176,36.777 175.775,37.001 175.5,37.001 L166.5,37.001 C166.224,37.001 166,36.777 166,36.5 C166,36.225 166.224,36.001 166.5,36.001 L166.5,36.001 Z" id="MENU"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

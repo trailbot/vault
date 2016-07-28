@@ -54,7 +54,7 @@ module.exports =
       try
         electron.dialog.showSaveDialog
           title: 'Exporting client public key'
-          defaultPath: "./#{@appName}_client.pub"
+          defaultPath: "./#{@appName.toLowerCase()}_client.pub.asc"
           buttonLabel: 'Export'
         , (path) =>
           if path

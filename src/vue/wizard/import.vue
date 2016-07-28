@@ -73,7 +73,7 @@ module.exports =
       try
         electron.dialog.showOpenDialog
           title: 'Importing watcher public key'
-          defaultPath: "./#{@appName}_watcher.pub"
+          defaultPath: "./#{@appName.toLowerCase()}_watcher.pub.asc"
           buttonLabel: 'Import'
           filters: [
             name: 'PGP keys', extensions: ['pub', 'key', 'pgp', 'gpg', 'asc']

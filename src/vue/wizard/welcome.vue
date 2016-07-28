@@ -16,9 +16,7 @@ figure
 
   .button
     display: inline-block
-    text-transform: uppercase
-    font-weight: bold
-    padding: 15px 50px
+    margin-top: 30px
 </style>
 
 <template lang="jade">

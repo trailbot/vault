@@ -18,11 +18,11 @@
       });
       this.pgp = openpgp;
       this.Vue = Vue;
-      this.settings = $.extend(JSON.parse(localStorage.getItem('settings')), {
+      this.settings = $.extend({
         watchers: [],
         lastSync: 0,
         ready: false
-      });
+      }, JSON.parse(localStorage.getItem('settings')));
       this.data = function() {
         return {
           appName: 'Trailbot',

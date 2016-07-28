@@ -8,7 +8,7 @@
     "build": "grunt",
     "setup": "./postinstall",
     "start": "./start",
-    "dev": "hz serve --dev --debug no --permissions yes",
+    "start-dev": "./start --dev --debug",
     "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
   },
   "bin": {

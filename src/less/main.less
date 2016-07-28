@@ -5,8 +5,14 @@
 
 @font-face {
   font-family: Trailbot;
-  src: url(/fonts/regular.otf);
+  src: url(/fonts/normal.otf);
   font-weight: 400;
+}
+@font-face {
+  font-family: Trailbot;
+  src: url(/fonts/normal-italic.otf);
+  font-weight: 400;
+  font-style: italic;
 }
 @font-face {
   font-family: Trailbot;
@@ -51,38 +57,47 @@ section {
 
 button,
 a.button {
-  padding: 12px 18px;
+  display: block;
+  min-width: 200px;
+  padding: 18px;
+  margin: 0 auto;
+  opacity: 1;
+  border: none;
   border-radius: 30px;
-  background: white;
-  color: #3e5368;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all .1s ease;
-  margin-top: 20px;
-  font-size: 14px;
+  background: #f37e84;
+  color: white;
+  text-transform: uppercase;
   text-decoration: none;
+  font-weight: bold;
+  font-size: .8em;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: .2s all ease;
 
   &:hover {
-    color: white;
-    background: #7197bd;
-    opacity: 1;
+    background: white;
+    color: #f37e84;
+    box-shadow: 0 0 5px #f37e84;
   }
 
   &.plain {
     margin: 0;
     padding: 0;
-    background: none!important;
-    border: none!important;
+    min-width: auto;
+    background: none;
+    border: none;
     color: #666;
 
     &:hover {
-      background: none!important;
-      border: none!important;
+      background: none;
+      border: none;
+      box-shadow: none;
     }
   }
 }
-a.button{
-  padding-top: 13px;
+
+.clickable {
+  cursor: pointer;
 }
 
 .pop-transition {
