@@ -9,7 +9,7 @@ section.dashboard
     overflow: auto
     button.add
       position: absolute
-      top: 14px
+      top: 19px
       right: 16px
       min-width: auto
       min-height: auto
@@ -81,7 +81,7 @@ section.dashboard
             text-transform: uppercase
             opacity: .7
     header
-      padding: 18px 20px 14px 20px
+      padding: 23px 20px 19px 20px
       h1
         display: inline-block
         margin: 0
@@ -109,6 +109,8 @@ section.dashboard
             border-color: transparent #44586d transparent transparent
             transition: right .2s ease
           &.selected
+            border-left: 3px solid white
+            padding-left: 17px
             &:after
               right: 0
           .path
@@ -118,12 +120,11 @@ section.dashboard
     ul
       list-style-type: none
       padding: 0
-      margin: 0
+      margin: 0 0 15px 0
       li
         position: relative
         padding: 10px 20px
         cursor: pointer
-        transition: all .2s ease
     .empty
       display: block
       margin: 0
