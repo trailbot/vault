@@ -14808,7 +14808,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":11,"vue-hot-reload-api":9,"vueify/lib/insert-css":12}],17:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-transform: uppercase;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\n")
 var app;
 
 app = document.app;
@@ -14845,7 +14845,7 @@ if (module.hot) {(function () {  module.hot.accept()
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-transform: uppercase;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\n"] = false
+    __vueify_insert__.cache["article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -14856,7 +14856,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":11,"vue-hot-reload-api":9,"vueify/lib/insert-css":12}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-24b38c17],\nselect[type=checkbox][_v-24b38c17] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n")
 var app;
 
 app = document.app;
@@ -14920,12 +14920,21 @@ module.exports = {
       console.log("PULLING " + this.gitBranch);
       return this.git.checkout(this.gitBranch, (function(_this) {
         return function() {
+          var field, key, ref, results;
           _this.manifest = JSON.parse(window.fs.readFileSync(_this.path + "/package.json"));
           if (_this.manifest.policy) {
             if (_this.manifest.policy.params) {
               _this.fields = _this.manifest.policy.params;
             }
-            return _this.valid = true;
+            _this.valid = true;
+            _this.name = _this.manifest.policy.defaultName;
+            ref = _this.fields;
+            results = [];
+            for (key in ref) {
+              field = ref[key];
+              results.push(_this.params[key] = field["default"]);
+            }
+            return results;
           } else {
 
           }
@@ -14957,13 +14966,13 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in our GitHub account or <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" v-focus-auto=\"v-focus-auto\" _v-24b38c17=\"\"></fieldset><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"text\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label if=\"{{field.label}}\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><input name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in our GitHub account or <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"text\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" v-focus-auto=\"v-focus-auto\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, option) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{option.label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n"] = false
+    __vueify_insert__.cache["input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-24b38c17],\nselect[type=checkbox][_v-24b38c17] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {

@@ -3,6 +3,9 @@ input
 select
   box-sizing: border-box
   width: 100%
+  &[type=checkbox]
+    width: auto
+    margin-top: 15px
 
 fieldset.git
   position: relative
@@ -34,12 +37,9 @@ article.form.policyAdd(transition='driftFade')
     p Policies are Node.js packages downloaded from public git repositories.
     p.
       You can find some #[a(@click='openExternal', href='https://github.com/trailbot').cool ready-to-use policies] in our GitHub account or #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Smart-Policies').cool learn how to write your own policies].
-    fieldset
-      label(for='name') Policy name
-      input(name='name', v-model='name', placeholder='e.g.: Mail me when syslog is modified', v-focus-auto)
     fieldset(data-valid='{{branches}}').git
       label(for='gitURL') Git HTTPS URL
-      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')
+      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}', v-focus-auto)
       span.tip(v-if='!branches').
         Please consign the #[strong HTTPS URL] for the git repository of the policy package to be added.
     fieldset(v-if='branches')
@@ -47,8 +47,14 @@ article.form.policyAdd(transition='driftFade')
       select(name='gitBranch', v-model='gitBranch', @change='pullBranch')
         option(v-for='branch of branches', value='{{branch}}') {{branch.split('/').pop()}}
     fieldset(v-if='fields', v-for='(key, field) of fields')
-      label(if='{{field.label}}', for='{{key}}') {{field.label}}
-      input(name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
+      label(v-if='field.label', for='{{key}}') {{field.label}}
+      select(v-if='field.type == "select"', v-model='params[key]', v-bind:required='field.required')
+        option(v-for='(val, option) of field.options', value='{{val}}') {{option.label}}
+      input(v-else name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
+      p.tip(v-if='field.tip') {{field.tip}}
+    fieldset(v-if='valid')
+      label(for='name') Policy name
+      input(name='name', v-model='name', placeholder='e.g.: Mail me when syslog is modified')
     footer
       button.ok(v-if='valid && name', @click='submit').
         Add policy #[i {{name}}]
@@ -102,6 +108,9 @@ module.exports =
             if @manifest.policy.params
               @fields = @manifest.policy.params
             @valid = true
+            @name = @manifest.policy.defaultName
+            for key, field of @fields
+              @params[key] = field.default
           else
             # TODO error
     submit: (e) ->

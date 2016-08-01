@@ -20,7 +20,6 @@ article
           color: #77
           font-size: .9em
           font-weight: bold
-          text-transform: uppercase
         &.val
           text-align: right
   h3
