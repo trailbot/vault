@@ -39,7 +39,7 @@ article.form.policyAdd(transition='driftFade')
       You can find some #[a(@click='openExternal', href='https://github.com/trailbot').cool ready-to-use policies] in our GitHub account or #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Smart-Policies').cool learn how to write your own policies].
     fieldset(data-valid='{{branches}}').git
       label(for='gitURL') Git HTTPS URL
-      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}', v-focus-auto)
+      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')
       span.tip(v-if='!branches').
         Please consign the #[strong HTTPS URL] for the git repository of the policy package to be added.
     fieldset(v-if='branches')
@@ -50,7 +50,7 @@ article.form.policyAdd(transition='driftFade')
       label(v-if='field.label', for='{{key}}') {{field.label}}
       select(v-if='field.type == "select"', v-model='params[key]', v-bind:required='field.required')
         option(v-for='(val, option) of field.options', value='{{val}}') {{option.label}}
-      input(v-else name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
+      input(v-else, name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
       p.tip(v-if='field.tip') {{field.tip}}
     fieldset(v-if='valid')
       label(for='name') Policy name
@@ -109,7 +109,7 @@ module.exports =
               @fields = @manifest.policy.params
             @valid = true
             @name = @manifest.policy.defaultName
-            for key, field of @fields
+            for key, field of @fields when field.default?
               @params[key] = field.default
           else
             # TODO error
