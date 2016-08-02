@@ -52,20 +52,25 @@ article.form(transition='slide')
       li.
         Become #[strong root] (using #[code sudo su], #[code su] or similar).
       li
-        span Clone the repository and install the dependencies:
+        span Install nodejs 6.x:
+        pre.
+          curl -sL https://deb.nodesource.com/setup_6.x | bash -
+          apt-get install -y nodejs || yum -y install nodejs || pacman -S nodejs npm
+      li
+        span Clone the repository and install the nodejs dependencies:
         pre.
           git clone https://github.com/trailbot/watcher
           cd watcher
           npm install
-      li.
-        Take the public key that you just exported or copied and paste it into #[code trailbot_client.pub.asc]
+      li(v-if='exported').
+        Copy the #[code {{exported}}] client public key file that you just exported from this wizard and copy it into your server using #[code scp], #[code rsync], #[code ftp] or similar.
+      li(v-else).
+        Take the #[strong client] public key that you copied from the previous step in this wizard and paste it into a file in your server.
       li.
         Run the setup script:
         #[code npm run setup]
       li.
-        Export the watcher public key to the clipboard or a local file by running:
-        #[code npm run export]
-    p Choose an option below:
+        Finally, choose an option below:
   footer
     div.half.or
       button.or(@click='paste') Take from clipboard
@@ -79,6 +84,8 @@ module.exports =
     $.extend app.data(),
       settings:
         app.settings
+      exported:
+        @$parent.exported
   methods:
     next: ->
       app.router.go '/wizard/congrats'

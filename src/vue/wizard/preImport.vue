@@ -22,13 +22,14 @@ article.form(transition='slide')
   header
     h1 Watcher configuration
   form
-    p {{appName}} uses a special daemon called "watcher" to monitor your servers, send alerts and enforce smart policies.
+    p.
+      {{appName}} uses a special daemon called #[strong Watcher] to monitor your servers, send alerts and enforce smart policies.
     hr
     p
-      strong Have you already installed {{appName}}'s watcher in your server?
+      strong Have you already installed and set up {{appName}} Watcher in your server?
   footer
-    button(v-link="{ path: '/wizard/import' }") Yes, I have
-    a(v-link="{ path: '/wizard/watcherGuide' }") Not yet, please show me how
+    button(v-link="{ path: '/wizard/watcherGuide' }") Not yet, please show me how
+    a(v-link="{ path: '/wizard/import' }") Yes, I have
 </template>
 
 <script lang="coffee">

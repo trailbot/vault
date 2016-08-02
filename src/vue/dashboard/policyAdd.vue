@@ -39,7 +39,7 @@ article.form.policyAdd(transition='driftFade')
       You can find some #[a(@click='openExternal', href='https://github.com/trailbot').cool ready-to-use policies] in our GitHub account or #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Smart-Policies').cool learn how to write your own policies].
     fieldset(data-valid='{{branches}}').git
       label(for='gitURL') Git HTTPS URL
-      input(type='text', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')
+      input(type='url', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')
       span.tip(v-if='!branches').
         Please consign the #[strong HTTPS URL] for the git repository of the policy package to be added.
     fieldset(v-if='branches')
@@ -71,7 +71,7 @@ module.exports =
       git: null
       branches: null
       gitURL: null
-      gitBranch: null
+      gitBranch: 'remotes/origin/master'
       fields: null
       params: {}
       path: null
@@ -99,6 +99,7 @@ module.exports =
             .branch (err, {branches}) =>
               console.log JSON.stringify branches
               @branches = Object.keys(branches).filter (branch) -> branch isnt '(HEAD'
+              @pullBranch()
     pullBranch: (e) ->
       console.log "PULLING #{@gitBranch}"
       @git

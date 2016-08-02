@@ -52,7 +52,8 @@ article
 article.file(transition='driftFade')
   nav
     header
-      button.add(v-link="{ name: 'policyAdd'}") +
+      button.add(v-link="{ name: 'policyAdd'}")
+        img(src='/img/add.svg')
       h1 Smart Policies
     ul(v-if='policies && policies.length > 0')
       li(v-for='(i, policy) of policies', v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy

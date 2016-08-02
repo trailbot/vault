@@ -9,23 +9,17 @@ section.dashboard
     overflow: auto
     button.add
       position: absolute
-      top: 19px
+      top: 23px
       right: 16px
       min-width: auto
       min-height: auto
       margin: 0
       border: none
-      border-radius: 100%
-      font-size: 15px
-      font-weight: normal
       padding: 0 4px
       background: none
-      color: white
-      border: 2px solid white
       opacity: .7
       &:hover
-        box-shadow: 0 0 10px white
-        transform: rotateZ(90deg)
+        box-shadow: none
         opacity: 1
     > div
       position: relative
@@ -40,18 +34,29 @@ section.dashboard
             position: absolute
             top: 30px
             right: 20px
-            opacity: .7
+            padding-left: 15px
             transition: all .2s ease
+            background: #2c3e50
             img
+              opacity: .7
               height: 14px
             &:hover
-              opacity: 1
+              img
+                opacity: 1
+            &:before
+              content: ''
+              display: block
+              position: absolute
+              left: -28px
+              width: 30px
+              height: 100%
+              background: linear-gradient(90deg, rgba(44, 62, 80, 0) 0%, rgba(44, 62, 80, 1) 100%)
           .tools
             position: absolute
             top: -1px
-            right: 55px
+            right: 50px
             display: block
-            height: 100%
+            height: 75px
             background: #2c3e50
             animation: fade-in .2s
             *
@@ -59,8 +64,6 @@ section.dashboard
               float: right
               right: 0
               margin-left: 15px
-            button.add
-              top: 27px
             &:before
               content: ''
               display: block
@@ -69,7 +72,10 @@ section.dashboard
               width: 30px
               height: 100%
               background: linear-gradient(90deg, rgba(44, 62, 80, 0) 0%, rgba(44, 62, 80, 1) 100%)
+            button.add
+              top: 31px
         ul
+          margin: 0
           animation: pop-in .2s
           li a
             display: block
@@ -94,6 +100,7 @@ section.dashboard
       left: 0
       background: #34495e
       ul
+        margin: 0
         li
           overflow: hidden
           &:after
@@ -120,7 +127,6 @@ section.dashboard
     ul
       list-style-type: none
       padding: 0
-      margin: 0 0 15px 0
       li
         position: relative
         padding: 10px 20px
@@ -217,14 +223,16 @@ section.dashboard(transition='fade')
         button.plain.menu(@click='open')
           img(src="/img/menu.svg")
         div.tools(v-if='isOpen')
-          button.add(v-link="{ path : '/wizard/import' }") +
+          button.add(v-link="{ path : '/wizard/import' }")
+            img(src='/img/add.svg')
         h1 {{currentWatcher.name}}
       ul(v-if='isOpen')
         li(v-for='(index, watcher) of watchers', v-if="watcher | other")
           a(v-link="{ name: 'watcher', params: { watcher: index }}") {{watcher.name}}
-    div.files
+    div.files(v-if='currentWatcher')
       header
-        button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") +
+        button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }")
+          img(src='/img/add.svg')
         h1 Watched files
     ul(v-if="hasFiles")
       li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='contextMenu', data-path='{{path}}')
