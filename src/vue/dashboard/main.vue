@@ -149,6 +149,7 @@ section.dashboard
     bottom: 0
     left: 275px
     background: white
+    z-index: 1
     &.form
       padding: 30px
       color: #44
@@ -213,6 +214,14 @@ section.dashboard
           margin-bottom: 15px
       footer
         text-align: center
+.logoWatermark
+  position: fixed
+  top: 0
+  right: 30px
+  width: 70vh
+  opacity: .3
+  transform: rotateZ(-90deg)
+  transform-origin: 100% 100% 0
 </style>
 
 <template lang="jade">
@@ -242,6 +251,7 @@ section.dashboard(transition='fade')
       No files are being watched.
       #[p #[b #[a.cool(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") Click here]] to start watching a file.]
   router-view
+  img.logoWatermark(src='/img/logo.svg')
 </template>
 
 <script lang="coffee">

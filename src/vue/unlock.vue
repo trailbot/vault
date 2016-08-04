@@ -3,6 +3,10 @@ section.unlock
   background: linear-gradient(45deg, #34495e 0%, #44586d 100%)
   animation: fade-in 1s
 
+  .logo
+    text-align: center
+    padding: 30px 0
+
   article
     background: white
     color: #777;
@@ -15,7 +19,7 @@ section.unlock
     &.form
       min-width: 440px
       max-width: 65vw
-      top: 50px
+      top: 150px
       right: 50px
       left: 50px
 
@@ -110,12 +114,14 @@ section.unlock
 
 <template lang="jade">
 section.unlock(transition='fade')
+  h1.logo
+    img(src='/img/logo_dark.svg')
   article.form
     header
       h1 Unlock your keypar
     form(@keyup.enter='submit')
       p All data collected by {{appName}} is encrypted with a keypar whose passphrase is only known by you.
-      p In order to be able of decrypting such data, please introduce the same passphrase that you chose when you generated your keypar.
+      p In order to decrypt such data, please introduce your passphrase .
       p.error(v-if='error') {{error}}
       fieldset.pass
         label(for='pass') Passphrase
