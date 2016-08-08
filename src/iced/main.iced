@@ -116,6 +116,22 @@ main = ->
   @clear = ->
     localStorage.clear()
 
+  @fooEvent =
+    diff: [
+      type: 'fill'
+      lines: ["This is the old content"]
+    ,
+      type: 'add'
+      lines: ["This is a new line"]
+    ]
+    prev:
+      time: Date.now() - 86400000
+      content: "This is the old content"
+    cur:
+      time: Date.now()
+      content: "This is the old content\nThis is a new line"
+    path: '/example/path/to/a/file'
+
 Main = flight.component main
 Main.attachTo document
 module.exports = Main

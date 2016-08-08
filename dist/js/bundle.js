@@ -156,8 +156,28 @@
         return cb(window.prompt('Please, paste the text down below'));
       }
     };
-    return this.clear = function() {
+    this.clear = function() {
       return localStorage.clear();
+    };
+    return this.fooEvent = {
+      diff: [
+        {
+          type: 'fill',
+          lines: ["This is the old content"]
+        }, {
+          type: 'add',
+          lines: ["This is a new line"]
+        }
+      ],
+      prev: {
+        time: Date.now() - 86400000,
+        content: "This is the old content"
+      },
+      cur: {
+        time: Date.now(),
+        content: "This is the old content\nThis is a new line"
+      },
+      path: '/example/path/to/a/file'
     };
   };
 
@@ -14951,8 +14971,23 @@ module.exports = {
       })(this));
     },
     submit: function(e) {
+      var field, key, ref;
       e.preventDefault();
       console.log(JSON.stringify(this.params));
+      ref = this.fields;
+      for (key in ref) {
+        field = ref[key];
+        if (!(field.type === 'url' && field.test)) {
+          continue;
+        }
+        console.log("Testing " + this.params[key]);
+        window.request({
+          method: field.test,
+          body: app.fooEvent,
+          json: true,
+          url: this.params[key]
+        });
+      }
       this.$parent.file.policies.push({
         name: this.name,
         uri: this.gitURL,
