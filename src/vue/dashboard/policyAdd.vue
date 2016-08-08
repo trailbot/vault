@@ -49,7 +49,7 @@ article.form.policyAdd(transition='driftFade')
     fieldset(v-if='fields', v-for='(key, field) of fields')
       label(v-if='field.label', for='{{key}}') {{field.label}}
       select(v-if='field.type == "select"', v-model='params[key]', v-bind:required='field.required')
-        option(v-for='(val, option) of field.options', value='{{val}}') {{option.label}}
+        option(v-for='(val, label) of field.options', value='{{val}}') {{label}}
       input(v-else, name='{{key}}', type='{{field.type}}', v-model='params[key]', v-bind:required='field.required')
       p.tip(v-if='field.tip') {{field.tip}}
     fieldset(v-if='valid')

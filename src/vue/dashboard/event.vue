@@ -59,21 +59,23 @@ article
 
 <template lang="jade">
 article.form.event(transition="driftFade")
-  //pre {{event | stringify null '  '}}
-  //pre {{event | flatten | stringify null '  '}}
-  table.diff
-    tbody
-      tr(v-for="line in event | flatten", v-bind:class="line.type")
-        td.index {{line.indexA}}
-        td.index {{line.indexB}}
-        td.type
-          span(v-if="line.type == 'add'") +
-          span(v-if="line.type == 'rem'") -
-        td.text(v-if="line.type != 'ellipsis'")
-          code {{line.text}}
-        td.ellipsis(v-else)
-          span {{line.size}} omitted lines
-  hr.eof
+  div(v-if="event.content.type == 'change'")
+    table.diff
+      tbody
+        tr(v-for="line in event | flatten", v-bind:class="line.type")
+          td.index {{line.indexA}}
+          td.index {{line.indexB}}
+          td.type
+            span(v-if="line.type == 'add'") +
+            span(v-if="line.type == 'rem'") -
+          td.text(v-if="line.type != 'ellipsis'")
+            code {{line.text}}
+          td.ellipsis(v-else)
+            span {{line.size}} omitted lines
+    hr.eof
+  div(v-else)
+    pre {{event | stringify null '  '}}
+
 </template>
 
 <script lang="coffee">
@@ -93,7 +95,7 @@ module.exports =
     flatten: (event) ->
       offsetA = 0
       offsetB = 0
-      event.changes.reduce (acc, e, i, a) =>
+      event.content.payload.reduce (acc, e, i, a) =>
         if e.lines
           if e.type is 'add'
             offsetA++

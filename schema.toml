@@ -5,7 +5,7 @@ indexes = [
   "reader_creator"
 ]
 
-[collections.diffs]
+[collections.events]
 indexes = [
   "reader",
   "creator",
@@ -54,8 +54,8 @@ validator = """
   }
 """
 
-[groups.authenticated.rules.diffs_read]
-template = "collection('diffs').anyRead({creator: any(), reader: userId(), content: any()})"
+[groups.authenticated.rules.events_read]
+template = "collection('events').anyRead({creator: any(), reader: userId(), content: any()})"
 
-[groups.authenticated.rules.diffs_write]
-template = "collection('diffs').anyWrite({creator: userId(), reader: any(), content: any()})"
+[groups.authenticated.rules.events_write]
+template = "collection('events').anyWrite({creator: userId(), reader: any(), content: any()})"

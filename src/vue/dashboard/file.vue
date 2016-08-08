@@ -66,9 +66,10 @@ article.file(transition='driftFade')
     ul(v-if='thereAreEvents')
       li(v-for="event in events | orderBy 'time' -1", v-link="{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }")
         time(datetime='event.time') {{event.time | prettyDate}}
-        p.stats
-          span.add(v-if="event.changes | countByType 'add'") +{{event.changes | countByType 'add'}}
-          span.rem(v-if="event.changes | countByType 'rem'") -{{event.changes | countByType 'rem'}}
+        p.stats(v-if='event.content.type == "change"')
+          span.add(v-if="event.content.payload | countByType 'add'") +{{event.content.payload | countByType 'add'}}
+          span.rem(v-if="event.content.payload | countByType 'rem'") -{{event.content.payload | countByType 'rem'}}
+
     div.empty(v-else).
       No events have been received yet.
   router-view
@@ -105,6 +106,8 @@ module.exports =
         else
           acc
       , 0
+    stringify: (o) ->
+      JSON.stringify o
   methods:
     contextMenu: (e) ->
       name = $(e.target).closest('li').data 'name'

@@ -9,14 +9,14 @@ vault = ->
 
     @users = @hz 'users'
     @settings = @hz 'settings'
-    @diffs = @hz 'diffs'
-    console.log JSON.stringify @diffs
+    @events = @hz 'events'
+    console.log JSON.stringify @events
 
     @hz.onReady ->
       console.log 'Connected to Horizon!'
 
     @hz.onDisconnected (e) ->
-      location.reload()
+#      location.reload()
 
     @hz.currentUser().fetch().subscribe (me) =>
       console.log JSON.stringify me
@@ -40,7 +40,7 @@ vault = ->
     return if @retrieving
     @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
-    @diffs.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
+    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
       if changes.new_val?
         @eventProcess changes.new_val
         app.settings.lastSync = new Date()
@@ -90,10 +90,10 @@ vault = ->
     message.decrypt(app.privateKey)
     .then ({packets}) ->
       literal = packets.findPacket pgp.enums.packet.literal
-      # Data extraction
+      # Payload extraction
       {filename, date, data} = literal
-      data = pgp.util.Uint8Array2str data
-      console.log 'There is a new diff ' + JSON.stringify {filename, date, data}
+      data = JSON.parse pgp.util.Uint8Array2str data
+      console.log 'There is a new event ' + JSON.stringify {filename, date}
       watcher = app.settings.watchers.find (e) ->
         e.fingerprint == creator
 
@@ -113,7 +113,7 @@ vault = ->
         event =
           ref: Date.now()
           time: date
-          changes: JSON.parse data
+          content: data
         Vue.set watcher, 'events', {} unless watcher.events?
         Vue.set watcher.events, path, [] unless watcher.events[path]?
         events = watcher.events[path]

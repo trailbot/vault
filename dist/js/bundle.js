@@ -186,14 +186,12 @@
         _this.hz.connect();
         _this.users = _this.hz('users');
         _this.settings = _this.hz('settings');
-        _this.diffs = _this.hz('diffs');
-        console.log(JSON.stringify(_this.diffs));
+        _this.events = _this.hz('events');
+        console.log(JSON.stringify(_this.events));
         _this.hz.onReady(function() {
           return console.log('Connected to Horizon!');
         });
-        _this.hz.onDisconnected(function(e) {
-          return location.reload();
-        });
+        _this.hz.onDisconnected(function(e) {});
         _this.hz.currentUser().fetch().subscribe(function(me) {
           var fingerprint, _ref;
           console.log(JSON.stringify(me));
@@ -221,7 +219,7 @@
         }
         _this.retrieving = true;
         console.log("Retrieving events newer than " + app.settings.lastSync);
-        return _this.diffs.order('datetime', 'descending').above({
+        return _this.events.order('datetime', 'descending').above({
           datetime: new Date(app.settings.lastSync || 0)
         }).findAll(_this.toMe).watch({
           rawChanges: true
@@ -343,11 +341,10 @@
           packets = _arg1.packets;
           literal = packets.findPacket(pgp.enums.packet.literal);
           filename = literal.filename, date = literal.date, data = literal.data;
-          data = pgp.util.Uint8Array2str(data);
-          console.log('There is a new diff ' + JSON.stringify({
+          data = JSON.parse(pgp.util.Uint8Array2str(data));
+          console.log('There is a new event ' + JSON.stringify({
             filename: filename,
-            date: date,
-            data: data
+            date: date
           }));
           watcher = app.settings.watchers.find(function(e) {
             return e.fingerprint === creator;
@@ -371,7 +368,7 @@
             event = {
               ref: Date.now(),
               time: date,
-              changes: JSON.parse(data)
+              content: data
             };
             if (watcher.events == null) {
               Vue.set(watcher, 'events', {});
@@ -14410,7 +14407,7 @@ module.exports = {
       var offsetA, offsetB;
       offsetA = 0;
       offsetB = 0;
-      return event.changes.reduce((function(_this) {
+      return event.content.payload.reduce((function(_this) {
         return function(acc, e, i, a) {
           if (e.lines) {
             if (e.type === 'add') {
@@ -14462,7 +14459,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form event\" _v-4de479bc=\"\"><!--pre {{event | stringify null '  '}}--><!--pre {{event | flatten | stringify null '  '}}--><table class=\"diff\" _v-4de479bc=\"\"><tbody _v-4de479bc=\"\"><tr v-for=\"line in event | flatten\" v-bind:class=\"line.type\" _v-4de479bc=\"\"><td class=\"index\" _v-4de479bc=\"\">{{line.indexA}}</td><td class=\"index\" _v-4de479bc=\"\">{{line.indexB}}</td><td class=\"type\" _v-4de479bc=\"\"><span v-if=\"line.type == 'add'\" _v-4de479bc=\"\">+</span><span v-if=\"line.type == 'rem'\" _v-4de479bc=\"\">-</span></td><td v-if=\"line.type != 'ellipsis'\" class=\"text\" _v-4de479bc=\"\"><code _v-4de479bc=\"\">{{line.text}}</code></td><td v-else=\"v-else\" class=\"ellipsis\" _v-4de479bc=\"\"><span _v-4de479bc=\"\">{{line.size}} omitted lines</span></td></tr></tbody></table><hr class=\"eof\" _v-4de479bc=\"\"></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form event\" _v-4de479bc=\"\"><div v-if=\"event.content.type == 'change'\" _v-4de479bc=\"\"><table class=\"diff\" _v-4de479bc=\"\"><tbody _v-4de479bc=\"\"><tr v-for=\"line in event | flatten\" v-bind:class=\"line.type\" _v-4de479bc=\"\"><td class=\"index\" _v-4de479bc=\"\">{{line.indexA}}</td><td class=\"index\" _v-4de479bc=\"\">{{line.indexB}}</td><td class=\"type\" _v-4de479bc=\"\"><span v-if=\"line.type == 'add'\" _v-4de479bc=\"\">+</span><span v-if=\"line.type == 'rem'\" _v-4de479bc=\"\">-</span></td><td v-if=\"line.type != 'ellipsis'\" class=\"text\" _v-4de479bc=\"\"><code _v-4de479bc=\"\">{{line.text}}</code></td><td v-else=\"v-else\" class=\"ellipsis\" _v-4de479bc=\"\"><span _v-4de479bc=\"\">{{line.size}} omitted lines</span></td></tr></tbody></table><hr class=\"eof\" _v-4de479bc=\"\"></div><div v-else=\"v-else\" _v-4de479bc=\"\"><pre _v-4de479bc=\"\">{{event | stringify null '  '}}</pre></div></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -14527,6 +14524,9 @@ module.exports = {
           return acc;
         }
       }, 0);
+    },
+    stringify: function(o) {
+      return JSON.stringify(o);
     }
   },
   methods: {
@@ -14590,7 +14590,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-6af61db8=\"\"><nav _v-6af61db8=\"\"><header _v-6af61db8=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-6af61db8=\"\"><img src=\"/img/add.svg\" _v-6af61db8=\"\"></button><h1 _v-6af61db8=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" _v-6af61db8=\"\"><li v-for=\"(i, policy) of policies\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-6af61db8=\"\"><span _v-6af61db8=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No policies have been defined yet.\n<p _v-6af61db8=\"\"><b _v-6af61db8=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-6af61db8=\"\">Click here</a></b> to add a policy.</p></div><header _v-6af61db8=\"\"><h1 _v-6af61db8=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-6af61db8=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-6af61db8=\"\"><time datetime=\"event.time\" _v-6af61db8=\"\">{{event.time | prettyDate}}</time><p class=\"stats\" _v-6af61db8=\"\"><span v-if=\"event.changes | countByType 'add'\" class=\"add\" _v-6af61db8=\"\">+{{event.changes | countByType 'add'}}</span><span v-if=\"event.changes | countByType 'rem'\" class=\"rem\" _v-6af61db8=\"\">-{{event.changes | countByType 'rem'}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No events have been received yet.</div></nav><router-view _v-6af61db8=\"\"></router-view></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-6af61db8=\"\"><nav _v-6af61db8=\"\"><header _v-6af61db8=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-6af61db8=\"\"><img src=\"/img/add.svg\" _v-6af61db8=\"\"></button><h1 _v-6af61db8=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" _v-6af61db8=\"\"><li v-for=\"(i, policy) of policies\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-6af61db8=\"\"><span _v-6af61db8=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No policies have been defined yet.\n<p _v-6af61db8=\"\"><b _v-6af61db8=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-6af61db8=\"\">Click here</a></b> to add a policy.</p></div><header _v-6af61db8=\"\"><h1 _v-6af61db8=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-6af61db8=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-6af61db8=\"\"><time datetime=\"event.time\" _v-6af61db8=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-6af61db8=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-6af61db8=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-6af61db8=\"\">-{{event.content.payload | countByType 'rem'}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No events have been received yet.</div></nav><router-view _v-6af61db8=\"\"></router-view></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -14975,7 +14975,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in our GitHub account or <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, option) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{option.label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Policies are scripts that receive every change happening to watched files and trigger different actions.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in our GitHub account or <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, label) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

@@ -185,14 +185,12 @@
         _this.hz.connect();
         _this.users = _this.hz('users');
         _this.settings = _this.hz('settings');
-        _this.diffs = _this.hz('diffs');
-        console.log(JSON.stringify(_this.diffs));
+        _this.events = _this.hz('events');
+        console.log(JSON.stringify(_this.events));
         _this.hz.onReady(function() {
           return console.log('Connected to Horizon!');
         });
-        _this.hz.onDisconnected(function(e) {
-          return location.reload();
-        });
+        _this.hz.onDisconnected(function(e) {});
         _this.hz.currentUser().fetch().subscribe(function(me) {
           var fingerprint, _ref;
           console.log(JSON.stringify(me));
@@ -220,7 +218,7 @@
         }
         _this.retrieving = true;
         console.log("Retrieving events newer than " + app.settings.lastSync);
-        return _this.diffs.order('datetime', 'descending').above({
+        return _this.events.order('datetime', 'descending').above({
           datetime: new Date(app.settings.lastSync || 0)
         }).findAll(_this.toMe).watch({
           rawChanges: true
@@ -342,11 +340,10 @@
           packets = _arg1.packets;
           literal = packets.findPacket(pgp.enums.packet.literal);
           filename = literal.filename, date = literal.date, data = literal.data;
-          data = pgp.util.Uint8Array2str(data);
-          console.log('There is a new diff ' + JSON.stringify({
+          data = JSON.parse(pgp.util.Uint8Array2str(data));
+          console.log('There is a new event ' + JSON.stringify({
             filename: filename,
-            date: date,
-            data: data
+            date: date
           }));
           watcher = app.settings.watchers.find(function(e) {
             return e.fingerprint === creator;
@@ -370,7 +367,7 @@
             event = {
               ref: Date.now(),
               time: date,
-              changes: JSON.parse(data)
+              content: data
             };
             if (watcher.events == null) {
               Vue.set(watcher, 'events', {});
