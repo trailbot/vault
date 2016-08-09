@@ -33,10 +33,11 @@ article.form.policyAdd(transition='driftFade')
     header
       h1.
         Add a new policy for #[strong {{fileName}}]
-    p Policies are scripts that receive every change happening to watched files and trigger different actions.
-    p Policies are Node.js packages downloaded from public git repositories.
+    p Smart Policies are scripts that receive notifications every time a watched file changes. Policies trigger actions such as emailing someone, reverting changes or shutting the system down.
+    p Policies are Node.js packages downloaded from public git repositories. Anyone can take any available policy, fork it and improve it.
+    p Policies are parameterizable. Each policy package can define customizable "fields" to suit different monitoring needs.
     p.
-      You can find some #[a(@click='openExternal', href='https://github.com/trailbot').cool ready-to-use policies] in our GitHub account or #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Smart-Policies').cool learn how to write your own policies].
+      You can find some #[a(@click='openExternal', href='https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies').cool ready-to-use policies] in GitHub and also #[a(@click='openExternal', href='https://github.com/stampery/watcher/wiki/Smart-Policies').cool learn how to write your own policies].
     fieldset(data-valid='{{branches}}').git
       label(for='gitURL') Git HTTPS URL
       input(type='url', name='gitURL', v-model='gitURL', @keyup='getBranches', disabled='{{branches}}')

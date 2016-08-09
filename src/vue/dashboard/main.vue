@@ -127,6 +127,7 @@ section.dashboard
     ul
       list-style-type: none
       padding: 0
+      margin: 0 0 20px 0
       li
         position: relative
         padding: 10px 20px
