@@ -3,9 +3,25 @@ VueRouter = require 'vue-router'
 Vue.use VueRouter
 App = Vue.extend({})
 
+electron = eRequire('electron').remote
+fs = eRequire 'fs'
+git = eRequire 'simple-git'
+mkdir = eRequire 'mkdirp'
+request = eRequire 'request'
+os = eRequire 'os'
+
 main = ->
 
   @after 'initialize', ->
+
+    document.onkeyup = (e) =>
+      if e.altKey is true and e.key is 'c'
+        @clear()
+        document.location.reload()
+    document.onkeydown = (e) =>
+      if e.key is 'Enter'
+        e.preventDefault()
+
     openpgp = require './openpgp.min.js'
     openpgp.initWorker
       path: '/js/openpgp.worker.min.js'
@@ -81,14 +97,6 @@ main = ->
       @router.replace '/unlock'
     else
       @router.replace '/wizard'
-
-    document.onkeyup = (e) =>
-      if e.altKey is true and e.key is 'c'
-        @clear()
-        document.location.reload()
-    document.onkeydown = (e) =>
-      if e.key is 'Enter'
-        e.preventDefault()
 
   @save = ->
     console.log 'SAVING APP'

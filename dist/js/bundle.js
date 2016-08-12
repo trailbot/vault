@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function() {
-  var App, Main, Vue, VueRouter, main;
+  var App, Main, Vue, VueRouter, electron, fs, git, main, mkdir, os, request;
 
   Vue = require('vue');
 
@@ -9,6 +9,18 @@
   Vue.use(VueRouter);
 
   App = Vue.extend({});
+
+  electron = eRequire('electron').remote;
+
+  fs = eRequire('fs');
+
+  git = eRequire('simple-git');
+
+  mkdir = eRequire('mkdirp');
+
+  request = eRequire('request');
+
+  os = eRequire('os');
 
   main = function() {
     this.after('initialize', function() {

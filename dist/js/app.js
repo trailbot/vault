@@ -1,5 +1,5 @@
 (function() {
-  var App, Main, Vue, VueRouter, main;
+  var App, Main, Vue, VueRouter, electron, fs, git, main, mkdir, os, request;
 
   Vue = require('vue');
 
@@ -8,6 +8,18 @@
   Vue.use(VueRouter);
 
   App = Vue.extend({});
+
+  electron = eRequire('electron').remote;
+
+  fs = eRequire('fs');
+
+  git = eRequire('simple-git');
+
+  mkdir = eRequire('mkdirp');
+
+  request = eRequire('request');
+
+  os = eRequire('os');
 
   main = function() {
     this.after('initialize', function() {
