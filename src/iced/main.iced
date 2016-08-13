@@ -14,13 +14,13 @@ main = ->
 
   @after 'initialize', ->
 
-    document.onkeyup = (e) =>
-      if e.altKey is true and e.key is 'c'
+    document.addEventListener 'keydown', (e) =>
+      if e.which is 13
+        e.preventDefault()
+    document.addEventListener 'keyup', (e) =>
+      if e.altKey is true and e.which is 67
         @clear()
         document.location.reload()
-    document.onkeydown = (e) =>
-      if e.key is 'Enter'
-        e.preventDefault()
 
     openpgp = require './openpgp.min.js'
     openpgp.initWorker

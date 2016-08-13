@@ -25,21 +25,21 @@
   main = function() {
     this.after('initialize', function() {
       var openpgp;
-      document.onkeyup = (function(_this) {
+      document.addEventListener('keydown', (function(_this) {
         return function(e) {
-          if (e.altKey === true && e.key === 'c') {
+          if (e.which === 13) {
+            return e.preventDefault();
+          }
+        };
+      })(this));
+      document.addEventListener('keyup', (function(_this) {
+        return function(e) {
+          if (e.altKey === true && e.which === 67) {
             _this.clear();
             return document.location.reload();
           }
         };
-      })(this);
-      document.onkeydown = (function(_this) {
-        return function(e) {
-          if (e.key === 'Enter') {
-            return e.preventDefault();
-          }
-        };
-      })(this);
+      })(this));
       openpgp = require('./openpgp.min.js');
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'
