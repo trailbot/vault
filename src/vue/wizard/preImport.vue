@@ -20,6 +20,7 @@ footer
 <template lang="jade">
 article.form(transition='slide')
   header
+    button.plain.back(@click='back') < BACK
     h1 Watcher configuration
   form
     p.
@@ -37,5 +38,6 @@ app = document.app
 module.exports =
   data: app.data
   methods:
-    run: ->
+    back: ->
+      app.router.go '/wizard/export'
 </script>

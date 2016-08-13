@@ -20,19 +20,16 @@ div.or
         text-transform: uppercase
         font-size: .8em
         color: gray
-
 </style>
 
 <template lang="jade">
 article.form(transition='slide')
   header
-      h1 Public key export
+    h1 Public key export
   form
     p It is very important to export the public key now so that you can later import it in every server you want to monitor.
   footer
-    div.half.or
-      button.or(@click='copy') Copy to clipboard
-      button.or(@click='export') Export to filesystem
+    button.or(@click='export') Export to filesystem
 </template>
 
 <script lang="coffee">

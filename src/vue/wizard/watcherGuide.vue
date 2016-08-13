@@ -1,4 +1,7 @@
 <style lang="stylus" scoped>
+article.form
+  max-width: 90vw!important
+  width: 840px
 div.or
   text-align: center
   button
@@ -44,13 +47,13 @@ ol
 <template lang="jade">
 article.form(transition='slide')
   header
+    button.plain.back(@click='back') < BACK
     h1 Watcher setup
   form(@keyup.enter='submit')
     p Setting up a watcher is pretty simple:
     ol
-      li Log into you server.
       li.
-        Become #[strong root] (using #[code sudo su], #[code su] or similar).
+        Log into your server and become #[strong root] (using #[code sudo su], #[code su] or similar).
       li
         span Install git and nodejs 6.x:
         pre.
@@ -89,6 +92,8 @@ module.exports =
   methods:
     next: ->
       app.router.go '/wizard/congrats'
+    back: ->
+      app.router.go '/wizard/preImport'
     newWatcher: (key) ->
       try
         keys = app.pgp.key.readArmored(key).keys

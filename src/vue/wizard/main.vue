@@ -29,6 +29,20 @@ section.wizard
           color: #77
           font-weight: regular
 
+        button.back
+          float: right
+          width: auto
+          margin-top: -5px
+          margin-right: -10px
+          padding: 10px 15px
+          width: auto
+          background: #EEE
+          color: #AAA
+          font-size: .7em
+          &:hover
+            background: #44586d
+            color: white
+
       form
         padding: 30px 30px 10px 30px
         max-height: calc(100vh - 250px)
