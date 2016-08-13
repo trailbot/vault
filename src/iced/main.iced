@@ -3,12 +3,12 @@ VueRouter = require 'vue-router'
 Vue.use VueRouter
 App = Vue.extend({})
 
-electron = eRequire('electron').remote
-fs = eRequire 'fs'
-git = eRequire 'simple-git'
-mkdir = eRequire 'mkdirp'
-request = eRequire 'request'
-os = eRequire 'os'
+window.electron = eRequire('electron').remote
+window.fs = eRequire 'fs'
+window.git = eRequire 'simple-git'
+window.mkdir = eRequire 'mkdirp'
+window.request = eRequire 'request'
+window.os = eRequire 'os'
 
 main = ->
 

@@ -51,16 +51,13 @@ module.exports =
       @next()
     export: (e) ->
       e.preventDefault()
-      try
-        electron.dialog.showSaveDialog
-          title: 'Exporting client public key'
-          defaultPath: "./#{@appName.toLowerCase()}_client.pub.asc"
-          buttonLabel: 'Export'
-        , (path) =>
-          if path
-            fs.writeFileSync(path, @settings.keys.pub)
-            @$parent.exported = path.split('/').pop()
-            @next()
-      catch err
-        console.log 'This is not Electron'
+      electron.dialog.showSaveDialog
+        title: 'Exporting client public key'
+        defaultPath: "./#{@appName.toLowerCase()}_client.pub.asc"
+        buttonLabel: 'Export'
+      , (path) =>
+        if path
+          fs.writeFileSync(path, @settings.keys.pub)
+          @$parent.exported = path.split('/').pop()
+          @next()
 </script>

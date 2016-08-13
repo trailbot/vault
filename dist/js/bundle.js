@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function() {
-  var App, Main, Vue, VueRouter, electron, fs, git, main, mkdir, os, request;
+  var App, Main, Vue, VueRouter, main;
 
   Vue = require('vue');
 
@@ -10,17 +10,17 @@
 
   App = Vue.extend({});
 
-  electron = eRequire('electron').remote;
+  window.electron = eRequire('electron').remote;
 
-  fs = eRequire('fs');
+  window.fs = eRequire('fs');
 
-  git = eRequire('simple-git');
+  window.git = eRequire('simple-git');
 
-  mkdir = eRequire('mkdirp');
+  window.mkdir = eRequire('mkdirp');
 
-  request = eRequire('request');
+  window.request = eRequire('request');
 
-  os = eRequire('os');
+  window.os = eRequire('os');
 
   main = function() {
     this.after('initialize', function() {
@@ -15155,26 +15155,20 @@ module.exports = {
       return this.next();
     },
     "export": function(e) {
-      var err, error;
       e.preventDefault();
-      try {
-        return electron.dialog.showSaveDialog({
-          title: 'Exporting client public key',
-          defaultPath: "./" + (this.appName.toLowerCase()) + "_client.pub.asc",
-          buttonLabel: 'Export'
-        }, (function(_this) {
-          return function(path) {
-            if (path) {
-              fs.writeFileSync(path, _this.settings.keys.pub);
-              _this.$parent.exported = path.split('/').pop();
-              return _this.next();
-            }
-          };
-        })(this));
-      } catch (error) {
-        err = error;
-        return console.log('This is not Electron');
-      }
+      return electron.dialog.showSaveDialog({
+        title: 'Exporting client public key',
+        defaultPath: "./" + (this.appName.toLowerCase()) + "_client.pub.asc",
+        buttonLabel: 'Export'
+      }, (function(_this) {
+        return function(path) {
+          if (path) {
+            fs.writeFileSync(path, _this.settings.keys.pub);
+            _this.$parent.exported = path.split('/').pop();
+            return _this.next();
+          }
+        };
+      })(this));
     }
   }
 };
