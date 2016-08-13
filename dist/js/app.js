@@ -24,6 +24,21 @@
   main = function() {
     this.after('initialize', function() {
       var openpgp;
+      document.onkeyup = (function(_this) {
+        return function(e) {
+          if (e.altKey === true && e.key === 'c') {
+            _this.clear();
+            return document.location.reload();
+          }
+        };
+      })(this);
+      document.onkeydown = (function(_this) {
+        return function(e) {
+          if (e.key === 'Enter') {
+            return e.preventDefault();
+          }
+        };
+      })(this);
       openpgp = require('./openpgp.min.js');
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'
@@ -120,25 +135,10 @@
       this.router.start(App, '#app');
       if (this.settings.keys != null) {
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        this.router.replace('/unlock');
+        return this.router.replace('/unlock');
       } else {
-        this.router.replace('/wizard');
+        return this.router.replace('/wizard');
       }
-      document.onkeyup = (function(_this) {
-        return function(e) {
-          if (e.altKey === true && e.key === 'c') {
-            _this.clear();
-            return document.location.reload();
-          }
-        };
-      })(this);
-      return document.onkeydown = (function(_this) {
-        return function(e) {
-          if (e.key === 'Enter') {
-            return e.preventDefault();
-          }
-        };
-      })(this);
     });
     this.save = function() {
       console.log('SAVING APP');

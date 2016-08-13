@@ -25,6 +25,21 @@
   main = function() {
     this.after('initialize', function() {
       var openpgp;
+      document.onkeyup = (function(_this) {
+        return function(e) {
+          if (e.altKey === true && e.key === 'c') {
+            _this.clear();
+            return document.location.reload();
+          }
+        };
+      })(this);
+      document.onkeydown = (function(_this) {
+        return function(e) {
+          if (e.key === 'Enter') {
+            return e.preventDefault();
+          }
+        };
+      })(this);
       openpgp = require('./openpgp.min.js');
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'
@@ -121,25 +136,10 @@
       this.router.start(App, '#app');
       if (this.settings.keys != null) {
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        this.router.replace('/unlock');
+        return this.router.replace('/unlock');
       } else {
-        this.router.replace('/wizard');
+        return this.router.replace('/wizard');
       }
-      document.onkeyup = (function(_this) {
-        return function(e) {
-          if (e.altKey === true && e.key === 'c') {
-            _this.clear();
-            return document.location.reload();
-          }
-        };
-      })(this);
-      return document.onkeydown = (function(_this) {
-        return function(e) {
-          if (e.key === 'Enter') {
-            return e.preventDefault();
-          }
-        };
-      })(this);
     });
     this.save = function() {
       console.log('SAVING APP');
@@ -15401,9 +15401,11 @@ if (module.hot) {(function () {  module.hot.accept()
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("section.wizard {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.wizard article {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.wizard article.form {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 50px;\n  right: 50px;\n  left: 50px;\n}\nsection.wizard article.form header {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.wizard article.form header h1 {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.wizard article.form form {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.wizard article.form form fieldset {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.wizard article.form form fieldset * {\n  box-sizing: border-box;\n}\nsection.wizard article.form form fieldset label {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.wizard article.form form fieldset input {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.wizard article.form form fieldset input:focus {\n  border-color: #999;\n}\nsection.wizard article.form form fieldset:last-of-type {\n  padding-bottom: 30px;\n}\nsection.wizard article.form form p {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.wizard article.form form p.error {\n  position: block;\n  color: #f00;\n}\nsection.wizard article.form form p.error:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.wizard article.form footer {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.wizard article.form footer button {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: 700;\n  font-size: 0.8em;\n}\nsection.wizard article.form footer button:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.wizard article.form footer div.half button {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.wizard article.form footer div.half button:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n")
 module.exports = {
-  data: $.extend(document.app.data(), {
-    exported: null
-  })
+  data: function() {
+    return $.extend(document.app.data(), {
+      exported: null
+    });
+  }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default

@@ -115,6 +115,7 @@ section.wizard
 
 <script lang="coffee">
 module.exports =
-  data: $.extend document.app.data(),
-    exported: null
+  data: ->
+    $.extend document.app.data(),
+      exported: null
 </script>

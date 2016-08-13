@@ -37,7 +37,7 @@ article.form(transition='slide')
 <script lang="coffee">
 app = document.app
 module.exports =
-  data: () ->
+  data: ->
     $.extend app.data(),
       settings:
         app.settings
