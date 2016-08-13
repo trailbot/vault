@@ -52,10 +52,10 @@ article.form(transition='slide')
       li.
         Become #[strong root] (using #[code sudo su], #[code su] or similar).
       li
-        span Install nodejs 6.x:
+        span Install git and nodejs 6.x:
         pre.
           curl -sL https://deb.nodesource.com/setup_6.x | bash -
-          apt-get install -y nodejs || yum -y install nodejs || pacman -S nodejs npm
+          apt-get install -y git nodejs || yum -y install git nodejs || pacman -S git nodejs npm
       li
         span Clone the repository and install the nodejs dependencies:
         pre.
@@ -70,7 +70,7 @@ article.form(transition='slide')
         Run the setup script:
         #[code npm run setup]
       li.
-        Finally, choose an option below:
+        Finally, choose an option below to import the watcher key:
   footer
     div.half.or
       button.or(@click='paste') Take from clipboard
