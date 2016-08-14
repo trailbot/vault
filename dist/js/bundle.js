@@ -14925,38 +14925,34 @@ module.exports = {
       return window.electron.shell.openExternal(url);
     },
     getBranches: function(e) {
-      if (this.valid) {
-        return alert('Ready to submit');
-      } else {
-        if (!this.gitURL.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/))) {
-          return;
-        }
-        this.path = "/tmp/git_" + (this.gitURL.split('/').pop().replace('.', '_'));
-        window.mkdir(this.path);
-        this.git = window.git(this.path).init();
-        return this.git.getRemotes('origin', (function(_this) {
-          return function(err, remotes) {
-            var i, len, remote;
-            for (i = 0, len = remotes.length; i < len; i++) {
-              remote = remotes[i];
-              if (remote.name.length > 0) {
-                _this.git.removeRemote(remote.name);
-              }
-            }
-            return _this.git.addRemote('origin', _this.gitURL).fetch().branch(function(err, arg) {
-              var branches;
-              branches = arg.branches;
-              console.log(JSON.stringify(branches));
-              _this.branches = Object.keys(branches).filter(function(branch) {
-                return branch !== '(HEAD';
-              });
-              return _this.pullBranch();
-            });
-          };
-        })(this));
+      if (!this.gitURL.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/))) {
+        return;
       }
+      this.path = "/tmp/git_" + (this.gitURL.split('/').pop().replace('.', '_'));
+      window.mkdir(this.path);
+      this.git = window.git(this.path).init();
+      return this.git.getRemotes('origin', (function(_this) {
+        return function(err, remotes) {
+          var i, len, remote;
+          for (i = 0, len = remotes.length; i < len; i++) {
+            remote = remotes[i];
+            if (remote.name.length > 0) {
+              _this.git.removeRemote(remote.name);
+            }
+          }
+          return _this.git.addRemote('origin', _this.gitURL).fetch().branch(function(err, arg) {
+            var branches;
+            branches = arg.branches;
+            console.log(JSON.stringify(branches));
+            _this.branches = Object.keys(branches).filter(function(branch) {
+              return branch !== '(HEAD';
+            });
+            return _this.pullBranch();
+          });
+        };
+      })(this));
     },
-    pullBranch: function(e) {
+    pullBranch: function() {
       console.log("PULLING " + this.gitBranch);
       return this.git.checkout(this.gitBranch, (function(_this) {
         return function() {
@@ -14978,7 +14974,7 @@ module.exports = {
             }
             return results;
           } else {
-
+            return alert("This repository does not look like a Trailbot Smart Policy :(");
           }
         };
       })(this));
@@ -15023,7 +15019,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Smart Policies are scripts that receive notifications every time a watched file changes. Policies trigger actions such as emailing someone, reverting changes or shutting the system down.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories. Anyone can take any available policy, fork it and improve it.</p><p _v-24b38c17=\"\">Policies are parameterizable. Each policy package can define customizable \"fields\" to suit different monitoring needs.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in GitHub and also <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, label) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Smart Policies are scripts that receive notifications every time a watched file changes. Policies trigger actions such as emailing someone, reverting changes or shutting the system down.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories. Anyone can take any available policy, fork it and improve it.</p><p _v-24b38c17=\"\">Policies are parameterizable. Each policy package can define customizable \"fields\" to suit different monitoring needs.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in GitHub and also <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" @blur=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, label) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

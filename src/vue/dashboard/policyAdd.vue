@@ -45,7 +45,7 @@ article.form.policyAdd(transition='driftFade')
         Please consign the #[strong HTTPS URL] for the git repository of the policy package to be added.
     fieldset(v-if='branches')
       label(for='gitBranch') Git Branch
-      select(name='gitBranch', v-model='gitBranch', @change='pullBranch')
+      select(name='gitBranch', v-model='gitBranch', @change='pullBranch', @blur='pullBranch')
         option(v-for='branch of branches', value='{{branch}}') {{branch.split('/').pop()}}
     fieldset(v-if='fields', v-for='(key, field) of fields')
       label(v-if='field.label', for='{{key}}') {{field.label}}
@@ -84,24 +84,21 @@ module.exports =
       url = $(e.target).attr 'href'
       window.electron.shell.openExternal url
     getBranches: (e) ->
-      if @valid
-        alert 'Ready to submit'
-      else
-        return unless @gitURL.match new RegExp /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
-        @path = "/tmp/git_#{@gitURL.split('/').pop().replace('.', '_')}"
-        window.mkdir @path
-        @git = window.git(@path).init()
-        @git.getRemotes 'origin', (err, remotes) =>
-          for remote in remotes
-            @git.removeRemote(remote.name) if remote.name.length > 0
-          @git
-            .addRemote('origin', @gitURL)
-            .fetch()
-            .branch (err, {branches}) =>
-              console.log JSON.stringify branches
-              @branches = Object.keys(branches).filter (branch) -> branch isnt '(HEAD'
-              @pullBranch()
-    pullBranch: (e) ->
+      return unless @gitURL.match new RegExp /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+      @path = "/tmp/git_#{@gitURL.split('/').pop().replace('.', '_')}"
+      window.mkdir @path
+      @git = window.git(@path).init()
+      @git.getRemotes 'origin', (err, remotes) =>
+        for remote in remotes
+          @git.removeRemote(remote.name) if remote.name.length > 0
+        @git
+          .addRemote('origin', @gitURL)
+          .fetch()
+          .branch (err, {branches}) =>
+            console.log JSON.stringify branches
+            @branches = Object.keys(branches).filter (branch) -> branch isnt '(HEAD'
+            @pullBranch()
+    pullBranch: () ->
       console.log "PULLING #{@gitBranch}"
       @git
         .checkout @gitBranch, () =>
@@ -114,7 +111,7 @@ module.exports =
             for key, field of @fields when field.default?
               @params[key] = field.default
           else
-            # TODO error
+            alert "This repository does not look like a Trailbot Smart Policy :("
     submit: (e) ->
       e.preventDefault()
       console.log JSON.stringify @params
