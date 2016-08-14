@@ -98,9 +98,9 @@ module.exports =
       event.content.payload.reduce (acc, e, i, a) =>
         if e.lines
           if e.type is 'add'
-            offsetA++
+            offsetA += e.lines.length
           if e.type is 'rem'
-            offsetB++
+            offsetB += e.lines.length
           acc = acc.concat e.lines.map (text, i) =>
             indexA: if e.type isnt 'add' then e.start - offsetA + i
             indexB: if e.type isnt 'rem' then e.start - offsetB + i

@@ -14444,10 +14444,10 @@ module.exports = {
         return function(acc, e, i, a) {
           if (e.lines) {
             if (e.type === 'add') {
-              offsetA++;
+              offsetA += e.lines.length;
             }
             if (e.type === 'rem') {
-              offsetB++;
+              offsetB += e.lines.length;
             }
             acc = acc.concat(e.lines.map(function(text, i) {
               return {
