@@ -69,7 +69,9 @@ article.file(transition='driftFade')
         p.stats(v-if='event.content.type == "change"')
           span.add(v-if="event.content.payload | countByType 'add'") +{{event.content.payload | countByType 'add'}}
           span.rem(v-if="event.content.payload | countByType 'rem'") -{{event.content.payload | countByType 'rem'}}
-
+        p.stats(v-else)
+          span.add(v-if='event.content.type == "add"') CREATED
+          span.rem(v-if='event.content.type == "unlink"') REMOVED
     div.empty(v-else).
       No events have been received yet.
   router-view
