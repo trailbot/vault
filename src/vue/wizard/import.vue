@@ -25,7 +25,8 @@ div.or
 <template lang="jade">
 article.form(transition='slide')
   header
-      h1 Watcher public key import
+    button.plain.back(@click='back') < BACK
+    h1 Watcher public key import
   form
     p In order to verify the authenticity of the information coming from your servers, this desktop app needs to import your server's {{appName}} watcher public key.
   footer
@@ -44,6 +45,8 @@ module.exports =
   methods:
     next: ->
       app.router.go '/wizard/congrats'
+    back: ->
+      app.router.go '/wizard/preImport'
     newWatcher: (key) ->
       try
         keys = app.pgp.key.readArmored(key).keys

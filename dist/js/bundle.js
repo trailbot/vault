@@ -232,7 +232,8 @@
             fingerprint = app.settings.keys.fingerprint;
             _this.updateFingerprint(fingerprint);
             return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
-              return console.log('New settings', settings);
+              console.log('New settings');
+              return console.log(settings);
             }, function(error) {
               return console.error(error);
             }, function() {
@@ -309,7 +310,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 68
+                lineno: 69
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -346,7 +347,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 79
+                lineno: 80
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -354,7 +355,7 @@
             return __iced_k();
           }
         })(function() {
-          return _this[col].replace(obj).subscribe(function(result) {
+          return _this[col].upsert(obj).subscribe(function(result) {
             return cb && cb(result.id);
           }, function(error) {
             return console.error(error);
@@ -15301,6 +15302,9 @@ module.exports = {
     next: function() {
       return app.router.go('/wizard/congrats');
     },
+    back: function() {
+      return app.router.go('/wizard/preImport');
+    },
     newWatcher: function(key) {
       var err, error, fingerprint, keys, name, settings, watcher;
       try {
@@ -15376,7 +15380,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-6ad90b68=\"\"><header _v-6ad90b68=\"\"><h1 _v-6ad90b68=\"\">Watcher public key import</h1></header><form _v-6ad90b68=\"\"><p _v-6ad90b68=\"\">In order to verify the authenticity of the information coming from your servers, this desktop app needs to import your server's {{appName}} watcher public key.</p></form><footer _v-6ad90b68=\"\"><div class=\"half or\" _v-6ad90b68=\"\"><button @click=\"paste\" class=\"or\" _v-6ad90b68=\"\">Take from clipboard</button><button @click=\"import\" class=\"or\" _v-6ad90b68=\"\">Import from filesystem</button></div></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-6ad90b68=\"\"><header _v-6ad90b68=\"\"><button @click=\"back\" class=\"plain back\" _v-6ad90b68=\"\">&lt; BACK</button><h1 _v-6ad90b68=\"\">Watcher public key import</h1></header><form _v-6ad90b68=\"\"><p _v-6ad90b68=\"\">In order to verify the authenticity of the information coming from your servers, this desktop app needs to import your server's {{appName}} watcher public key.</p></form><footer _v-6ad90b68=\"\"><div class=\"half or\" _v-6ad90b68=\"\"><button @click=\"paste\" class=\"or\" _v-6ad90b68=\"\">Take from clipboard</button><button @click=\"import\" class=\"or\" _v-6ad90b68=\"\">Import from filesystem</button></div></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

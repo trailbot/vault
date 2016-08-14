@@ -27,7 +27,8 @@ vault = ->
         @updateFingerprint fingerprint
 
         @settings.findAll(@fromMe).fetch().subscribe (settings) =>
-          console.log 'New settings', settings
+          console.log 'New settings'
+          console.log settings
         , (error) =>
           console.error error
         , () =>
@@ -78,7 +79,7 @@ vault = ->
     if obj.encrypt
       delete obj.encrypt
       await @encrypt obj, defer obj
-    this[col].replace(obj)
+    this[col].upsert(obj)
       .subscribe (result) =>
         cb && cb result.id
       , (error) =>

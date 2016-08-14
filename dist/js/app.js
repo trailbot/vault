@@ -231,7 +231,8 @@
             fingerprint = app.settings.keys.fingerprint;
             _this.updateFingerprint(fingerprint);
             return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
-              return console.log('New settings', settings);
+              console.log('New settings');
+              return console.log(settings);
             }, function(error) {
               return console.error(error);
             }, function() {
@@ -308,7 +309,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 68
+                lineno: 69
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -345,7 +346,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 79
+                lineno: 80
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -353,7 +354,7 @@
             return __iced_k();
           }
         })(function() {
-          return _this[col].replace(obj).subscribe(function(result) {
+          return _this[col].upsert(obj).subscribe(function(result) {
             return cb && cb(result.id);
           }, function(error) {
             return console.error(error);
