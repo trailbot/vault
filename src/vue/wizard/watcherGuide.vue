@@ -58,7 +58,7 @@ article.form(transition='slide')
         span Install git and nodejs 6.x:
         pre.
           curl -sL https://deb.nodesource.com/setup_6.x | bash -
-          apt-get install -y git nodejs || yum -y install git nodejs || pacman -S git nodejs npm
+          apt-get install -y git nodejs build-essential || yum -y install git nodejs gcc gcc-c++ make
       li
         span Clone the repository and install the nodejs dependencies:
         pre.
