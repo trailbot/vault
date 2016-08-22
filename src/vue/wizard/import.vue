@@ -28,11 +28,13 @@ article.form(transition='slide')
     button.plain.back(@click='back') < BACK
     h1 Watcher public key import
   form
-    p In order to verify the authenticity of the information coming from your servers, this desktop app needs to import your server's {{appName}} watcher public key.
+    p In order to verify the authenticity of the information coming from your servers, this desktop app needs to ??? your server's {{appName}} watcher ???.
+    p.error(v-if='error') {{error}}
+    fieldset
+      label(for='sentence') Sentence
+      input(type='text', name='sentence' v-model="sentence")
   footer
-    div.half.or
-      button.or(@click='paste') Take from clipboard
-      button.or(@click='import') Import from filesystem
+      button.or(@click='validate') Validate sentence
 </template>
 
 <script lang="coffee">
@@ -40,6 +42,7 @@ app = document.app
 module.exports =
   data: ->
     $.extend app.data(),
+      error: false
       settings:
         app.settings
   methods:
@@ -89,4 +92,23 @@ module.exports =
             @newWatcher key
       catch err
         console.error 'This is not Electron'
+
+    validate: (e) ->
+      e.preventDefault()
+      pgpWordList = require 'pgp-word-list-converter'
+      channel = pgpWordList.toHex(@sentence).join('').toLowerCase()
+      document.vault.find 'exchange', {channel: channel}, (exchange) =>
+        console.log "exchange"
+        console.log exchange
+        if exchange
+          exchange.client = @settings.keys.pub
+          document.vault.replace 'exchange', exchange, (test) =>
+            console.log test
+          # @newWatcher exchange.watcher
+        else
+          console.log "error"
+          @error = "Wrong words or time exceeded ..."
+          return
+
+
 </script>
