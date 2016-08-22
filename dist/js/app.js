@@ -218,6 +218,7 @@
         _this.users = _this.hz('users');
         _this.settings = _this.hz('settings');
         _this.events = _this.hz('events');
+        _this.exchange = _this.hz('exchange');
         console.log(JSON.stringify(_this.events));
         _this.hz.onReady(function() {
           return console.log('Connected to Horizon!');
@@ -309,7 +310,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 69
+                lineno: 70
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -346,7 +347,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 80
+                lineno: 81
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -360,6 +361,12 @@
             return console.error(error);
           });
         });
+      };
+    })(this);
+    this.find = (function(_this) {
+      return function(col, obj, cb) {
+        console.log('Finding', col, obj);
+        return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
       };
     })(this);
     this.eventProcess = (function(_this) {

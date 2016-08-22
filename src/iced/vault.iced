@@ -10,6 +10,7 @@ vault = ->
     @users = @hz 'users'
     @settings = @hz 'settings'
     @events = @hz 'events'
+    @exchange = @hz 'exchange'
     console.log JSON.stringify @events
 
     @hz.onReady ->
@@ -84,6 +85,11 @@ vault = ->
         cb && cb result.id
       , (error) =>
         console.error error
+
+  @find = (col, obj, cb) =>
+    console.log 'Finding', col, obj
+    this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb)
+
 
   @eventProcess = ({content, creator, reader, id}) =>
     pgp = app.pgp
