@@ -369,6 +369,14 @@
         return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
       };
     })(this);
+    this.watch = (function(_this) {
+      return function(col, obj, cb) {
+        var _ref;
+        return (_ref = _this[col]) != null ? _ref.find(obj).watch().subscribe(function(items) {
+          return cb && cb(items);
+        }) : void 0;
+      };
+    })(this);
     this.eventProcess = (function(_this) {
       return function(_arg) {
         var content, creator, id, message, pgp, reader;

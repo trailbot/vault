@@ -90,6 +90,9 @@ vault = ->
     console.log 'Finding', col, obj
     this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb)
 
+  @watch = (col, obj, cb) =>
+    this[col]?.find(obj).watch().subscribe (items) ->
+      cb and cb items
 
   @eventProcess = ({content, creator, reader, id}) =>
     pgp = app.pgp

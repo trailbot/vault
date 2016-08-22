@@ -98,15 +98,13 @@ module.exports =
       pgpWordList = require 'pgp-word-list-converter'
       channel = pgpWordList.toHex(@sentence).join('').toLowerCase()
       document.vault.find 'exchange', {channel: channel}, (exchange) =>
-        console.log "exchange"
-        console.log exchange
         if exchange
           exchange.client = @settings.keys.pub
-          document.vault.replace 'exchange', exchange, (test) =>
-            console.log test
-          # @newWatcher exchange.watcher
+          document.vault.replace 'exchange', exchange, () =>
+            document.vault.watch 'exchange', exchange, (change) =>
+              if change
+                @newWatcher exchange.watcher
         else
-          console.log "error"
           @error = "Wrong words or time exceeded ..."
           return
 
