@@ -102,11 +102,11 @@ module.exports =
           exchange.client = @settings.keys.pub
           document.vault.replace 'exchange', exchange, () =>
             document.vault.watch 'exchange', exchange, (change) =>
-              if change
-                @newWatcher exchange.watcher
+              # if change is null then the document was deleted
+              @newWatcher exchange.watcher unless change
         else
-          @error = "Wrong words or time exceeded ..."
-          return
+          @error = "Wrong words please verify that you are typing the words from the Trailbot Watcher ..."
+
 
 
 </script>

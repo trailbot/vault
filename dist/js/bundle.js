@@ -15757,13 +15757,13 @@ module.exports = {
             exchange.client = _this.settings.keys.pub;
             return document.vault.replace('exchange', exchange, function() {
               return document.vault.watch('exchange', exchange, function(change) {
-                if (change) {
+                if (!change) {
                   return _this.newWatcher(exchange.watcher);
                 }
               });
             });
           } else {
-            _this.error = "Wrong words or time exceeded ...";
+            return _this.error = "Wrong words please verify that you are typing the words from the Trailbot Watcher ...";
           }
         };
       })(this));
