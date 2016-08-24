@@ -15747,7 +15747,7 @@ module.exports = {
     validate: function(e) {
       var channel, pgpWordList;
       e.preventDefault();
-      pgpWordList = require('pgp-word-list-converter');
+      pgpWordList = require('pgp-word-list-converter')();
       channel = pgpWordList.toHex(this.sentence).join('').toLowerCase();
       return document.vault.find('exchange', {
         channel: channel
@@ -15763,7 +15763,7 @@ module.exports = {
               });
             });
           } else {
-            return _this.error = "Wrong words please verify that you are typing the words from the Trailbot Watcher ...";
+            return _this.error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ...";
           }
         };
       })(this));
@@ -15772,7 +15772,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1cb1ca2b=\"\"><header _v-1cb1ca2b=\"\"><button @click=\"back\" class=\"plain back\" _v-1cb1ca2b=\"\">&lt; BACK</button><h1 _v-1cb1ca2b=\"\">Watcher public key import</h1></header><form _v-1cb1ca2b=\"\"><p _v-1cb1ca2b=\"\">In order to verify the authenticity of the information coming from your servers, this desktop app needs to ??? your server's {{appName}} watcher ???.</p><p v-if=\"error\" class=\"error\" _v-1cb1ca2b=\"\">{{error}}</p><fieldset _v-1cb1ca2b=\"\"><label for=\"sentence\" _v-1cb1ca2b=\"\">Sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-1cb1ca2b=\"\"></fieldset></form><footer _v-1cb1ca2b=\"\"><button @click=\"validate\" class=\"or\" _v-1cb1ca2b=\"\">Validate sentence</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1cb1ca2b=\"\"><header _v-1cb1ca2b=\"\"><button @click=\"back\" class=\"plain back\" _v-1cb1ca2b=\"\">&lt; BACK</button><h1 _v-1cb1ca2b=\"\">Public keys exchange</h1></header><form _v-1cb1ca2b=\"\"><p _v-1cb1ca2b=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-1cb1ca2b=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-1cb1ca2b=\"\">{{error}}</p><fieldset _v-1cb1ca2b=\"\"><label for=\"sentence\" _v-1cb1ca2b=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-1cb1ca2b=\"\"></fieldset></form><footer _v-1cb1ca2b=\"\"><button @click=\"validate\" class=\"or\" _v-1cb1ca2b=\"\">Validate sentence</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15856,6 +15856,7 @@ app = document.app;
 module.exports = {
   data: function() {
     return $.extend(app.data(), {
+      error: false,
       settings: app.settings,
       exported: this.$parent.exported
     });
@@ -15899,50 +15900,41 @@ module.exports = {
         return console.error("[CRYPTO] " + err);
       }
     },
-    paste: function(e) {
+    validate: function(e) {
+      var channel, pgpWordList;
       e.preventDefault();
-      return app.paste((function(_this) {
-        return function(key) {
-          return _this.newWatcher(key);
+      pgpWordList = require('pgp-word-list-converter')();
+      channel = pgpWordList.toHex(this.sentence).join('').toLowerCase();
+      return document.vault.find('exchange', {
+        channel: channel
+      }, (function(_this) {
+        return function(exchange) {
+          if (exchange) {
+            exchange.client = _this.settings.keys.pub;
+            return document.vault.replace('exchange', exchange, function() {
+              return document.vault.watch('exchange', exchange, function(change) {
+                if (!change) {
+                  return _this.newWatcher(exchange.watcher);
+                }
+              });
+            });
+          } else {
+            return _this.error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ...";
+          }
         };
       })(this));
-    },
-    "import": function(e) {
-      var err, error;
-      e.preventDefault();
-      try {
-        return electron.dialog.showOpenDialog({
-          title: 'Importing watcher public key',
-          defaultPath: "./" + (this.appName.toLowerCase()) + "_watcher.pub.asc",
-          buttonLabel: 'Import',
-          filters: [
-            {
-              name: 'PGP keys',
-              extensions: ['pub', 'key', 'pgp', 'gpg', 'asc']
-            }, {
-              name: 'All files',
-              extensions: ['*']
-            }
-          ]
-        }, (function(_this) {
-          return function(path) {
-            var key;
-            if (path) {
-              key = fs.readFileSync(path[0], 'utf8');
-              return _this.newWatcher(key);
-            }
-          };
-        })(this));
-      } catch (error) {
-        err = error;
-        return console.error('This is not Electron');
-      }
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
+<<<<<<< ccfd6c8f131a0676c029124d7014677d47114fb8
 ;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-42e07d26=\"\"><header _v-42e07d26=\"\"><button @click=\"back\" class=\"plain back\" _v-42e07d26=\"\">&lt; BACK</button><h1 _v-42e07d26=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-42e07d26=\"\"><p _v-42e07d26=\"\">Setting up a watcher is pretty simple:</p><ol _v-42e07d26=\"\"><li _v-42e07d26=\"\">Log into your server and become <strong _v-42e07d26=\"\">root</strong> (using <code _v-42e07d26=\"\">sudo su</code>, <code _v-42e07d26=\"\">su</code> or similar).</li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Install git and nodejs 6.x:</span><pre _v-42e07d26=\"\">curl -sL https://deb.nodesource.com/setup_6.x | bash -\napt-get install -y git nodejs build-essential || yum -y install git nodejs gcc gcc-c++ make</pre></li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Clone the repository and install the nodejs dependencies:</span><pre _v-42e07d26=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li v-if=\"exported\" _v-42e07d26=\"\">Copy the <code _v-42e07d26=\"\">{{exported}}</code> client public key file that you just exported from this wizard and copy it into your server using <code _v-42e07d26=\"\">scp</code>, <code _v-42e07d26=\"\">rsync</code>, <code _v-42e07d26=\"\">ftp</code> or similar.</li><li v-else=\"v-else\" _v-42e07d26=\"\">Take the <strong _v-42e07d26=\"\">client</strong> public key that you copied from the previous step in this wizard and paste it into a file in your server.</li><li _v-42e07d26=\"\">Run the setup script:\n<code _v-42e07d26=\"\">npm run setup</code></li><li _v-42e07d26=\"\">Finally, choose an option below to import the watcher key:</li></ol></form><footer _v-42e07d26=\"\"><div class=\"half or\" _v-42e07d26=\"\"><button @click=\"paste\" class=\"or\" _v-42e07d26=\"\">Take from clipboard</button><button @click=\"import\" class=\"or\" _v-42e07d26=\"\">Import from filesystem</button></div></footer></article>"
+||||||| merged common ancestors
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-42e07d26=\"\"><header _v-42e07d26=\"\"><button @click=\"back\" class=\"plain back\" _v-42e07d26=\"\">&lt; BACK</button><h1 _v-42e07d26=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-42e07d26=\"\"><p _v-42e07d26=\"\">Setting up a watcher is pretty simple:</p><ol _v-42e07d26=\"\"><li _v-42e07d26=\"\">Log into your server and become <strong _v-42e07d26=\"\">root</strong> (using <code _v-42e07d26=\"\">sudo su</code>, <code _v-42e07d26=\"\">su</code> or similar).</li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Install git and nodejs 6.x:</span><pre _v-42e07d26=\"\">curl -sL https://deb.nodesource.com/setup_6.x | bash -\napt-get install -y git nodejs || yum -y install git nodejs || pacman -S git nodejs npm</pre></li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Clone the repository and install the nodejs dependencies:</span><pre _v-42e07d26=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li v-if=\"exported\" _v-42e07d26=\"\">Copy the <code _v-42e07d26=\"\">{{exported}}</code> client public key file that you just exported from this wizard and copy it into your server using <code _v-42e07d26=\"\">scp</code>, <code _v-42e07d26=\"\">rsync</code>, <code _v-42e07d26=\"\">ftp</code> or similar.</li><li v-else=\"v-else\" _v-42e07d26=\"\">Take the <strong _v-42e07d26=\"\">client</strong> public key that you copied from the previous step in this wizard and paste it into a file in your server.</li><li _v-42e07d26=\"\">Run the setup script:\n<code _v-42e07d26=\"\">npm run setup</code></li><li _v-42e07d26=\"\">Finally, choose an option below to import the watcher key:</li></ol></form><footer _v-42e07d26=\"\"><div class=\"half or\" _v-42e07d26=\"\"><button @click=\"paste\" class=\"or\" _v-42e07d26=\"\">Take from clipboard</button><button @click=\"import\" class=\"or\" _v-42e07d26=\"\">Import from filesystem</button></div></footer></article>"
+=======
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-42e07d26=\"\"><header _v-42e07d26=\"\"><button @click=\"back\" class=\"plain back\" _v-42e07d26=\"\">&lt; BACK</button><h1 _v-42e07d26=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-42e07d26=\"\"><p _v-42e07d26=\"\">Setting up a watcher is pretty simple:</p><ol _v-42e07d26=\"\"><li _v-42e07d26=\"\">Log into your server and become <strong _v-42e07d26=\"\">root</strong> (using <code _v-42e07d26=\"\">sudo su</code>, <code _v-42e07d26=\"\">su</code> or similar).</li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Install git and nodejs 6.x:</span><pre _v-42e07d26=\"\">curl -sL https://deb.nodesource.com/setup_6.x | bash -\napt-get install -y git nodejs || yum -y install git nodejs || pacman -S git nodejs npm</pre></li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Clone the repository and install the nodejs dependencies:</span><pre _v-42e07d26=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li _v-42e07d26=\"\">Run the setup script:\n<code _v-42e07d26=\"\">npm run setup</code></li><li _v-42e07d26=\"\">Finally, type in the field below the biometric sentence provided by Trailbot Watcher.\nTake in to account that the sentences are renewed every 5 minutes for security reasons.</li><footer _v-42e07d26=\"\"><p v-if=\"error\" class=\"error\" _v-42e07d26=\"\">{{error}}</p><fieldset _v-42e07d26=\"\"><label for=\"sentence\" _v-42e07d26=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-42e07d26=\"\"></fieldset><button @click=\"validate\" class=\"or\" _v-42e07d26=\"\">Validate sentence</button></footer></ol></form></article>"
+>>>>>>> Update dialogues
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15957,7 +15949,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-42e07d26", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],30:[function(require,module,exports){
+},{"pgp-word-list-converter":7,"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],30:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("figure[_v-245f9c4c] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-245f9c4c] {\n  height: 100px;\n}\nfigure label[_v-245f9c4c] {\n  color: #fff;\n}\n.textBody[_v-245f9c4c] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-245f9c4c] {\n  display: inline-block;\n  margin-top: 30px;\n}\n")
 var app;
