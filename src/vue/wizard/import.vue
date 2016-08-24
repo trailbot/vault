@@ -26,12 +26,13 @@ div.or
 article.form(transition='slide')
   header
     button.plain.back(@click='back') < BACK
-    h1 Watcher public key import
+    h1 Public keys exchange
   form
-    p In order to verify the authenticity of the information coming from your servers, this desktop app needs to ??? your server's {{appName}} watcher ???.
+    p Please enter here the biometric sentence provided by Trailbot Watcher.
+    p Take in to account that the sentences are renewed every 5 minutes for security reasons.
     p.error(v-if='error') {{error}}
     fieldset
-      label(for='sentence') Sentence
+      label(for='sentence') Biometric sentence
       input(type='text', name='sentence' v-model="sentence")
   footer
       button.or(@click='validate') Validate sentence
@@ -70,32 +71,10 @@ module.exports =
           @next()
       catch err
         console.error "[CRYPTO] #{err}"
-    paste: (e) ->
-      e.preventDefault()
-      app.paste (key) =>
-        @newWatcher key
-    import: (e) ->
-      e.preventDefault()
-      try
-        electron.dialog.showOpenDialog
-          title: 'Importing watcher public key'
-          defaultPath: "./#{@appName.toLowerCase()}_watcher.pub.asc"
-          buttonLabel: 'Import'
-          filters: [
-            name: 'PGP keys', extensions: ['pub', 'key', 'pgp', 'gpg', 'asc']
-          ,
-            name: 'All files', extensions: ['*']
-          ]
-        , (path) =>
-          if path
-            key = fs.readFileSync(path[0], 'utf8')
-            @newWatcher key
-      catch err
-        console.error 'This is not Electron'
 
     validate: (e) ->
       e.preventDefault()
-      pgpWordList = require 'pgp-word-list-converter'
+      pgpWordList = require('pgp-word-list-converter')()
       channel = pgpWordList.toHex(@sentence).join('').toLowerCase()
       document.vault.find 'exchange', {channel: channel}, (exchange) =>
         if exchange
@@ -105,7 +84,7 @@ module.exports =
               # if change is null then the document was deleted
               @newWatcher exchange.watcher unless change
         else
-          @error = "Wrong words please verify that you are typing the words from the Trailbot Watcher ..."
+          @error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ..."
 
 
 

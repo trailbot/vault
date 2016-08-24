@@ -65,19 +65,19 @@ article.form(transition='slide')
           git clone https://github.com/trailbot/watcher
           cd watcher
           npm install
-      li(v-if='exported').
-        Copy the #[code {{exported}}] client public key file that you just exported from this wizard and copy it into your server using #[code scp], #[code rsync], #[code ftp] or similar.
-      li(v-else).
-        Take the #[strong client] public key that you copied from the previous step in this wizard and paste it into a file in your server.
       li.
         Run the setup script:
         #[code npm run setup]
       li.
-        Finally, choose an option below to import the watcher key:
-  footer
-    div.half.or
-      button.or(@click='paste') Take from clipboard
-      button.or(@click='import') Import from filesystem
+        Finally, type in the field below the biometric sentence provided by Trailbot Watcher.
+        Take in to account that the sentences are renewed every 5 minutes for security reasons.
+      footer
+        form
+          p.error(v-if='error') {{error}}
+          fieldset
+            label(for='sentence') Biometric sentence
+            input(type='text', name='sentence' v-model="sentence")
+        button.or(@click='validate') Validate sentence
 </template>
 
 <script lang="coffee">
@@ -85,6 +85,7 @@ app = document.app
 module.exports =
   data: ->
     $.extend app.data(),
+      error: false
       settings:
         app.settings
       exported:
@@ -114,26 +115,18 @@ module.exports =
           @next()
       catch err
         console.error "[CRYPTO] #{err}"
-    paste: (e) ->
+
+    validate: (e) ->
       e.preventDefault()
-      app.paste (key) =>
-        @newWatcher key
-    import: (e) ->
-      e.preventDefault()
-      try
-        electron.dialog.showOpenDialog
-          title: 'Importing watcher public key'
-          defaultPath: "./#{@appName.toLowerCase()}_watcher.pub.asc"
-          buttonLabel: 'Import'
-          filters: [
-            name: 'PGP keys', extensions: ['pub', 'key', 'pgp', 'gpg', 'asc']
-          ,
-            name: 'All files', extensions: ['*']
-          ]
-        , (path) =>
-          if path
-            key = fs.readFileSync(path[0], 'utf8')
-            @newWatcher key
-      catch err
-        console.error 'This is not Electron'
+      pgpWordList = require('pgp-word-list-converter')()
+      channel = pgpWordList.toHex(@sentence).join('').toLowerCase()
+      document.vault.find 'exchange', {channel: channel}, (exchange) =>
+        if exchange
+          exchange.client = @settings.keys.pub
+          document.vault.replace 'exchange', exchange, () =>
+            document.vault.watch 'exchange', exchange, (change) =>
+              # if change is null then the document was deleted
+              @newWatcher exchange.watcher unless change
+        else
+          @error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ..."
 </script>
