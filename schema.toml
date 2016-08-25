@@ -13,6 +13,66 @@ indexes = [
   "reader_datetime"
 ]
 
+[collections.exchange]
+indexes = [
+  "channel",
+  "channel_creator_expires_id_watcher_client"
+]
+
+[groups.authenticated.rules.client_read]
+template = "collection('exchange').anyRead({channel: any()})"
+
+[groups.authenticated.rules.owner_read]
+template = "collection('exchange').anyRead()"
+validator = """
+  // only the owner of the document can replace it
+  (context, value) => {
+    return context.data.key === value.creator
+  }
+"""
+
+[groups.authenticated.rules.create_exchange]
+template = "collection('exchange').anyWrite()"
+validator = """
+  // exchange must be of the form
+  // {channel: string, creator: string, watcher: string, expires: string }
+  (context, oldValue, newValue) => {
+    return !oldValue && newValue
+      && newValue.hasOwnProperty('channel')
+      && typeof newValue.channel === 'string'
+      && newValue.channel.length === 16
+      && newValue.hasOwnProperty('creator')
+      && newValue.hasOwnProperty('expires')
+      && Object.keys(newValue).length === 4
+  }
+"""
+
+
+[groups.authenticated.rules.add_client]
+template = "collection('exchange').anyWrite()"
+validator = """
+  (context, oldValue, newValue) => {
+    return newValue && oldValue
+      && newValue.hasOwnProperty('client')
+      && newValue.channel === oldValue.channel
+      && newValue.creator === oldValue.creator
+      && newValue.watcher === oldValue.watcher
+      && newValue.expires === oldValue.expires
+      && newValue.id === oldValue.id
+      && Object.keys(newValue).length === 7
+  }
+"""
+
+[groups.authenticated.rules.renew_exchange]
+template = "collection('exchange').anyWrite()"
+validator = """
+  // only the owner of the document can replace it
+  (context, oldValue, newValue) => {
+    return oldValue && context.data.key === oldValue.creator
+  }
+"""
+
+
 [groups.admin]
 [groups.admin.rules.carte_blanche]
 template = "any()"
@@ -21,12 +81,7 @@ template = "any()"
 template = "collection('users').find({id: userId()})"
 
 [groups.authenticated.rules.user_update]
-template = "collection('users').anyWrite()"
-validator = """
-  (user, oldDoc, newDoc) => {
-    return true
-  }
-"""
+template = "collection('users').anyWrite({id: userId()})"
 
 [groups.authenticated.rules.settings_read]
 template = "collection('settings').anyRead()"
