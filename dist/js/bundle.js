@@ -15714,7 +15714,7 @@ module.exports = {
         channel: channel
       }, (function(_this) {
         return function(exchange) {
-          if (exchange) {
+          if (exchange && (new Date(exchange.expires)) > new Date()) {
             exchange.client = _this.settings.keys.pub;
             return document.vault.replace('exchange', exchange, function() {
               return document.vault.watch('exchange', exchange, function(change) {
@@ -15723,6 +15723,8 @@ module.exports = {
                 }
               });
             });
+          } else if (exchange) {
+            return _this.error = "Sentense has expired!";
           } else {
             return _this.error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ...";
           }
@@ -15870,7 +15872,7 @@ module.exports = {
         channel: channel
       }, (function(_this) {
         return function(exchange) {
-          if (exchange) {
+          if (exchange && (new Date(exchange.expires)) > new Date()) {
             exchange.client = _this.settings.keys.pub;
             return document.vault.replace('exchange', exchange, function() {
               return document.vault.watch('exchange', exchange, function(change) {
@@ -15879,6 +15881,8 @@ module.exports = {
                 }
               });
             });
+          } else if (exchange) {
+            return _this.error = "Sentense has expired!";
           } else {
             return _this.error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ...";
           }
