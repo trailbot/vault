@@ -98,6 +98,9 @@ main = ->
     else
       @router.replace '/wizard'
 
+    window.Intercom 'boot',
+      app_id: 'pzfj55kn'
+
   @save = ->
     console.log 'SAVING APP'
     localStorage.setItem 'settings', JSON.stringify @settings
