@@ -46,6 +46,7 @@ module.exports =
       error: false
       settings:
         app.settings
+      sentence: undefined
   methods:
     next: ->
       app.router.go '/wizard/congrats'
