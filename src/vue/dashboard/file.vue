@@ -22,6 +22,8 @@ nav
           color: #b8e986
         &.rem
           color: #f37e83
+    .strike
+      text-decoration: line-through
     &:after
       content: ''
       display: block
@@ -41,6 +43,7 @@ nav
     &.selected
       &:after
         right: 0
+
 article
   article
     position: absolute
@@ -57,7 +60,7 @@ article.file(transition='driftFade')
       h1 Smart Policies
     ul(v-if='policies && policies.length > 0')
       li(v-for='(i, policy) of policies', v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
-        span {{policy.name}}
+        span(v-bind:class="[policy.paused ? 'strike':'']") {{policy.name}}
     div.empty(v-else).
       No policies have been defined yet.
       #[p #[b #[a.cool(v-link="{ name: 'policyAdd'}") Click here]] to add a policy.]

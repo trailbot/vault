@@ -46,6 +46,7 @@ module.exports =
       error: false
       settings:
         app.settings
+      sentence: undefined
   methods:
     next: ->
       app.router.go '/wizard/congrats'
@@ -77,15 +78,14 @@ module.exports =
       pgpWordList = require('pgp-word-list-converter')()
       channel = pgpWordList.toHex(@sentence).join('').toLowerCase()
       document.vault.find 'exchange', {channel: channel}, (exchange) =>
-        if exchange
+        if exchange and (new Date(exchange.expires)) > new Date()
           exchange.client = @settings.keys.pub
           document.vault.replace 'exchange', exchange, () =>
             document.vault.watch 'exchange', exchange, (change) =>
               # if change is null then the document was deleted
               @newWatcher exchange.watcher unless change
+        else if exchange
+          @error = "Sentense has expired!"
         else
           @error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ..."
-
-
-
 </script>

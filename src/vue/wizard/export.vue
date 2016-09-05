@@ -55,6 +55,5 @@ module.exports =
       , (path) =>
         if path
           fs.writeFileSync(path, @settings.keys.pub)
-          @$parent.exported = path.split('/').pop()
           @next()
 </script>
