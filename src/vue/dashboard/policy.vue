@@ -28,13 +28,56 @@ article
     font-weight: 600
     color: #88
     text-transform: uppercase
+  .switch
+    position: absolute
+    top: 2.1rem
+    right: 1.6rem
+    display: block
+    width: 5.4rem
+    height: 2.6rem
+    border-radius: 2.4rem
+    background-color: #BDC6C8
+    transition: all .2s
+    overflow: hidden
+
+    .tick
+      display: none
+      position: absolute
+      height: 1.4rem
+      left: .6rem
+      top: .6rem
+    .ball
+      position: absolute
+      display: block
+      top: -.35rem
+      left: -.3rem
+      width: 2rem
+      height: 2rem
+      border: .7rem solid #ABB5B7
+      border-radius: 50%
+      background-color: #FFF
+      transition: all .2s
+      box-sizing: content-box
+
+    &[data-paused='true']
+      background-color: #2EDF88
+      .tick
+        display: block
+      .ball
+        left: 2.4rem
+        border-color: #2CC269
+
 </style>
 
 <template lang="jade">
 article.form.policy(transition="driftFade")
   header
+    .switch(@click='pause', data-paused="{{(!paused).toString()}}")
+      .ball
+      img.tick(src='img/tick.svg')
     h1.
       #[strong #[em "{{policy.name}}"]] policy stats
+
     h2.
       Instance of #[a.cool(@click='openExternal', href='{{policy.uri}}') {{policy.uri}}]
   table(v-if='policy.params')
@@ -47,7 +90,7 @@ article.form.policy(transition="driftFade")
 app = document.app
 module.exports =
   data: ->
-    app.data()
+    paused: @$parent.policies[decodeURIComponent @$route.params.policy].paused
   computed:
     index: -> decodeURIComponent @$route.params.policy
     events: -> @$parent.events
@@ -57,4 +100,9 @@ module.exports =
       e.preventDefault()
       url = $(e.target).attr 'href'
       window.electron.shell.openExternal url
+    pause: (e) ->
+      @paused = not @paused
+      @policy.paused = @paused
+      document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
+      app.save()
 </script>

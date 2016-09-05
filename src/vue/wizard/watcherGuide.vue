@@ -88,8 +88,7 @@ module.exports =
       error: false
       settings:
         app.settings
-      exported:
-        @$parent.exported
+      sentence: undefined
   methods:
     next: ->
       app.router.go '/wizard/congrats'
