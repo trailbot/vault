@@ -119,9 +119,11 @@ section.unlock(transition='fade')
   article.form
     header
       h1 Unlock your keypar
+
     form(@keyup.enter='submit')
       p All data collected by {{appName}} is encrypted with a keypar whose passphrase is only known by you.
       p In order to decrypt such data, please introduce your passphrase .
+
       p.error(v-if='error') {{error}}
       fieldset.pass
         label(for='pass') Passphrase

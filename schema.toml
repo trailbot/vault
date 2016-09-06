@@ -25,7 +25,7 @@ template = "collection('exchange').anyRead({channel: any()})"
 [groups.authenticated.rules.owner_read]
 template = "collection('exchange').anyRead()"
 validator = """
-  // only the owner of the document can replace it
+  // only the owner of the document
   (context, value) => {
     return context.data.key === value.creator
   }
@@ -63,12 +63,12 @@ validator = """
   }
 """
 
-[groups.authenticated.rules.renew_exchange]
+[groups.authenticated.rules.renew_or_delete_exchange]
 template = "collection('exchange').anyWrite()"
 validator = """
   // only the owner of the document can replace it
   (context, oldValue, newValue) => {
-    return oldValue && context.data.key === oldValue.creator
+    return !!oldValue && context.data.key === oldValue.creator
   }
 """
 
