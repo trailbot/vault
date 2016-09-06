@@ -30,8 +30,8 @@ article
     text-transform: uppercase
   .switch
     position: absolute
-    top: 2.1rem
-    right: 1.6rem
+    top: 1.6rem
+    right: 1rem
     display: block
     width: 5.4rem
     height: 2.6rem
@@ -39,6 +39,7 @@ article
     background-color: #BDC6C8
     transition: all .2s
     overflow: hidden
+    transform: scale(0.7)
 
     .tick
       display: none
@@ -66,7 +67,32 @@ article
       .ball
         left: 2.4rem
         border-color: #2CC269
+  .sync
+    position: absolute
+    top: 2rem
+    right: 6rem
+    padding:.1rem
+    display: block
+    width: 3.7rem
+    height: 1.6rem
+    border-radius: 2.4rem
+    background-color: #f37e84
+    transition: all .2s
+    overflow: hidden
+    background-image: url('img/sync.svg')
+    background-repeat: no-repeat
+    background-position: center
 
+    &:hover
+      background-image: url('img/sync_red.svg')
+      background-color: white
+      box-shadow: 0 0 5px #f37e84
+    &:active
+      background-color: #f37e84
+      background-image: url('img/sync.svg')
+      transform: translateY(2px);
+      transition: all .2s
+      box-shadow: none
 </style>
 
 <template lang="jade">
@@ -75,6 +101,9 @@ article.form.policy(transition="driftFade")
     .switch(@click='pause', data-paused="{{(!paused).toString()}}")
       .ball
       img.tick(src='img/tick.svg')
+    .sync(@click='sync')
+      //- div t
+      //- img(src='img/sync.svg')
     h1.
       #[strong #[em "{{policy.name}}"]] policy stats
 
@@ -105,4 +134,6 @@ module.exports =
       @policy.paused = @paused
       document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
       app.save()
+    sync: ()->
+      document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
 </script>
