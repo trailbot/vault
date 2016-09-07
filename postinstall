@@ -20,6 +20,7 @@ start_rethinkdb = true
 serve_static = "./dist"
 bind = ["0.0.0.0"]
 port = 8443
+debug = true
 EOM
 ) &&
 cp ./schema.toml /etc/trailbot-vault/ &&

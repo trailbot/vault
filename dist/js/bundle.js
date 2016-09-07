@@ -1382,6 +1382,7 @@ module.exports = pgpWordList = {
 
 },{}],9:[function(require,module,exports){
 // shim for using process in browser
+
 var process = module.exports = {};
 
 // cached from whatever global is present so that test runners that stub it
@@ -1393,63 +1394,21 @@ var cachedSetTimeout;
 var cachedClearTimeout;
 
 (function () {
-    try {
-        cachedSetTimeout = setTimeout;
-    } catch (e) {
-        cachedSetTimeout = function () {
-            throw new Error('setTimeout is not defined');
-        }
+  try {
+    cachedSetTimeout = setTimeout;
+  } catch (e) {
+    cachedSetTimeout = function () {
+      throw new Error('setTimeout is not defined');
     }
-    try {
-        cachedClearTimeout = clearTimeout;
-    } catch (e) {
-        cachedClearTimeout = function () {
-            throw new Error('clearTimeout is not defined');
-        }
+  }
+  try {
+    cachedClearTimeout = clearTimeout;
+  } catch (e) {
+    cachedClearTimeout = function () {
+      throw new Error('clearTimeout is not defined');
     }
+  }
 } ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -1474,7 +1433,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = runTimeout(cleanUpNextTick);
+    var timeout = cachedSetTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -1491,7 +1450,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    runClearTimeout(timeout);
+    cachedClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -1503,7 +1462,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
+        cachedSetTimeout(drainQueue, 0);
     }
 };
 
@@ -14782,7 +14741,7 @@ exports.insert = function (css) {
 
 },{}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("article[_v-1cd79741] {\n  padding: 0 !important;\n  overflow: auto;\n}\narticle table.diff[_v-1cd79741] {\n  display: block;\n  width: 100%;\n  background: #fff;\n  border-collapse: collapse;\n  overflow: hidden;\n}\narticle table.diff tr[_v-1cd79741] {\n  position: relative;\n}\narticle table.diff tr td.index[_v-1cd79741] {\n  padding: 0 8px;\n  background: #f2f2f2;\n  border-right: 1px solid #ccc;\n  font-size: 0.7em;\n  text-align: center;\n  color: #999;\n}\narticle table.diff tr td.type span[_v-1cd79741] {\n  display: block;\n  width: 20px;\n  text-align: center;\n}\narticle table.diff tr td.text[_v-1cd79741] {\n  width: 100%;\n  padding-right: 15px;\n}\narticle table.diff tr td.ellipsis[_v-1cd79741] {\n  padding-right: 15px;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n}\narticle table.diff tr td.ellipsis span[_v-1cd79741] {\n  display: block;\n  width: 100%;\n  padding: 10px 0;\n}\narticle table.diff tr.add td[_v-1cd79741] {\n  background: #e3f4d7;\n  color: #5aa02c;\n  font-weight: 700;\n}\narticle table.diff tr.rem td[_v-1cd79741] {\n  background: #f5dad7;\n  color: #d40000;\n  font-weight: 700;\n}\narticle hr.eof[_v-1cd79741] {\n  margin: 0;\n  border: none;\n}\narticle hr.eof[_v-1cd79741]:after {\n  content: 'EOF';\n  display: block;\n  padding: 10px 0 10px 70px;\n  background: #f2f2f2;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("article[_v-4de479bc] {\n  padding: 0 !important;\n  overflow: auto;\n}\narticle table.diff[_v-4de479bc] {\n  display: block;\n  width: 100%;\n  background: #fff;\n  border-collapse: collapse;\n  overflow: hidden;\n}\narticle table.diff tr[_v-4de479bc] {\n  position: relative;\n}\narticle table.diff tr td.index[_v-4de479bc] {\n  padding: 0 8px;\n  background: #f2f2f2;\n  border-right: 1px solid #ccc;\n  font-size: 0.7em;\n  text-align: center;\n  color: #999;\n}\narticle table.diff tr td.type span[_v-4de479bc] {\n  display: block;\n  width: 20px;\n  text-align: center;\n}\narticle table.diff tr td.text[_v-4de479bc] {\n  width: 100%;\n  padding-right: 15px;\n}\narticle table.diff tr td.ellipsis[_v-4de479bc] {\n  padding-right: 15px;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n}\narticle table.diff tr td.ellipsis span[_v-4de479bc] {\n  display: block;\n  width: 100%;\n  padding: 10px 0;\n}\narticle table.diff tr.add td[_v-4de479bc] {\n  background: #e3f4d7;\n  color: #5aa02c;\n  font-weight: 700;\n}\narticle table.diff tr.rem td[_v-4de479bc] {\n  background: #f5dad7;\n  color: #d40000;\n  font-weight: 700;\n}\narticle hr.eof[_v-4de479bc] {\n  margin: 0;\n  border: none;\n}\narticle hr.eof[_v-4de479bc]:after {\n  content: 'EOF';\n  display: block;\n  padding: 10px 0 10px 70px;\n  background: #f2f2f2;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n")
 var app;
 
 app = document.app;
@@ -14863,24 +14822,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form event\" _v-1cd79741=\"\"><div v-if=\"event.content.type == 'change'\" _v-1cd79741=\"\"><table class=\"diff\" _v-1cd79741=\"\"><tbody _v-1cd79741=\"\"><tr v-for=\"line in event | flatten\" v-bind:class=\"line.type\" _v-1cd79741=\"\"><td class=\"index\" _v-1cd79741=\"\">{{line.indexA}}</td><td class=\"index\" _v-1cd79741=\"\">{{line.indexB}}</td><td class=\"type\" _v-1cd79741=\"\"><span v-if=\"line.type == 'add'\" _v-1cd79741=\"\">+</span><span v-if=\"line.type == 'rem'\" _v-1cd79741=\"\">-</span></td><td v-if=\"line.type != 'ellipsis'\" class=\"text\" _v-1cd79741=\"\"><code _v-1cd79741=\"\">{{line.text}}</code></td><td v-else=\"v-else\" class=\"ellipsis\" _v-1cd79741=\"\"><span _v-1cd79741=\"\">{{line.size}} omitted lines</span></td></tr></tbody></table><hr class=\"eof\" _v-1cd79741=\"\"></div><div v-else=\"v-else\" _v-1cd79741=\"\"><pre _v-1cd79741=\"\">{{event | stringify null '  '}}</pre></div></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form event\" _v-4de479bc=\"\"><div v-if=\"event.content.type == 'change'\" _v-4de479bc=\"\"><table class=\"diff\" _v-4de479bc=\"\"><tbody _v-4de479bc=\"\"><tr v-for=\"line in event | flatten\" v-bind:class=\"line.type\" _v-4de479bc=\"\"><td class=\"index\" _v-4de479bc=\"\">{{line.indexA}}</td><td class=\"index\" _v-4de479bc=\"\">{{line.indexB}}</td><td class=\"type\" _v-4de479bc=\"\"><span v-if=\"line.type == 'add'\" _v-4de479bc=\"\">+</span><span v-if=\"line.type == 'rem'\" _v-4de479bc=\"\">-</span></td><td v-if=\"line.type != 'ellipsis'\" class=\"text\" _v-4de479bc=\"\"><code _v-4de479bc=\"\">{{line.text}}</code></td><td v-else=\"v-else\" class=\"ellipsis\" _v-4de479bc=\"\"><span _v-4de479bc=\"\">{{line.size}} omitted lines</span></td></tr></tbody></table><hr class=\"eof\" _v-4de479bc=\"\"></div><div v-else=\"v-else\" _v-4de479bc=\"\"><pre _v-4de479bc=\"\">{{event | stringify null '  '}}</pre></div></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["article[_v-1cd79741] {\n  padding: 0 !important;\n  overflow: auto;\n}\narticle table.diff[_v-1cd79741] {\n  display: block;\n  width: 100%;\n  background: #fff;\n  border-collapse: collapse;\n  overflow: hidden;\n}\narticle table.diff tr[_v-1cd79741] {\n  position: relative;\n}\narticle table.diff tr td.index[_v-1cd79741] {\n  padding: 0 8px;\n  background: #f2f2f2;\n  border-right: 1px solid #ccc;\n  font-size: 0.7em;\n  text-align: center;\n  color: #999;\n}\narticle table.diff tr td.type span[_v-1cd79741] {\n  display: block;\n  width: 20px;\n  text-align: center;\n}\narticle table.diff tr td.text[_v-1cd79741] {\n  width: 100%;\n  padding-right: 15px;\n}\narticle table.diff tr td.ellipsis[_v-1cd79741] {\n  padding-right: 15px;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n}\narticle table.diff tr td.ellipsis span[_v-1cd79741] {\n  display: block;\n  width: 100%;\n  padding: 10px 0;\n}\narticle table.diff tr.add td[_v-1cd79741] {\n  background: #e3f4d7;\n  color: #5aa02c;\n  font-weight: 700;\n}\narticle table.diff tr.rem td[_v-1cd79741] {\n  background: #f5dad7;\n  color: #d40000;\n  font-weight: 700;\n}\narticle hr.eof[_v-1cd79741] {\n  margin: 0;\n  border: none;\n}\narticle hr.eof[_v-1cd79741]:after {\n  content: 'EOF';\n  display: block;\n  padding: 10px 0 10px 70px;\n  background: #f2f2f2;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n"] = false
+    __vueify_insert__.cache["article[_v-4de479bc] {\n  padding: 0 !important;\n  overflow: auto;\n}\narticle table.diff[_v-4de479bc] {\n  display: block;\n  width: 100%;\n  background: #fff;\n  border-collapse: collapse;\n  overflow: hidden;\n}\narticle table.diff tr[_v-4de479bc] {\n  position: relative;\n}\narticle table.diff tr td.index[_v-4de479bc] {\n  padding: 0 8px;\n  background: #f2f2f2;\n  border-right: 1px solid #ccc;\n  font-size: 0.7em;\n  text-align: center;\n  color: #999;\n}\narticle table.diff tr td.type span[_v-4de479bc] {\n  display: block;\n  width: 20px;\n  text-align: center;\n}\narticle table.diff tr td.text[_v-4de479bc] {\n  width: 100%;\n  padding-right: 15px;\n}\narticle table.diff tr td.ellipsis[_v-4de479bc] {\n  padding-right: 15px;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n}\narticle table.diff tr td.ellipsis span[_v-4de479bc] {\n  display: block;\n  width: 100%;\n  padding: 10px 0;\n}\narticle table.diff tr.add td[_v-4de479bc] {\n  background: #e3f4d7;\n  color: #5aa02c;\n  font-weight: 700;\n}\narticle table.diff tr.rem td[_v-4de479bc] {\n  background: #f5dad7;\n  color: #d40000;\n  font-weight: 700;\n}\narticle hr.eof[_v-4de479bc] {\n  margin: 0;\n  border: none;\n}\narticle hr.eof[_v-4de479bc]:after {\n  content: 'EOF';\n  display: block;\n  padding: 10px 0 10px 70px;\n  background: #f2f2f2;\n  text-align: center;\n  font-size: 0.7em;\n  color: #999;\n  border-top: 1px solid #ccc;\n  border-bottom: 1px solid #ccc;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-1cd79741", module.exports)
+    hotAPI.createRecord("_v-4de479bc", module.exports)
   } else {
-    hotAPI.update("_v-1cd79741", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-4de479bc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],16:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("nav[_v-6af61db8] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-6af61db8] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-6af61db8] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-6af61db8] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-6af61db8] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-6af61db8] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-6af61db8] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-6af61db8] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-6af61db8] {\n  color: #f37e83;\n}\nnav li .strike[_v-6af61db8] {\n  text-decoration: line-through;\n}\nnav li[_v-6af61db8]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-6af61db8] {\n  color: #fff;\n}\nnav li.selected[_v-6af61db8]:after {\n  right: 0;\n}\narticle article[_v-6af61db8] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n")
 var app;
 
 app = document.app;
@@ -14994,24 +14953,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-6af61db8=\"\"><nav _v-6af61db8=\"\"><header _v-6af61db8=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-6af61db8=\"\"><img src=\"/img/add.svg\" _v-6af61db8=\"\"></button><h1 _v-6af61db8=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" _v-6af61db8=\"\"><li v-for=\"(i, policy) of policies\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-6af61db8=\"\"><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-6af61db8=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No policies have been defined yet.\n<p _v-6af61db8=\"\"><b _v-6af61db8=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-6af61db8=\"\">Click here</a></b> to add a policy.</p></div><header _v-6af61db8=\"\"><h1 _v-6af61db8=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-6af61db8=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-6af61db8=\"\"><time datetime=\"event.time\" _v-6af61db8=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-6af61db8=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-6af61db8=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-6af61db8=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-6af61db8=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-6af61db8=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-6af61db8=\"\">REMOVED</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-6af61db8=\"\">No events have been received yet.</div></nav><router-view _v-6af61db8=\"\"></router-view></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n"] = false
+    __vueify_insert__.cache["nav[_v-6af61db8] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-6af61db8] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-6af61db8] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-6af61db8] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-6af61db8] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-6af61db8] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-6af61db8] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-6af61db8] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-6af61db8] {\n  color: #f37e83;\n}\nnav li .strike[_v-6af61db8] {\n  text-decoration: line-through;\n}\nnav li[_v-6af61db8]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-6af61db8] {\n  color: #fff;\n}\nnav li.selected[_v-6af61db8]:after {\n  right: 0;\n}\narticle article[_v-6af61db8] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-879ec5b6", module.exports)
+    hotAPI.createRecord("_v-6af61db8", module.exports)
   } else {
-    hotAPI.update("_v-879ec5b6", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-6af61db8", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],17:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("input[name='path'][_v-31f2308d] {\n  box-sizing: border-box;\n  width: 100%;\n}\n")
 var app;
 
 app = document.app;
@@ -15057,19 +15016,19 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-aad10e28=\"\"><form @keyup.enter=\"submit\" _v-aad10e28=\"\"><header _v-aad10e28=\"\"><h1 _v-aad10e28=\"\">Start watching a file in <strong _v-aad10e28=\"\">{{watcher.name}}</strong></h1></header><p _v-aad10e28=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-aad10e28=\"\">Recommended files to watch are those containing the system and access logs, such as <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/syslog</code> and <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/auth.log</code>.</p><fieldset _v-aad10e28=\"\"><label for=\"path\" _v-aad10e28=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" v-focus-auto=\"v-focus-auto\" _v-aad10e28=\"\"><span class=\"tip\" _v-aad10e28=\"\">Please consign the <strong _v-aad10e28=\"\">absolute path</strong> of the file to watch.</span></fieldset><footer _v-aad10e28=\"\"><button @click=\"submit\" v-if=\"path.split('/').pop()\" class=\"ok\" _v-aad10e28=\"\">Start watching <i _v-aad10e28=\"\">{{path.split('/').pop()}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-31f2308d=\"\"><form @keyup.enter=\"submit\" _v-31f2308d=\"\"><header _v-31f2308d=\"\"><h1 _v-31f2308d=\"\">Start watching a file in <strong _v-31f2308d=\"\">{{watcher.name}}</strong></h1></header><p _v-31f2308d=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-31f2308d=\"\">Recommended files to watch are those containing the system and access logs, such as <code @click=\"watchMe\" class=\"clickable\" _v-31f2308d=\"\">/var/log/syslog</code> and <code @click=\"watchMe\" class=\"clickable\" _v-31f2308d=\"\">/var/log/auth.log</code>.</p><fieldset _v-31f2308d=\"\"><label for=\"path\" _v-31f2308d=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" v-focus-auto=\"v-focus-auto\" _v-31f2308d=\"\"><span class=\"tip\" _v-31f2308d=\"\">Please consign the <strong _v-31f2308d=\"\">absolute path</strong> of the file to watch.</span></fieldset><footer _v-31f2308d=\"\"><button @click=\"submit\" v-if=\"path.split('/').pop()\" class=\"ok\" _v-31f2308d=\"\">Start watching <i _v-31f2308d=\"\">{{path.split('/').pop()}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\n"] = false
+    __vueify_insert__.cache["input[name='path'][_v-31f2308d] {\n  box-sizing: border-box;\n  width: 100%;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-aad10e28", module.exports)
+    hotAPI.createRecord("_v-31f2308d", module.exports)
   } else {
-    hotAPI.update("_v-aad10e28", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-31f2308d", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-focus":10,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],18:[function(require,module,exports){
@@ -15211,14 +15170,14 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-30f1723c", module.exports)
+    hotAPI.createRecord("_v-1448ca3e", module.exports)
   } else {
-    hotAPI.update("_v-30f1723c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-1448ca3e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],19:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("article header h2[_v-b5e9fcca] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-b5e9fcca] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-b5e9fcca] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-b5e9fcca] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-b5e9fcca] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-b5e9fcca] {\n  text-align: right;\n}\narticle h3[_v-b5e9fcca] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\narticle .switch[_v-b5e9fcca] {\n  position: absolute;\n  top: 2.1rem;\n  right: 1.6rem;\n  display: block;\n  width: 5.4rem;\n  height: 2.6rem;\n  border-radius: 2.4rem;\n  background-color: #bdc6c8;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  overflow: hidden;\n}\narticle .switch .tick[_v-b5e9fcca] {\n  display: none;\n  position: absolute;\n  height: 1.4rem;\n  left: 0.6rem;\n  top: 0.6rem;\n}\narticle .switch .ball[_v-b5e9fcca] {\n  position: absolute;\n  display: block;\n  top: -0.35rem;\n  left: -0.3rem;\n  width: 2rem;\n  height: 2rem;\n  border: 0.7rem solid #abb5b7;\n  border-radius: 50%;\n  background-color: #fff;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  box-sizing: content-box;\n}\narticle .switch[data-paused='true'][_v-b5e9fcca] {\n  background-color: #2edf88;\n}\narticle .switch[data-paused='true'] .tick[_v-b5e9fcca] {\n  display: block;\n}\narticle .switch[data-paused='true'] .ball[_v-b5e9fcca] {\n  left: 2.4rem;\n  border-color: #2cc269;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\narticle .switch[_v-6f9a51da] {\n  position: absolute;\n  top: 2.1rem;\n  right: 1.6rem;\n  display: block;\n  width: 5.4rem;\n  height: 2.6rem;\n  border-radius: 2.4rem;\n  background-color: #bdc6c8;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  overflow: hidden;\n}\narticle .switch .tick[_v-6f9a51da] {\n  display: none;\n  position: absolute;\n  height: 1.4rem;\n  left: 0.6rem;\n  top: 0.6rem;\n}\narticle .switch .ball[_v-6f9a51da] {\n  position: absolute;\n  display: block;\n  top: -0.35rem;\n  left: -0.3rem;\n  width: 2rem;\n  height: 2rem;\n  border: 0.7rem solid #abb5b7;\n  border-radius: 50%;\n  background-color: #fff;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  box-sizing: content-box;\n}\narticle .switch[data-paused='true'][_v-6f9a51da] {\n  background-color: #2edf88;\n}\narticle .switch[data-paused='true'] .tick[_v-6f9a51da] {\n  display: block;\n}\narticle .switch[data-paused='true'] .ball[_v-6f9a51da] {\n  left: 2.4rem;\n  border-color: #2cc269;\n}\n")
 var app;
 
 app = document.app;
@@ -15259,24 +15218,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policy\" _v-b5e9fcca=\"\"><header _v-b5e9fcca=\"\"><div @click=\"pause\" data-paused=\"{{(!paused).toString()}}\" class=\"switch\" _v-b5e9fcca=\"\"><div class=\"ball\" _v-b5e9fcca=\"\"></div><img src=\"img/tick.svg\" class=\"tick\" _v-b5e9fcca=\"\"></div><h1 _v-b5e9fcca=\"\"><strong _v-b5e9fcca=\"\"><em _v-b5e9fcca=\"\">\"{{policy.name}}\"</em></strong> policy stats\n</h1><h2 _v-b5e9fcca=\"\">Instance of <a @click=\"openExternal\" href=\"{{policy.uri}}\" class=\"cool\" _v-b5e9fcca=\"\">{{policy.uri}}</a></h2></header><table v-if=\"policy.params\" _v-b5e9fcca=\"\"><tbody _v-b5e9fcca=\"\"><tr v-for=\"(key, val) of policy.params\" _v-b5e9fcca=\"\"><td class=\"key\" _v-b5e9fcca=\"\">{{key}}</td><td class=\"val\" _v-b5e9fcca=\"\">{{val}}</td></tr></tbody></table></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policy\" _v-6f9a51da=\"\"><header _v-6f9a51da=\"\"><div @click=\"pause\" data-paused=\"{{(!paused).toString()}}\" class=\"switch\" _v-6f9a51da=\"\"><div class=\"ball\" _v-6f9a51da=\"\"></div><img src=\"img/tick.svg\" class=\"tick\" _v-6f9a51da=\"\"></div><h1 _v-6f9a51da=\"\"><strong _v-6f9a51da=\"\"><em _v-6f9a51da=\"\">\"{{policy.name}}\"</em></strong> policy stats\n</h1><h2 _v-6f9a51da=\"\">Instance of <a @click=\"openExternal\" href=\"{{policy.uri}}\" class=\"cool\" _v-6f9a51da=\"\">{{policy.uri}}</a></h2></header><table v-if=\"policy.params\" _v-6f9a51da=\"\"><tbody _v-6f9a51da=\"\"><tr v-for=\"(key, val) of policy.params\" _v-6f9a51da=\"\"><td class=\"key\" _v-6f9a51da=\"\">{{key}}</td><td class=\"val\" _v-6f9a51da=\"\">{{val}}</td></tr></tbody></table></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["article header h2[_v-b5e9fcca] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-b5e9fcca] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-b5e9fcca] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-b5e9fcca] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-b5e9fcca] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-b5e9fcca] {\n  text-align: right;\n}\narticle h3[_v-b5e9fcca] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\narticle .switch[_v-b5e9fcca] {\n  position: absolute;\n  top: 2.1rem;\n  right: 1.6rem;\n  display: block;\n  width: 5.4rem;\n  height: 2.6rem;\n  border-radius: 2.4rem;\n  background-color: #bdc6c8;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  overflow: hidden;\n}\narticle .switch .tick[_v-b5e9fcca] {\n  display: none;\n  position: absolute;\n  height: 1.4rem;\n  left: 0.6rem;\n  top: 0.6rem;\n}\narticle .switch .ball[_v-b5e9fcca] {\n  position: absolute;\n  display: block;\n  top: -0.35rem;\n  left: -0.3rem;\n  width: 2rem;\n  height: 2rem;\n  border: 0.7rem solid #abb5b7;\n  border-radius: 50%;\n  background-color: #fff;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  box-sizing: content-box;\n}\narticle .switch[data-paused='true'][_v-b5e9fcca] {\n  background-color: #2edf88;\n}\narticle .switch[data-paused='true'] .tick[_v-b5e9fcca] {\n  display: block;\n}\narticle .switch[data-paused='true'] .ball[_v-b5e9fcca] {\n  left: 2.4rem;\n  border-color: #2cc269;\n}\n"] = false
+    __vueify_insert__.cache["article header h2[_v-6f9a51da] {\n  font-weight: 100;\n  font-size: 1em;\n  color: #666;\n}\narticle table[_v-6f9a51da] {\n  display: table;\n  width: 100%;\n  background: #fefefe;\n  border-collapse: collapse;\n}\narticle table tr[_v-6f9a51da] {\n  border-bottom: 1px solid #eee;\n}\narticle table tr td[_v-6f9a51da] {\n  padding: 24px 2px 20px 2px;\n  vertical-align: top;\n  color: #666;\n}\narticle table tr td.key[_v-6f9a51da] {\n  color: #777;\n  font-size: 0.9em;\n  font-weight: bold;\n}\narticle table tr td.val[_v-6f9a51da] {\n  text-align: right;\n}\narticle h3[_v-6f9a51da] {\n  margin-bottom: 10px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\narticle .switch[_v-6f9a51da] {\n  position: absolute;\n  top: 2.1rem;\n  right: 1.6rem;\n  display: block;\n  width: 5.4rem;\n  height: 2.6rem;\n  border-radius: 2.4rem;\n  background-color: #bdc6c8;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  overflow: hidden;\n}\narticle .switch .tick[_v-6f9a51da] {\n  display: none;\n  position: absolute;\n  height: 1.4rem;\n  left: 0.6rem;\n  top: 0.6rem;\n}\narticle .switch .ball[_v-6f9a51da] {\n  position: absolute;\n  display: block;\n  top: -0.35rem;\n  left: -0.3rem;\n  width: 2rem;\n  height: 2rem;\n  border: 0.7rem solid #abb5b7;\n  border-radius: 50%;\n  background-color: #fff;\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  box-sizing: content-box;\n}\narticle .switch[data-paused='true'][_v-6f9a51da] {\n  background-color: #2edf88;\n}\narticle .switch[data-paused='true'] .tick[_v-6f9a51da] {\n  display: block;\n}\narticle .switch[data-paused='true'] .ball[_v-6f9a51da] {\n  left: 2.4rem;\n  border-color: #2cc269;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-b5e9fcca", module.exports)
+    hotAPI.createRecord("_v-6f9a51da", module.exports)
   } else {
-    hotAPI.update("_v-b5e9fcca", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-6f9a51da", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],20:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("input[_v-092838b6],\nselect[_v-092838b6] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-092838b6],\nselect[type=checkbox][_v-092838b6] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-092838b6] {\n  position: relative;\n}\nfieldset.git[_v-092838b6]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-092838b6]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-092838b6]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-24b38c17],\nselect[type=checkbox][_v-24b38c17] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n")
 var app;
 
 app = document.app;
@@ -15400,19 +15359,19 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-092838b6=\"\"><form @keyup.enter=\"submit\" _v-092838b6=\"\"><header _v-092838b6=\"\"><h1 _v-092838b6=\"\">Add a new policy for <strong _v-092838b6=\"\">{{fileName}}</strong></h1></header><p _v-092838b6=\"\">Smart Policies are scripts that receive notifications every time a watched file changes. Policies trigger actions such as emailing someone, reverting changes or shutting the system down.</p><p _v-092838b6=\"\">Policies are Node.js packages downloaded from public git repositories. Anyone can take any available policy, fork it and improve it.</p><p _v-092838b6=\"\">Policies are parameterizable. Each policy package can define customizable \"fields\" to suit different monitoring needs.</p><p _v-092838b6=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies\" class=\"cool\" _v-092838b6=\"\">ready-to-use policies</a> in GitHub and also <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-092838b6=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-092838b6=\"\"><label for=\"gitURL\" _v-092838b6=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-092838b6=\"\"><span v-if=\"!branches\" class=\"tip\" _v-092838b6=\"\">Please consign the <strong _v-092838b6=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-092838b6=\"\"><label for=\"gitBranch\" _v-092838b6=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" @blur=\"pullBranch\" _v-092838b6=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-092838b6=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-092838b6=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-092838b6=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-092838b6=\"\"><option v-for=\"(val, label) of field.options\" value=\"{{val}}\" _v-092838b6=\"\">{{label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-092838b6=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-092838b6=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-092838b6=\"\"><label for=\"name\" _v-092838b6=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-092838b6=\"\"></fieldset><footer _v-092838b6=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-092838b6=\"\">Add policy <i _v-092838b6=\"\">{{name}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form policyAdd\" _v-24b38c17=\"\"><form @keyup.enter=\"submit\" _v-24b38c17=\"\"><header _v-24b38c17=\"\"><h1 _v-24b38c17=\"\">Add a new policy for <strong _v-24b38c17=\"\">{{fileName}}</strong></h1></header><p _v-24b38c17=\"\">Smart Policies are scripts that receive notifications every time a watched file changes. Policies trigger actions such as emailing someone, reverting changes or shutting the system down.</p><p _v-24b38c17=\"\">Policies are Node.js packages downloaded from public git repositories. Anyone can take any available policy, fork it and improve it.</p><p _v-24b38c17=\"\">Policies are parameterizable. Each policy package can define customizable \"fields\" to suit different monitoring needs.</p><p _v-24b38c17=\"\">You can find some <a @click=\"openExternal\" href=\"https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies\" class=\"cool\" _v-24b38c17=\"\">ready-to-use policies</a> in GitHub and also <a @click=\"openExternal\" href=\"https://github.com/stampery/watcher/wiki/Smart-Policies\" class=\"cool\" _v-24b38c17=\"\">learn how to write your own policies</a>.</p><fieldset data-valid=\"{{branches}}\" class=\"git\" _v-24b38c17=\"\"><label for=\"gitURL\" _v-24b38c17=\"\">Git HTTPS URL</label><input type=\"url\" name=\"gitURL\" v-model=\"gitURL\" @keyup=\"getBranches\" disabled=\"{{branches}}\" _v-24b38c17=\"\"><span v-if=\"!branches\" class=\"tip\" _v-24b38c17=\"\">Please consign the <strong _v-24b38c17=\"\">HTTPS URL</strong> for the git repository of the policy package to be added.</span></fieldset><fieldset v-if=\"branches\" _v-24b38c17=\"\"><label for=\"gitBranch\" _v-24b38c17=\"\">Git Branch</label><select name=\"gitBranch\" v-model=\"gitBranch\" @change=\"pullBranch\" @blur=\"pullBranch\" _v-24b38c17=\"\"><option v-for=\"branch of branches\" value=\"{{branch}}\" _v-24b38c17=\"\">{{branch.split('/').pop()}}</option></select></fieldset><fieldset v-if=\"fields\" v-for=\"(key, field) of fields\" _v-24b38c17=\"\"><label v-if=\"field.label\" for=\"{{key}}\" _v-24b38c17=\"\">{{field.label}}</label><select v-if=\"field.type == &quot;select&quot;\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><option v-for=\"(val, label) of field.options\" value=\"{{val}}\" _v-24b38c17=\"\">{{label}}</option></select><input v-else=\"v-else\" name=\"{{key}}\" type=\"{{field.type}}\" v-model=\"params[key]\" v-bind:required=\"field.required\" _v-24b38c17=\"\"><p v-if=\"field.tip\" class=\"tip\" _v-24b38c17=\"\">{{field.tip}}</p></fieldset><fieldset v-if=\"valid\" _v-24b38c17=\"\"><label for=\"name\" _v-24b38c17=\"\">Policy name</label><input name=\"name\" v-model=\"name\" placeholder=\"e.g.: Mail me when syslog is modified\" _v-24b38c17=\"\"></fieldset><footer _v-24b38c17=\"\"><button v-if=\"valid &amp;&amp; name\" @click=\"submit\" class=\"ok\" _v-24b38c17=\"\">Add policy <i _v-24b38c17=\"\">{{name}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["input[_v-092838b6],\nselect[_v-092838b6] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-092838b6],\nselect[type=checkbox][_v-092838b6] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-092838b6] {\n  position: relative;\n}\nfieldset.git[_v-092838b6]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-092838b6]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-092838b6]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n"] = false
+    __vueify_insert__.cache["input[_v-24b38c17],\nselect[_v-24b38c17] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[type=checkbox][_v-24b38c17],\nselect[type=checkbox][_v-24b38c17] {\n  width: auto;\n  margin-top: 15px;\n}\nfieldset.git[_v-24b38c17] {\n  position: relative;\n}\nfieldset.git[_v-24b38c17]:after {\n  display: block;\n  position: absolute;\n  top: 28px;\n  right: 10px;\n  padding: 3px 5px 1px 5px;\n  border-radius: 100%;\n  color: #fff;\n  font-size: 0.8em;\n  opacity: 0.7;\n}\nfieldset.git[data-valid][_v-24b38c17]:after {\n  content: '✔';\n  background: #5aa02c;\n}\nfieldset.git[_v-24b38c17]:not([data-valid]):after {\n  content: '✖';\n  background: #d40000;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-092838b6", module.exports)
+    hotAPI.createRecord("_v-24b38c17", module.exports)
   } else {
-    hotAPI.update("_v-092838b6", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-24b38c17", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-focus":10,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],21:[function(require,module,exports){
@@ -15430,14 +15389,14 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-342826af", module.exports)
+    hotAPI.createRecord("_v-51aef060", module.exports)
   } else {
-    hotAPI.update("_v-342826af", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-51aef060", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],22:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("section.unlock[_v-5f649bd2] {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.unlock .logo[_v-5f649bd2] {\n  text-align: center;\n  padding: 30px 0;\n}\nsection.unlock article[_v-5f649bd2] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-5f649bd2] {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 150px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-5f649bd2] {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.unlock article.form header h1[_v-5f649bd2] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.unlock article.form form[_v-5f649bd2] {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article.form form fieldset[_v-5f649bd2] {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article.form form fieldset *[_v-5f649bd2] {\n  box-sizing: border-box;\n}\nsection.unlock article.form form fieldset label[_v-5f649bd2] {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.unlock article.form form fieldset input[_v-5f649bd2] {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.unlock article.form form fieldset input[_v-5f649bd2]:focus {\n  border-color: #999;\n}\nsection.unlock article.form form fieldset[_v-5f649bd2]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article.form form p[_v-5f649bd2] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.unlock article.form form p.error[_v-5f649bd2] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article.form form p.error[_v-5f649bd2]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article.form footer[_v-5f649bd2] {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.unlock article.form footer button[_v-5f649bd2] {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: bold;\n  font-size: 0.8em;\n}\nsection.unlock article.form footer button[_v-5f649bd2]:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.unlock article.form footer div.half button[_v-5f649bd2] {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.unlock article.form footer div.half button[_v-5f649bd2]:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("section.unlock[_v-1c705ed1] {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.unlock .logo[_v-1c705ed1] {\n  text-align: center;\n  padding: 30px 0;\n}\nsection.unlock article[_v-1c705ed1] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-1c705ed1] {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 150px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-1c705ed1] {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.unlock article.form header h1[_v-1c705ed1] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.unlock article.form form[_v-1c705ed1] {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article.form form fieldset[_v-1c705ed1] {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article.form form fieldset *[_v-1c705ed1] {\n  box-sizing: border-box;\n}\nsection.unlock article.form form fieldset label[_v-1c705ed1] {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.unlock article.form form fieldset input[_v-1c705ed1] {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.unlock article.form form fieldset input[_v-1c705ed1]:focus {\n  border-color: #999;\n}\nsection.unlock article.form form fieldset[_v-1c705ed1]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article.form form p[_v-1c705ed1] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.unlock article.form form p.error[_v-1c705ed1] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article.form form p.error[_v-1c705ed1]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article.form footer[_v-1c705ed1] {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.unlock article.form footer button[_v-1c705ed1] {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: bold;\n  font-size: 0.8em;\n}\nsection.unlock article.form footer button[_v-1c705ed1]:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.unlock article.form footer div.half button[_v-1c705ed1] {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.unlock article.form footer div.half button[_v-1c705ed1]:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n")
 var app;
 
 app = document.app;
@@ -15463,24 +15422,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"unlock\" _v-5f649bd2=\"\"><h1 class=\"logo\" _v-5f649bd2=\"\"><img src=\"/img/logo_dark.svg\" _v-5f649bd2=\"\"></h1><article class=\"form\" _v-5f649bd2=\"\"><header _v-5f649bd2=\"\"><h1 _v-5f649bd2=\"\">Unlock your keypar</h1></header><form @keyup.enter=\"submit\" _v-5f649bd2=\"\"><p _v-5f649bd2=\"\">All data collected by {{appName}} is encrypted with a keypar whose passphrase is only known by you.</p><p _v-5f649bd2=\"\">In order to decrypt such data, please introduce your passphrase .</p><p v-if=\"error\" class=\"error\" _v-5f649bd2=\"\">{{error}}</p><fieldset class=\"pass\" _v-5f649bd2=\"\"><label for=\"pass\" _v-5f649bd2=\"\">Passphrase</label><input name=\"pass\" type=\"password\" v-model=\"pass\" v-focus-auto=\"v-focus-auto\" _v-5f649bd2=\"\"></fieldset></form><footer _v-5f649bd2=\"\"><button v-show=\"pass\" @click=\"submit\" class=\"next\" _v-5f649bd2=\"\">Unlock</button></footer></article></section>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"unlock\" _v-1c705ed1=\"\"><h1 class=\"logo\" _v-1c705ed1=\"\"><img src=\"/img/logo_dark.svg\" _v-1c705ed1=\"\"></h1><article class=\"form\" _v-1c705ed1=\"\"><header _v-1c705ed1=\"\"><h1 _v-1c705ed1=\"\">Unlock your keypar</h1></header><form @keyup.enter=\"submit\" _v-1c705ed1=\"\"><p _v-1c705ed1=\"\">All data collected by {{appName}} is encrypted with a keypar whose passphrase is only known by you.</p><p _v-1c705ed1=\"\">In order to decrypt such data, please introduce your passphrase .</p><p v-if=\"error\" class=\"error\" _v-1c705ed1=\"\">{{error}}</p><fieldset class=\"pass\" _v-1c705ed1=\"\"><label for=\"pass\" _v-1c705ed1=\"\">Passphrase</label><input name=\"pass\" type=\"password\" v-model=\"pass\" v-focus-auto=\"v-focus-auto\" _v-1c705ed1=\"\"></fieldset></form><footer _v-1c705ed1=\"\"><button v-show=\"pass\" @click=\"submit\" class=\"next\" _v-1c705ed1=\"\">Unlock</button></footer></article></section>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["section.unlock[_v-5f649bd2] {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.unlock .logo[_v-5f649bd2] {\n  text-align: center;\n  padding: 30px 0;\n}\nsection.unlock article[_v-5f649bd2] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-5f649bd2] {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 150px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-5f649bd2] {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.unlock article.form header h1[_v-5f649bd2] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.unlock article.form form[_v-5f649bd2] {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article.form form fieldset[_v-5f649bd2] {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article.form form fieldset *[_v-5f649bd2] {\n  box-sizing: border-box;\n}\nsection.unlock article.form form fieldset label[_v-5f649bd2] {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.unlock article.form form fieldset input[_v-5f649bd2] {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.unlock article.form form fieldset input[_v-5f649bd2]:focus {\n  border-color: #999;\n}\nsection.unlock article.form form fieldset[_v-5f649bd2]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article.form form p[_v-5f649bd2] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.unlock article.form form p.error[_v-5f649bd2] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article.form form p.error[_v-5f649bd2]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article.form footer[_v-5f649bd2] {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.unlock article.form footer button[_v-5f649bd2] {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: bold;\n  font-size: 0.8em;\n}\nsection.unlock article.form footer button[_v-5f649bd2]:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.unlock article.form footer div.half button[_v-5f649bd2] {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.unlock article.form footer div.half button[_v-5f649bd2]:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n"] = false
+    __vueify_insert__.cache["section.unlock[_v-1c705ed1] {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.unlock .logo[_v-1c705ed1] {\n  text-align: center;\n  padding: 30px 0;\n}\nsection.unlock article[_v-1c705ed1] {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.unlock article.form[_v-1c705ed1] {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 150px;\n  right: 50px;\n  left: 50px;\n}\nsection.unlock article.form header[_v-1c705ed1] {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.unlock article.form header h1[_v-1c705ed1] {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.unlock article.form form[_v-1c705ed1] {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.unlock article.form form fieldset[_v-1c705ed1] {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.unlock article.form form fieldset *[_v-1c705ed1] {\n  box-sizing: border-box;\n}\nsection.unlock article.form form fieldset label[_v-1c705ed1] {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.unlock article.form form fieldset input[_v-1c705ed1] {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.unlock article.form form fieldset input[_v-1c705ed1]:focus {\n  border-color: #999;\n}\nsection.unlock article.form form fieldset[_v-1c705ed1]:last-of-type {\n  padding-bottom: 30px;\n}\nsection.unlock article.form form p[_v-1c705ed1] {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.unlock article.form form p.error[_v-1c705ed1] {\n  position: block;\n  color: #f00;\n}\nsection.unlock article.form form p.error[_v-1c705ed1]:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.unlock article.form footer[_v-1c705ed1] {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.unlock article.form footer button[_v-1c705ed1] {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: bold;\n  font-size: 0.8em;\n}\nsection.unlock article.form footer button[_v-1c705ed1]:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.unlock article.form footer div.half button[_v-1c705ed1] {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.unlock article.form footer div.half button[_v-1c705ed1]:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-5f649bd2", module.exports)
+    hotAPI.createRecord("_v-1c705ed1", module.exports)
   } else {
-    hotAPI.update("_v-5f649bd2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-1c705ed1", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-focus":10,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],23:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("figure[_v-9b38a4ce] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-9b38a4ce] {\n  height: 100px;\n}\nfigure label[_v-9b38a4ce] {\n  color: #fff;\n}\n.textBody[_v-9b38a4ce] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-9b38a4ce] {\n  display: inline-block;\n  margin-top: 30px;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("figure[_v-6e99d97a] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-6e99d97a] {\n  height: 100px;\n}\nfigure label[_v-6e99d97a] {\n  color: #fff;\n}\n.textBody[_v-6e99d97a] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-6e99d97a] {\n  display: inline-block;\n  margin-top: 30px;\n}\n")
 var app;
 
 app = document.app;
@@ -15495,24 +15454,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div transition=\"slide\" class=\"welcome\" _v-9b38a4ce=\"\"><figure _v-9b38a4ce=\"\"><img src=\"/img/rocket.svg\" _v-9b38a4ce=\"\"><label _v-9b38a4ce=\"\"><h1 _v-9b38a4ce=\"\">Congratulations!</h1></label></figure><div class=\"textBody\" _v-9b38a4ce=\"\"><p _v-9b38a4ce=\"\">{{appName}} is now completely set up.</p><p _v-9b38a4ce=\"\">You can go now to your dashboard and choose which files to monitor and what policies to apply.</p><a v-link=\"{ path: '/dashboard' }\" class=\"button\" _v-9b38a4ce=\"\">Go to my dashboard</a></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div transition=\"slide\" class=\"welcome\" _v-6e99d97a=\"\"><figure _v-6e99d97a=\"\"><img src=\"/img/rocket.svg\" _v-6e99d97a=\"\"><label _v-6e99d97a=\"\"><h1 _v-6e99d97a=\"\">Congratulations!</h1></label></figure><div class=\"textBody\" _v-6e99d97a=\"\"><p _v-6e99d97a=\"\">{{appName}} is now completely set up.</p><p _v-6e99d97a=\"\">You can go now to your dashboard and choose which files to monitor and what policies to apply.</p><a v-link=\"{ path: '/dashboard' }\" class=\"button\" _v-6e99d97a=\"\">Go to my dashboard</a></div></div>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["figure[_v-9b38a4ce] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-9b38a4ce] {\n  height: 100px;\n}\nfigure label[_v-9b38a4ce] {\n  color: #fff;\n}\n.textBody[_v-9b38a4ce] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-9b38a4ce] {\n  display: inline-block;\n  margin-top: 30px;\n}\n"] = false
+    __vueify_insert__.cache["figure[_v-6e99d97a] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-6e99d97a] {\n  height: 100px;\n}\nfigure label[_v-6e99d97a] {\n  color: #fff;\n}\n.textBody[_v-6e99d97a] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-6e99d97a] {\n  display: inline-block;\n  margin-top: 30px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-9b38a4ce", module.exports)
+    hotAPI.createRecord("_v-6e99d97a", module.exports)
   } else {
-    hotAPI.update("_v-9b38a4ce", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-6e99d97a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],24:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("div.or[_v-ab066a8c] {\n  text-align: center;\n}\ndiv.or button[_v-ab066a8c]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-ab066a8c]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-ab066a8c]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("div.or[_v-585e7adb] {\n  text-align: center;\n}\ndiv.or button[_v-585e7adb]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-585e7adb]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-585e7adb]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
 var app;
 
 app = document.app;
@@ -15551,24 +15510,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-ab066a8c=\"\"><header _v-ab066a8c=\"\"><h1 _v-ab066a8c=\"\">Public key export</h1></header><form _v-ab066a8c=\"\"><p _v-ab066a8c=\"\">It is very important to export the public key now so that you can later import it in every server you want to monitor.</p></form><footer _v-ab066a8c=\"\"><button @click=\"export\" class=\"or\" _v-ab066a8c=\"\">Export to filesystem</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-585e7adb=\"\"><header _v-585e7adb=\"\"><h1 _v-585e7adb=\"\">Public key export</h1></header><form _v-585e7adb=\"\"><p _v-585e7adb=\"\">It is very important to export the public key now so that you can later import it in every server you want to monitor.</p></form><footer _v-585e7adb=\"\"><button @click=\"export\" class=\"or\" _v-585e7adb=\"\">Export to filesystem</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["div.or[_v-ab066a8c] {\n  text-align: center;\n}\ndiv.or button[_v-ab066a8c]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-ab066a8c]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-ab066a8c]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n"] = false
+    __vueify_insert__.cache["div.or[_v-585e7adb] {\n  text-align: center;\n}\ndiv.or button[_v-585e7adb]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-585e7adb]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-585e7adb]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-ab066a8c", module.exports)
+    hotAPI.createRecord("_v-585e7adb", module.exports)
   } else {
-    hotAPI.update("_v-ab066a8c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-585e7adb", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],25:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("article.generating[_v-5225bf0a] {\n  width: 300px;\n  height: 300px;\n  top: 50vh;\n  left: 50vw;\n  margin: -150px;\n}\narticle.generating p[_v-5225bf0a] {\n  margin: 0;\n  text-align: center;\n}\narticle input[name=pass][_v-5225bf0a] {\n  width: calc(100% - 170px);\n}\narticle button.unhide[_v-5225bf0a] {\n  float: right;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  opacity: 0.5;\n}\narticle button.unhide.show[_v-5225bf0a] {\n  opacity: 1;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("article.generating[_v-d9b96748] {\n  width: 300px;\n  height: 300px;\n  top: 50vh;\n  left: 50vw;\n  margin: -150px;\n}\narticle.generating p[_v-d9b96748] {\n  margin: 0;\n  text-align: center;\n}\narticle input[name=pass][_v-d9b96748] {\n  width: calc(100% - 170px);\n}\narticle button.unhide[_v-d9b96748] {\n  float: right;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  opacity: 0.5;\n}\narticle button.unhide.show[_v-d9b96748] {\n  opacity: 1;\n}\n")
 var app;
 
 app = document.app;
@@ -15646,24 +15605,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article v-if=\"generating\" transition=\"pop\" class=\"generating\" _v-5225bf0a=\"\"><div class=\"loader\" _v-5225bf0a=\"\">Loading...</div><p _v-5225bf0a=\"\"><strong _v-5225bf0a=\"\">Generating keypair...</strong></p><p _v-5225bf0a=\"\"><small _v-5225bf0a=\"\">(It may take up to 1 minute)</small></p></article><article v-else=\"v-else\" transition=\"slide\" class=\"form\" _v-5225bf0a=\"\"><header _v-5225bf0a=\"\"><h1 _v-5225bf0a=\"\">PGP keypar generation</h1></header><form @keyup.enter=\"submit\" _v-5225bf0a=\"\"><p _v-5225bf0a=\"\">Please choose a safe password or passphrase for protecting your keys:</p><p v-if=\"error\" class=\"error\" _v-5225bf0a=\"\">{{error}}</p><fieldset class=\"pass\" _v-5225bf0a=\"\"><label for=\"pass\" _v-5225bf0a=\"\">Passphrase</label><input v-if=\"show\" type=\"text\" v-model=\"pass\" _v-5225bf0a=\"\"><input v-else=\"v-else\" name=\"pass\" type=\"password\" v-model=\"pass\" _v-5225bf0a=\"\"><button @click=\"unhide\" v-bind:class=\"{'show': show}\" class=\"plain unhide\" _v-5225bf0a=\"\"><img src=\"/img/eye.svg\" _v-5225bf0a=\"\"></button></fieldset></form><footer _v-5225bf0a=\"\"><button v-show=\"pass\" @click=\"submit\" class=\"next\" _v-5225bf0a=\"\">Next</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article v-if=\"generating\" transition=\"pop\" class=\"generating\" _v-d9b96748=\"\"><div class=\"loader\" _v-d9b96748=\"\">Loading...</div><p _v-d9b96748=\"\"><strong _v-d9b96748=\"\">Generating keypair...</strong></p><p _v-d9b96748=\"\"><small _v-d9b96748=\"\">(It may take up to 1 minute)</small></p></article><article v-else=\"v-else\" transition=\"slide\" class=\"form\" _v-d9b96748=\"\"><header _v-d9b96748=\"\"><h1 _v-d9b96748=\"\">PGP keypar generation</h1></header><form @keyup.enter=\"submit\" _v-d9b96748=\"\"><p _v-d9b96748=\"\">Please choose a safe password or passphrase for protecting your keys:</p><p v-if=\"error\" class=\"error\" _v-d9b96748=\"\">{{error}}</p><fieldset class=\"pass\" _v-d9b96748=\"\"><label for=\"pass\" _v-d9b96748=\"\">Passphrase</label><input v-if=\"show\" type=\"text\" v-model=\"pass\" _v-d9b96748=\"\"><input v-else=\"v-else\" name=\"pass\" type=\"password\" v-model=\"pass\" _v-d9b96748=\"\"><button @click=\"unhide\" v-bind:class=\"{'show': show}\" class=\"plain unhide\" _v-d9b96748=\"\"><img src=\"/img/eye.svg\" _v-d9b96748=\"\"></button></fieldset></form><footer _v-d9b96748=\"\"><button v-show=\"pass\" @click=\"submit\" class=\"next\" _v-d9b96748=\"\">Next</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["article.generating[_v-5225bf0a] {\n  width: 300px;\n  height: 300px;\n  top: 50vh;\n  left: 50vw;\n  margin: -150px;\n}\narticle.generating p[_v-5225bf0a] {\n  margin: 0;\n  text-align: center;\n}\narticle input[name=pass][_v-5225bf0a] {\n  width: calc(100% - 170px);\n}\narticle button.unhide[_v-5225bf0a] {\n  float: right;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  opacity: 0.5;\n}\narticle button.unhide.show[_v-5225bf0a] {\n  opacity: 1;\n}\n"] = false
+    __vueify_insert__.cache["article.generating[_v-d9b96748] {\n  width: 300px;\n  height: 300px;\n  top: 50vh;\n  left: 50vw;\n  margin: -150px;\n}\narticle.generating p[_v-d9b96748] {\n  margin: 0;\n  text-align: center;\n}\narticle input[name=pass][_v-d9b96748] {\n  width: calc(100% - 170px);\n}\narticle button.unhide[_v-d9b96748] {\n  float: right;\n  position: absolute;\n  top: 35px;\n  right: 10px;\n  opacity: 0.5;\n}\narticle button.unhide.show[_v-d9b96748] {\n  opacity: 1;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-5225bf0a", module.exports)
+    hotAPI.createRecord("_v-d9b96748", module.exports)
   } else {
-    hotAPI.update("_v-5225bf0a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-d9b96748", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],26:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("div.or[_v-1cb1ca2b] {\n  text-align: center;\n}\ndiv.or button[_v-1cb1ca2b]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("div.or[_v-6ad90b68] {\n  text-align: center;\n}\ndiv.or button[_v-6ad90b68]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-6ad90b68]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-6ad90b68]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
 var app;
 
 app = document.app;
@@ -15745,19 +15704,19 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1cb1ca2b=\"\"><header _v-1cb1ca2b=\"\"><button @click=\"back\" class=\"plain back\" _v-1cb1ca2b=\"\">&lt; BACK</button><h1 _v-1cb1ca2b=\"\">Public keys exchange</h1></header><form _v-1cb1ca2b=\"\"><p _v-1cb1ca2b=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-1cb1ca2b=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-1cb1ca2b=\"\">{{error}}</p><fieldset _v-1cb1ca2b=\"\"><label for=\"sentence\" _v-1cb1ca2b=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-1cb1ca2b=\"\"></fieldset></form><footer _v-1cb1ca2b=\"\"><button @click=\"validate\" class=\"or\" _v-1cb1ca2b=\"\">Validate sentence</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-6ad90b68=\"\"><header _v-6ad90b68=\"\"><button @click=\"back\" class=\"plain back\" _v-6ad90b68=\"\">&lt; BACK</button><h1 _v-6ad90b68=\"\">Public keys exchange</h1></header><form _v-6ad90b68=\"\"><p _v-6ad90b68=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-6ad90b68=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-6ad90b68=\"\">{{error}}</p><fieldset _v-6ad90b68=\"\"><label for=\"sentence\" _v-6ad90b68=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-6ad90b68=\"\"></fieldset></form><footer _v-6ad90b68=\"\"><button @click=\"validate\" class=\"or\" _v-6ad90b68=\"\">Validate sentence</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["div.or[_v-1cb1ca2b] {\n  text-align: center;\n}\ndiv.or button[_v-1cb1ca2b]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n"] = false
+    __vueify_insert__.cache["div.or[_v-6ad90b68] {\n  text-align: center;\n}\ndiv.or button[_v-6ad90b68]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-6ad90b68]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-6ad90b68]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-1cb1ca2b", module.exports)
+    hotAPI.createRecord("_v-6ad90b68", module.exports)
   } else {
-    hotAPI.update("_v-1cb1ca2b", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-6ad90b68", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"pgp-word-list-converter":7,"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],27:[function(require,module,exports){
@@ -15778,14 +15737,14 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-522cf5bf", module.exports)
+    hotAPI.createRecord("_v-79638bc0", module.exports)
   } else {
-    hotAPI.update("_v-522cf5bf", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-79638bc0", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],28:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("hr[_v-1b89ed92] {\n  border: none;\n  border-top: 1px solid #ddd;\n  padding-bottom: 15px;\n}\nfooter[_v-1b89ed92] {\n  text-align: center;\n}\nfooter a[_v-1b89ed92] {\n  display: block;\n  margin: 0 auto;\n  padding: 20px 0 0 0;\n  color: #666;\n  font-weight: bold;\n  font-decoration: none;\n}\nfooter a[_v-1b89ed92]:hover {\n  font-decoration: underline;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("hr[_v-33cd845e] {\n  border: none;\n  border-top: 1px solid #ddd;\n  padding-bottom: 15px;\n}\nfooter[_v-33cd845e] {\n  text-align: center;\n}\nfooter a[_v-33cd845e] {\n  display: block;\n  margin: 0 auto;\n  padding: 20px 0 0 0;\n  color: #666;\n  font-weight: bold;\n  font-decoration: none;\n}\nfooter a[_v-33cd845e]:hover {\n  font-decoration: underline;\n}\n")
 var app;
 
 app = document.app;
@@ -15800,24 +15759,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1b89ed92=\"\"><header _v-1b89ed92=\"\"><button @click=\"back\" class=\"plain back\" _v-1b89ed92=\"\">&lt; BACK</button><h1 _v-1b89ed92=\"\">Watcher configuration</h1></header><form _v-1b89ed92=\"\"><p _v-1b89ed92=\"\">{{appName}} uses a special daemon called <strong _v-1b89ed92=\"\">Watcher</strong> to monitor your servers, send alerts and enforce smart policies.</p><hr _v-1b89ed92=\"\"><p _v-1b89ed92=\"\"><strong _v-1b89ed92=\"\">Have you already installed and set up {{appName}} Watcher in your server?</strong></p></form><footer _v-1b89ed92=\"\"><button v-link=\"{ path: '/wizard/watcherGuide' }\" _v-1b89ed92=\"\">Not yet, please show me how</button><a v-link=\"{ path: '/wizard/import' }\" _v-1b89ed92=\"\">Yes, I have</a></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-33cd845e=\"\"><header _v-33cd845e=\"\"><button @click=\"back\" class=\"plain back\" _v-33cd845e=\"\">&lt; BACK</button><h1 _v-33cd845e=\"\">Watcher configuration</h1></header><form _v-33cd845e=\"\"><p _v-33cd845e=\"\">{{appName}} uses a special daemon called <strong _v-33cd845e=\"\">Watcher</strong> to monitor your servers, send alerts and enforce smart policies.</p><hr _v-33cd845e=\"\"><p _v-33cd845e=\"\"><strong _v-33cd845e=\"\">Have you already installed and set up {{appName}} Watcher in your server?</strong></p></form><footer _v-33cd845e=\"\"><button v-link=\"{ path: '/wizard/watcherGuide' }\" _v-33cd845e=\"\">Not yet, please show me how</button><a v-link=\"{ path: '/wizard/import' }\" _v-33cd845e=\"\">Yes, I have</a></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["hr[_v-1b89ed92] {\n  border: none;\n  border-top: 1px solid #ddd;\n  padding-bottom: 15px;\n}\nfooter[_v-1b89ed92] {\n  text-align: center;\n}\nfooter a[_v-1b89ed92] {\n  display: block;\n  margin: 0 auto;\n  padding: 20px 0 0 0;\n  color: #666;\n  font-weight: bold;\n  font-decoration: none;\n}\nfooter a[_v-1b89ed92]:hover {\n  font-decoration: underline;\n}\n"] = false
+    __vueify_insert__.cache["hr[_v-33cd845e] {\n  border: none;\n  border-top: 1px solid #ddd;\n  padding-bottom: 15px;\n}\nfooter[_v-33cd845e] {\n  text-align: center;\n}\nfooter a[_v-33cd845e] {\n  display: block;\n  margin: 0 auto;\n  padding: 20px 0 0 0;\n  color: #666;\n  font-weight: bold;\n  font-decoration: none;\n}\nfooter a[_v-33cd845e]:hover {\n  font-decoration: underline;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-1b89ed92", module.exports)
+    hotAPI.createRecord("_v-33cd845e", module.exports)
   } else {
-    hotAPI.update("_v-1b89ed92", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-33cd845e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],29:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("article.form[_v-42e07d26] {\n  max-width: 90vw !important;\n  width: 840px;\n}\ndiv.or[_v-42e07d26] {\n  text-align: center;\n}\ndiv.or button[_v-42e07d26]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-42e07d26]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-42e07d26]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-42e07d26] {\n  padding-left: 30px;\n}\nol li[_v-42e07d26] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-42e07d26],\nol li pre[_v-42e07d26] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-42e07d26] {\n  position: relative;\n  top: -5px;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("article.form[_v-5e6bd087] {\n  max-width: 90vw !important;\n  width: 840px;\n}\ndiv.or[_v-5e6bd087] {\n  text-align: center;\n}\ndiv.or button[_v-5e6bd087]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-5e6bd087] {\n  padding-left: 30px;\n}\nol li[_v-5e6bd087] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-5e6bd087],\nol li pre[_v-5e6bd087] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-5e6bd087] {\n  position: relative;\n  top: -5px;\n}\n")
 var app;
 
 app = document.app;
@@ -15899,24 +15858,24 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-42e07d26=\"\"><header _v-42e07d26=\"\"><button @click=\"back\" class=\"plain back\" _v-42e07d26=\"\">&lt; BACK</button><h1 _v-42e07d26=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-42e07d26=\"\"><p _v-42e07d26=\"\">Setting up a watcher is pretty simple:</p><ol _v-42e07d26=\"\"><li _v-42e07d26=\"\">Log into your server and become <strong _v-42e07d26=\"\">root</strong> (using <code _v-42e07d26=\"\">sudo su</code>, <code _v-42e07d26=\"\">su</code> or similar).</li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Install git and nodejs 6.x:</span><pre _v-42e07d26=\"\">curl -sL https://deb.nodesource.com/setup_6.x | bash -\napt-get install -y git nodejs build-essential || yum -y install git nodejs gcc gcc-c++ make</pre></li><li _v-42e07d26=\"\"><span _v-42e07d26=\"\">Clone the repository and install the nodejs dependencies:</span><pre _v-42e07d26=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li _v-42e07d26=\"\">Run the setup script:\n<code _v-42e07d26=\"\">npm run setup</code></li><li _v-42e07d26=\"\">Finally, type in the field below the biometric sentence provided by Trailbot Watcher.\nTake in to account that the sentences are renewed every 5 minutes for security reasons.</li><footer _v-42e07d26=\"\"><p v-if=\"error\" class=\"error\" _v-42e07d26=\"\">{{error}}</p><fieldset _v-42e07d26=\"\"><label for=\"sentence\" _v-42e07d26=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-42e07d26=\"\"></fieldset><button @click=\"validate\" class=\"or\" _v-42e07d26=\"\">Validate sentence</button></footer></ol></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-5e6bd087=\"\"><header _v-5e6bd087=\"\"><button @click=\"back\" class=\"plain back\" _v-5e6bd087=\"\">&lt; BACK</button><h1 _v-5e6bd087=\"\">Watcher setup</h1></header><form @keyup.enter=\"submit\" _v-5e6bd087=\"\"><p _v-5e6bd087=\"\">Setting up a watcher is pretty simple:</p><ol _v-5e6bd087=\"\"><li _v-5e6bd087=\"\">Log into your server and become <strong _v-5e6bd087=\"\">root</strong> (using <code _v-5e6bd087=\"\">sudo su</code>, <code _v-5e6bd087=\"\">su</code> or similar).</li><li _v-5e6bd087=\"\"><span _v-5e6bd087=\"\">Install git and nodejs 6.x:</span><pre _v-5e6bd087=\"\">curl -sL https://deb.nodesource.com/setup_6.x | bash -\napt-get install -y git nodejs build-essential || yum -y install git nodejs gcc gcc-c++ make</pre></li><li _v-5e6bd087=\"\"><span _v-5e6bd087=\"\">Clone the repository and install the nodejs dependencies:</span><pre _v-5e6bd087=\"\">git clone https://github.com/trailbot/watcher\ncd watcher\nnpm install</pre></li><li _v-5e6bd087=\"\">Run the setup script:\n<code _v-5e6bd087=\"\">npm run setup</code></li><li _v-5e6bd087=\"\">Finally, type in the field below the biometric sentence provided by Trailbot Watcher.\nTake in to account that the sentences are renewed every 5 minutes for security reasons.</li><footer _v-5e6bd087=\"\"><p v-if=\"error\" class=\"error\" _v-5e6bd087=\"\">{{error}}</p><fieldset _v-5e6bd087=\"\"><label for=\"sentence\" _v-5e6bd087=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-5e6bd087=\"\"></fieldset><button @click=\"validate\" class=\"or\" _v-5e6bd087=\"\">Validate sentence</button></footer></ol></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["article.form[_v-42e07d26] {\n  max-width: 90vw !important;\n  width: 840px;\n}\ndiv.or[_v-42e07d26] {\n  text-align: center;\n}\ndiv.or button[_v-42e07d26]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-42e07d26]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-42e07d26]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-42e07d26] {\n  padding-left: 30px;\n}\nol li[_v-42e07d26] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-42e07d26],\nol li pre[_v-42e07d26] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-42e07d26] {\n  position: relative;\n  top: -5px;\n}\n"] = false
+    __vueify_insert__.cache["article.form[_v-5e6bd087] {\n  max-width: 90vw !important;\n  width: 840px;\n}\ndiv.or[_v-5e6bd087] {\n  text-align: center;\n}\ndiv.or button[_v-5e6bd087]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-5e6bd087]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\nol[_v-5e6bd087] {\n  padding-left: 30px;\n}\nol li[_v-5e6bd087] {\n  margin-bottom: 15px;\n  padding-left: 10px;\n  line-height: 1.5em;\n}\nol li code[_v-5e6bd087],\nol li pre[_v-5e6bd087] {\n  margin-left: 2px;\n  margin-right: 2px;\n  padding: 5px;\n  border-radius: 2px;\n  background: #555;\n  color: #fff;\n  font-weight: bold;\n}\nol li pre[_v-5e6bd087] {\n  position: relative;\n  top: -5px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-42e07d26", module.exports)
+    hotAPI.createRecord("_v-5e6bd087", module.exports)
   } else {
-    hotAPI.update("_v-42e07d26", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-5e6bd087", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"pgp-word-list-converter":7,"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],30:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("figure[_v-245f9c4c] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-245f9c4c] {\n  height: 100px;\n}\nfigure label[_v-245f9c4c] {\n  color: #fff;\n}\n.textBody[_v-245f9c4c] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-245f9c4c] {\n  display: inline-block;\n  margin-top: 30px;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("figure[_v-32b3f04b] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-32b3f04b] {\n  height: 100px;\n}\nfigure label[_v-32b3f04b] {\n  color: #fff;\n}\n.textBody[_v-32b3f04b] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-32b3f04b] {\n  display: inline-block;\n  margin-top: 30px;\n}\n")
 var app;
 
 app = document.app;
@@ -15926,19 +15885,19 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div transition=\"slide\" class=\"welcome\" _v-245f9c4c=\"\"><figure _v-245f9c4c=\"\"><div id=\"img\" src=\"/img/icon.svg\" _v-245f9c4c=\"\"></div><label _v-245f9c4c=\"\"><h1 _v-245f9c4c=\"\">Welcome to {{appName}}!</h1></label></figure><div class=\"textBody\" _v-245f9c4c=\"\"><p _v-245f9c4c=\"\">This wizard will guide you through the process of setting up {{appName}}</p><a v-link=\"{ path: '/wizard/generate' }\" class=\"button\" _v-245f9c4c=\"\">Start setup</a></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div transition=\"slide\" class=\"welcome\" _v-32b3f04b=\"\"><figure _v-32b3f04b=\"\"><div id=\"img\" src=\"/img/icon.svg\" _v-32b3f04b=\"\"></div><label _v-32b3f04b=\"\"><h1 _v-32b3f04b=\"\">Welcome to {{appName}}!</h1></label></figure><div class=\"textBody\" _v-32b3f04b=\"\"><p _v-32b3f04b=\"\">This wizard will guide you through the process of setting up {{appName}}</p><a v-link=\"{ path: '/wizard/generate' }\" class=\"button\" _v-32b3f04b=\"\">Start setup</a></div></div>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["figure[_v-245f9c4c] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-245f9c4c] {\n  height: 100px;\n}\nfigure label[_v-245f9c4c] {\n  color: #fff;\n}\n.textBody[_v-245f9c4c] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-245f9c4c] {\n  display: inline-block;\n  margin-top: 30px;\n}\n"] = false
+    __vueify_insert__.cache["figure[_v-32b3f04b] {\n  margin-top: calc(50vh - 130px);\n  text-align: center;\n}\nfigure img[_v-32b3f04b] {\n  height: 100px;\n}\nfigure label[_v-32b3f04b] {\n  color: #fff;\n}\n.textBody[_v-32b3f04b] {\n  padding: 0 50px;\n  text-align: center;\n  color: #fff;\n}\n.textBody .button[_v-32b3f04b] {\n  display: inline-block;\n  margin-top: 30px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-245f9c4c", module.exports)
+    hotAPI.createRecord("_v-32b3f04b", module.exports)
   } else {
-    hotAPI.update("_v-245f9c4c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-32b3f04b", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}]},{},[1]);
