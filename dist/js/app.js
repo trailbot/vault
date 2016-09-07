@@ -133,9 +133,19 @@
         };
       })(this));
       this.router.start(App, '#app');
+      window.Intercom('boot', {
+        app_id: 'pzfj55kn'
+      });
       if (this.settings.keys != null) {
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        return this.router.replace('/unlock');
+        this.router.replace('/unlock');
+        return window.Intercom('update', {
+          email: this.privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0],
+          watchers: this.settings.watchers.length,
+          files: this.settings.watchers.reduce(function(acc, watcher) {
+            return acc + watcher.settings.files || 0;
+          }, 0)
+        });
       } else {
         return this.router.replace('/wizard');
       }

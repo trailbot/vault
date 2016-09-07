@@ -92,14 +92,20 @@ main = ->
         methods.run this.router.app.$route, transition
     @router.start App, '#app'
 
+    window.Intercom 'boot',
+      app_id: 'pzfj55kn'
+
     if @settings.keys?
       @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
       @router.replace '/unlock'
+      window.Intercom 'update',
+        email: @privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0]
+        watchers: @settings.watchers.length
+        files: @settings.watchers.reduce (acc, watcher) ->
+          acc + watcher.settings.files or 0
+        , 0
     else
       @router.replace '/wizard'
-
-    window.Intercom 'boot',
-      app_id: 'pzfj55kn'
 
   @save = ->
     console.log 'SAVING APP'
