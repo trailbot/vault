@@ -133,16 +133,22 @@
         };
       })(this));
       this.router.start(App, '#app');
+      window.Intercom('boot', {
+        app_id: 'pzfj55kn'
+      });
       if (this.settings.keys != null) {
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
-        return this.router.replace('/unlock');
+        this.user = this.privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0];
+        this.router.replace('/unlock');
+        return this.intercomReport();
       } else {
         return this.router.replace('/wizard');
       }
     });
     this.save = function() {
       console.log('SAVING APP');
-      return localStorage.setItem('settings', JSON.stringify(this.settings));
+      localStorage.setItem('settings', JSON.stringify(this.settings));
+      return this.intercomReport();
     };
     this.copy = function(text) {
       var el, err;
@@ -170,7 +176,7 @@
     this.clear = function() {
       return localStorage.clear();
     };
-    return this.fooEvent = {
+    this.fooEvent = {
       diff: [
         {
           type: 'fill',
@@ -189,6 +195,26 @@
         content: "This is the old content\nThis is a new line"
       },
       path: '/example/path/to/a/file'
+    };
+    return this.intercomReport = function() {
+      return window.Intercom('update', {
+        email: this.user,
+        watchers: this.settings.watchers.length,
+        files: this.settings.watchers.reduce(function(acc, watcher) {
+          return acc + (Object.keys(watcher.settings.files)).length;
+        }, 0),
+        policies: this.settings.watchers.reduce(function(acc, watcher) {
+          return acc + (Object.keys(watcher.settings.files)).reduce(function(acc, path) {
+            return acc + watcher.settings.files[path].policies.length;
+          }, 0);
+        }, 0),
+        events: this.settings.watchers.reduce(function(acc, watcher) {
+          return acc + (Object.keys(watcher.settings.files)).reduce(function(acc, path) {
+            var _ref, _ref1;
+            return acc + ((_ref = watcher.events) != null ? (_ref1 = _ref[path]) != null ? _ref1.length : void 0 : void 0) || 0;
+          }, 0);
+        }, 0)
+      });
     };
   };
 
