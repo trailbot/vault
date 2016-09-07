@@ -93,6 +93,9 @@ article
 
   .syncing
     background-color: #ABB5B7
+    cursor: default
+  span.fontello
+    font-family: 'fontello'
 </style>
 
 <template lang="jade">
@@ -100,7 +103,8 @@ article.form.policy(transition="driftFade")
   .switch(@click='pause', data-paused="{{(!paused).toString()}}")
     .ball
     img.tick(src='img/tick.svg')
-  div.sync(@click='sync' v-bind:class="[syncing ? 'syncing': '']") &#xf021;
+  div.sync(@click='sync' v-bind:class="[syncing ? 'syncing': '']")
+    span.fontello &#xE802
   header
     h1.
       #[strong #[em "{{policy.name}}"]] policy stats
