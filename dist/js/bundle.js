@@ -14880,7 +14880,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],16:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n  background: #44586d;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:not(.dragging):after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\nnav li:hover .handle[_v-879ec5b6] {\n  opacity: 1;\n}\nnav .handle[_v-879ec5b6] {\n  opacity: 0.3;\n  cursor: move;\n  -webkit-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n")
 var app;
 
 app = document.app;
@@ -14888,7 +14888,8 @@ app = document.app;
 module.exports = {
   data: function() {
     ({
-      drag_element: null
+      drag_element: void 0,
+      handle: void 0
     });
     return $.extend(app.data(), {
       watcher: this.$parent.currentWatcher
@@ -14995,33 +14996,50 @@ module.exports = {
     },
     dragstart_handler: function(ev) {
       this.drag_element = ev.target;
-      ev.dataTransfer.effectAllowed = 'move';
-      return ev.dataTransfer.setData('Text', this.drag_element.textContent);
+      this.drag_element.classList.add('dragging');
+      ev.dataTransfer.dropEffect = "move";
+      if (!this.handle) {
+        return ev.preventDefault();
+      }
     },
     dragover_handler: function(ev) {
       var target, temp;
       ev.dataTransfer.dropEffect = 'move';
       target = ev.target;
       if (target && target !== this.drag_element && target.nodeName === 'LI') {
+        app.router.go({
+          name: 'policy',
+          params: {
+            policy: target.dataset.index
+          }
+        });
         temp = this.policies[target.dataset.index];
         this.policies[target.dataset.index] = this.policies[this.drag_element.dataset.index];
         return this.policies.splice(this.drag_element.dataset.index, 1, temp);
       }
     },
+    mousedown_handler: function(ev) {
+      return this.handle = ev.target;
+    },
+    mouseup_handler: function(ev) {
+      return this.handle = void 0;
+    },
     dragend_handler: function(ev) {
+      this.drag_element.classList.remove('dragging');
+      this.handle = void 0;
       return app.save();
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"true\" v-bind:key=\"index\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" class=\"fontello\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"{{policies.length > 1}}\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" @mousedown=\"mousedown_handler\" @mouseup=\"mouseup_handler\" class=\"fontello handle\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n"] = false
+    __vueify_insert__.cache["nav[_v-879ec5b6] {\n  background: #44586d;\n  color: #fff;\n}\nnav div + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav ul + header[_v-879ec5b6] {\n  border-top: 1px solid rgba(255,255,255,0.08);\n}\nnav li[_v-879ec5b6] {\n  position: relative;\n  overflow: hidden;\n  background: #44586d;\n}\nnav li time[_v-879ec5b6] {\n  font-weight: normal;\n  font-size: 0.8em;\n}\nnav li p.stats[_v-879ec5b6] {\n  margin: 5px 0 0 0;\n}\nnav li p.stats span[_v-879ec5b6] {\n  font-weight: bold;\n  font-size: 0.8em;\n  margin-right: 5px;\n}\nnav li p.stats span.add[_v-879ec5b6] {\n  color: #b8e986;\n}\nnav li p.stats span.rem[_v-879ec5b6] {\n  color: #f37e83;\n}\nnav li .strike[_v-879ec5b6] {\n  text-decoration: line-through;\n}\nnav li[_v-879ec5b6]:not(.dragging):after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 50%;\n  margin-top: -7px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #fff transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nnav li.policy span[_v-879ec5b6] {\n  color: #fff;\n}\nnav li.selected[_v-879ec5b6]:after {\n  right: 0;\n}\nnav li:hover .handle[_v-879ec5b6] {\n  opacity: 1;\n}\nnav .handle[_v-879ec5b6] {\n  opacity: 0.3;\n  cursor: move;\n  -webkit-transition: opacity 0.2s ease;\n  transition: opacity 0.2s ease;\n}\narticle article[_v-879ec5b6] {\n  position: absolute;\n  top: 0;\n  left: 275px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
