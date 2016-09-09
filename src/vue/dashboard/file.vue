@@ -58,8 +58,9 @@ article.file(transition='driftFade')
       button.add(v-link="{ name: 'policyAdd'}")
         img(src='/img/add.svg')
       h1 Smart Policies
-    ul(v-if='policies && policies.length > 0')
-      li(v-for='(i, policy) of policies', v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
+    ul(v-if='policies && policies.length > 0', @dragstart="dragstart_handler" @dragover="dragover_handler" @dragend="dragend_handler")
+      li(v-for='(i, policy) of policies' , draggable="true", v-bind:key="index", v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
+        span.fontello(v-if='policies.length > 1') &#x25FC
         span(v-bind:class="[policy.paused ? 'strike':'']") {{policy.name}}
     div.empty(v-else).
       No policies have been defined yet.
@@ -81,9 +82,11 @@ article.file(transition='driftFade')
 </template>
 
 <script lang="coffee">
+
 app = document.app
 module.exports =
   data: ->
+    drag_element: null
     $.extend app.data(),
       watcher: @$parent.currentWatcher
   computed:
@@ -148,4 +151,29 @@ module.exports =
             name: 'file'
       catch e
         console.error e
+
+    #drag policy for priority
+    dragstart_handler: (ev) ->
+      @drag_element = ev.target
+      ev.dataTransfer.effectAllowed = 'move'
+      ev.dataTransfer.setData('Text', @drag_element.textContent)
+
+    dragover_handler: (ev) ->
+      ev.dataTransfer.dropEffect = 'move'
+      target = ev.target
+
+      if target && target != @drag_element && target.nodeName == 'LI'
+        # Change the order
+        temp = @policies[target.dataset.index]
+        @policies[target.dataset.index] = @policies[ @drag_element.dataset.index]
+        # here we trigger an array change detection in Vue
+        @policies.splice @drag_element.dataset.index, 1, temp
+
+    dragend_handler: (ev) ->
+      app.save()
+
+
+
+
+
 </script>

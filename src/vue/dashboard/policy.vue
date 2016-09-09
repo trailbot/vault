@@ -94,8 +94,7 @@ article
   .syncing
     background-color: #ABB5B7
     cursor: default
-  span.fontello
-    font-family: 'fontello'
+
 </style>
 
 <template lang="jade">
