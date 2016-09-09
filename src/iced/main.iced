@@ -92,15 +92,21 @@ main = ->
         methods.run this.router.app.$route, transition
     @router.start App, '#app'
 
+    window.Intercom 'boot',
+      app_id: 'pzfj55kn'
+
     if @settings.keys?
       @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
+      @user = @privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0]
       @router.replace '/unlock'
+      @intercomReport()
     else
       @router.replace '/wizard'
 
   @save = ->
     console.log 'SAVING APP'
     localStorage.setItem 'settings', JSON.stringify @settings
+    @intercomReport()
 
   @copy = (text) ->
     el = $ '<input type="text"/>'
@@ -139,6 +145,24 @@ main = ->
       time: Date.now()
       content: "This is the old content\nThis is a new line"
     path: '/example/path/to/a/file'
+
+  @intercomReport = ->
+    window.Intercom 'update',
+      email: @user
+      watchers: @settings.watchers.length
+      files: @settings.watchers.reduce (acc, watcher) ->
+        acc + (Object.keys watcher.settings.files).length
+      , 0
+      policies: @settings.watchers.reduce (acc, watcher) ->
+        acc + (Object.keys watcher.settings.files).reduce (acc, path) ->
+          acc + watcher.settings.files[path].policies.length
+        , 0
+      , 0
+      events: @settings.watchers.reduce (acc, watcher) ->
+        acc + (Object.keys watcher.settings.files).reduce (acc, path) ->
+          acc + watcher.events?[path]?.length or 0
+        , 0
+      , 0
 
 Main = flight.component main
 Main.attachTo document

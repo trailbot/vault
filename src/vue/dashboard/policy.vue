@@ -139,10 +139,8 @@ module.exports =
       unless @syncing
         document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
         @syncing = true
-        console.log "waiting"
 
         setTimeout =>
-          console.log "waiting over"
           @syncing = false
         , 2000
 </script>

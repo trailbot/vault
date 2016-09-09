@@ -84,12 +84,11 @@ module.exports =
         @next()
     identikit: ->
       try
-        user = os.userInfo().username
+        user = os.homedir().split('/').pop()
         host = os.hostname()
       catch e
         user = 'webuser'
         host = "#{navigator.appCodeName}.#{navigator.appName}".toLowerCase()
-      console.log "#{user}@#{host}.local"
       {name: user, email: "#{user}@#{host}.local"}
     unhide: (e) ->
       e.preventDefault()
