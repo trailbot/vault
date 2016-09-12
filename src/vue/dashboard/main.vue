@@ -235,22 +235,23 @@ section.dashboard(transition='fade')
         div.tools(v-if='isOpen')
           button.add(v-link="{ path : '/wizard/import' }")
             img(src='/img/add.svg')
-        h1 {{currentWatcher.name}}
+        h1(@contextmenu='watcherContextMenu', data-index='{{index}}')
+          span(v-if='currentWatcher') {{currentWatcher.name}}
       ul(v-if='isOpen')
-        li(v-for='(index, watcher) of watchers', v-if="watcher | other")
-          a(v-link="{ name: 'watcher', params: { watcher: index }}") {{watcher.name}}
+        li(v-for='(i, watcher) of watchers', v-if="watcher | other", @contextmenu='watcherContextMenu', data-index='{{i}}')
+          a(v-link="{ name: 'watcher', params: { watcher: i }}") {{watcher.name}}
     div.files(v-if='currentWatcher')
       header
-        button.add(v-link="{ path: '/dashboard/' + index + '/fileAdd' }")
+        button.add(v-link="{ name:'fileAdd', params: {watcher: index} }")
           img(src='/img/add.svg')
         h1 Watched files
-    ul(v-if="hasFiles")
-      li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='contextMenu', data-path='{{path}}')
-        span.path
-          {{{path | decoratePath}}}
-    div.empty(v-else).
-      No files are being watched.
-      #[p #[b #[a.cool(v-link="{ path: '/dashboard/' + index + '/fileAdd' }") Click here]] to start watching a file.]
+      ul(v-if="hasFiles")
+        li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='fileContextMenu', data-path='{{path}}')
+          span.path
+            {{{path | decoratePath}}}
+      div.empty(v-else).
+        No files are being watched.
+        #[p #[b #[a.cool(v-link="{ name:'fileAdd', params: {watcher: index} }") Click here]] to start watching a file.]
   router-view
   img.logoWatermark(src='/img/logo.svg')
 </template>
@@ -261,20 +262,21 @@ module.exports =
   data: ->
     $.extend app.data(),
       settings: app.settings
-      watchers: app.settings.watchers
       isOpen: false
   computed:
+    watchers: ->
+      app.settings.watchers
     index: ->
       @$route.params?.watcher || 0
     fingerprint: ->
-      app.settings.watchers[@index].fingerprint
+      app.settings.watchers?[@index]?.fingerprint
     currentWatcher: ->
-      app.settings.watchers[@index]
+      app.settings.watchers?[@index]
     hasFiles: ->
-      Object.keys(@currentWatcher.settings.files).length > 0
+      @watchers.length > 0 && Object.keys(@currentWatcher.settings.files).length > 0
   filters:
     other: (watcher) ->
-      watcher.fingerprint isnt @currentWatcher.fingerprint
+      watcher? and watcher.fingerprint isnt @currentWatcher.fingerprint
     decoratePath: (path) ->
       chunked = path.split('/')
       filename = chunked.slice(-1)
@@ -287,7 +289,7 @@ module.exports =
   methods:
     open: ->
       @isOpen = !@isOpen
-    contextMenu: (e) ->
+    fileContextMenu: (e) ->
       path = $(e.target).closest('li').data 'path'
       try
         MenuItem = window.electron.MenuItem
@@ -314,6 +316,33 @@ module.exports =
         menu.popup window.electron.getCurrentWindow()
       catch e
         console.error e
+    watcherContextMenu: (e) ->
+      try
+        index = $(e.target).closest('[data-index]').data 'index'
+        watcher = @watchers[index]
+        MenuItem = window.electron.MenuItem
+        menu = new window.electron.Menu()
+        menu.append new MenuItem
+          label: "Options for #{watcher.name}"
+          enabled: false
+        menu.append new MenuItem
+          type: 'separator'
+        menu.append new MenuItem
+          label: 'Start watching a file'
+          accelerator: 'f'
+          click: =>
+            app.router.go
+              name: 'fileAdd'
+              params:
+                watcher: index
+        menu.append new MenuItem
+          label: 'Unlink this watcher'
+          accelerator: 's'
+          click: =>
+            @watcherUnlink index
+        menu.popup window.electron.getCurrentWindow()
+      catch e
+        console.error e
     stopWatching: (path) ->
       try
         window.electron.dialog.showMessageBox
@@ -330,7 +359,21 @@ module.exports =
           @$set 'currentWatcher.events', events
           document.vault.replace 'settings', $.extend(@currentWatcher.settings, {encrypt: true})
           app.save()
-          app.router.go '/dashboard'
+          app.router.go
+            name: 'dashboard'
       catch e
         console.error e
+    watcherUnlink: (index) ->
+      name = @watchers[index].name
+      window.electron.dialog.showMessageBox
+          type: 'question'
+          message: "Do you want to unlink watcher '#{name}' and completely remove all trace of it from #{@appName}?"
+          buttons: ['cancel', 'ok']
+        , (res) =>
+          if res
+            @watchers.splice index, 1
+            app.save()
+            app.router.go
+              name: 'dashboard'
+              watcher: 0
 </script>

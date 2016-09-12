@@ -92,6 +92,7 @@
           }
         },
         '/dashboard': {
+          name: 'dashboard',
           component: require('../../src/vue/dashboard/main.vue')
         },
         '/dashboard/:watcher': {

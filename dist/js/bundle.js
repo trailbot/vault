@@ -93,6 +93,7 @@
           }
         },
         '/dashboard': {
+          name: 'dashboard',
           component: require('../../src/vue/dashboard/main.vue')
         },
         '/dashboard/:watcher': {
@@ -15068,28 +15069,32 @@ module.exports = {
   data: function() {
     return $.extend(app.data(), {
       settings: app.settings,
-      watchers: app.settings.watchers,
       isOpen: false
     });
   },
   computed: {
+    watchers: function() {
+      return app.settings.watchers;
+    },
     index: function() {
       var ref;
       return ((ref = this.$route.params) != null ? ref.watcher : void 0) || 0;
     },
     fingerprint: function() {
-      return app.settings.watchers[this.index].fingerprint;
+      var ref, ref1;
+      return (ref = app.settings.watchers) != null ? (ref1 = ref[this.index]) != null ? ref1.fingerprint : void 0 : void 0;
     },
     currentWatcher: function() {
-      return app.settings.watchers[this.index];
+      var ref;
+      return (ref = app.settings.watchers) != null ? ref[this.index] : void 0;
     },
     hasFiles: function() {
-      return Object.keys(this.currentWatcher.settings.files).length > 0;
+      return this.watchers.length > 0 && Object.keys(this.currentWatcher.settings.files).length > 0;
     }
   },
   filters: {
     other: function(watcher) {
-      return watcher.fingerprint !== this.currentWatcher.fingerprint;
+      return (watcher != null) && watcher.fingerprint !== this.currentWatcher.fingerprint;
     },
     decoratePath: function(path) {
       var chunked, filename, room;
@@ -15108,7 +15113,7 @@ module.exports = {
     open: function() {
       return this.isOpen = !this.isOpen;
     },
-    contextMenu: function(e) {
+    fileContextMenu: function(e) {
       var MenuItem, error, menu, path;
       path = $(e.target).closest('li').data('path');
       try {
@@ -15151,6 +15156,49 @@ module.exports = {
         return console.error(e);
       }
     },
+    watcherContextMenu: function(e) {
+      var MenuItem, error, index, menu, watcher;
+      try {
+        index = $(e.target).closest('[data-index]').data('index');
+        watcher = this.watchers[index];
+        MenuItem = window.electron.MenuItem;
+        menu = new window.electron.Menu();
+        menu.append(new MenuItem({
+          label: "Options for " + watcher.name,
+          enabled: false
+        }));
+        menu.append(new MenuItem({
+          type: 'separator'
+        }));
+        menu.append(new MenuItem({
+          label: 'Start watching a file',
+          accelerator: 'f',
+          click: (function(_this) {
+            return function() {
+              return app.router.go({
+                name: 'fileAdd',
+                params: {
+                  watcher: index
+                }
+              });
+            };
+          })(this)
+        }));
+        menu.append(new MenuItem({
+          label: 'Unlink this watcher',
+          accelerator: 's',
+          click: (function(_this) {
+            return function() {
+              return _this.watcherUnlink(index);
+            };
+          })(this)
+        }));
+        return menu.popup(window.electron.getCurrentWindow());
+      } catch (error) {
+        e = error;
+        return console.error(e);
+      }
+    },
     stopWatching: function(path) {
       var e, error;
       try {
@@ -15174,19 +15222,41 @@ module.exports = {
               encrypt: true
             }));
             app.save();
-            return app.router.go('/dashboard');
+            return app.router.go({
+              name: 'dashboard'
+            });
           };
         })(this));
       } catch (error) {
         e = error;
         return console.error(e);
       }
+    },
+    watcherUnlink: function(index) {
+      var name;
+      name = this.watchers[index].name;
+      return window.electron.dialog.showMessageBox({
+        type: 'question',
+        message: "Do you want to unlink watcher '" + name + "' and completely remove all trace of it from " + this.appName + "?",
+        buttons: ['cancel', 'ok']
+      }, (function(_this) {
+        return function(res) {
+          if (res) {
+            _this.watchers.splice(index, 1);
+            app.save();
+            return app.router.go({
+              name: 'dashboard',
+              watcher: 0
+            });
+          }
+        };
+      })(this));
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"dashboard\"><nav class=\"main\"><div class=\"watchers\"><header><button @click=\"open\" class=\"plain menu\"><img src=\"/img/menu.svg\"/></button><div v-if=\"isOpen\" class=\"tools\"><button v-link=\"{ path : '/wizard/import' }\" class=\"add\"><img src=\"/img/add.svg\"/></button></div><h1>{{currentWatcher.name}}</h1></header><ul v-if=\"isOpen\"><li v-for=\"(index, watcher) of watchers\" v-if=\"watcher | other\"><a v-link=\"{ name: 'watcher', params: { watcher: index }}\">{{watcher.name}}</a></li></ul></div><div v-if=\"currentWatcher\" class=\"files\"><header><button v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"add\"><img src=\"/img/add.svg\"/></button><h1>Watched files</h1></header></div><ul v-if=\"hasFiles\"><li v-for=\"(path, file) of currentWatcher.settings.files\" v-link=\"{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}\" @contextmenu=\"contextMenu\" data-path=\"{{path}}\"><span class=\"path\">{{{path | decoratePath}}}</span></li></ul><div v-else=\"v-else\" class=\"empty\">No files are being watched.\n<p><b><a v-link=\"{ path: '/dashboard/' + index + '/fileAdd' }\" class=\"cool\">Click here</a></b> to start watching a file.</p></div></nav><router-view></router-view><img src=\"/img/logo.svg\" class=\"logoWatermark\"/></section>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<section transition=\"fade\" class=\"dashboard\"><nav class=\"main\"><div class=\"watchers\"><header><button @click=\"open\" class=\"plain menu\"><img src=\"/img/menu.svg\"/></button><div v-if=\"isOpen\" class=\"tools\"><button v-link=\"{ path : '/wizard/import' }\" class=\"add\"><img src=\"/img/add.svg\"/></button></div><h1 @contextmenu=\"watcherContextMenu\" data-index=\"{{index}}\"><span v-if=\"currentWatcher\">{{currentWatcher.name}}</span></h1></header><ul v-if=\"isOpen\"><li v-for=\"(i, watcher) of watchers\" v-if=\"watcher | other\" @contextmenu=\"watcherContextMenu\" data-index=\"{{i}}\"><a v-link=\"{ name: 'watcher', params: { watcher: i }}\">{{watcher.name}}</a></li></ul></div><div v-if=\"currentWatcher\" class=\"files\"><header><button v-link=\"{ name:'fileAdd', params: {watcher: index} }\" class=\"add\"><img src=\"/img/add.svg\"/></button><h1>Watched files</h1></header><ul v-if=\"hasFiles\"><li v-for=\"(path, file) of currentWatcher.settings.files\" v-link=\"{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}\" @contextmenu=\"fileContextMenu\" data-path=\"{{path}}\"><span class=\"path\">{{{path | decoratePath}}}</span></li></ul><div v-else=\"v-else\" class=\"empty\">No files are being watched.\n<p><b><a v-link=\"{ name:'fileAdd', params: {watcher: index} }\" class=\"cool\">Click here</a></b> to start watching a file.</p></div></div></nav><router-view></router-view><img src=\"/img/logo.svg\" class=\"logoWatermark\"/></section>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15657,7 +15727,7 @@ module.exports = {
     return $.extend(app.data(), {
       error: false,
       settings: app.settings,
-      sentence: void 0
+      sentence: null
     });
   },
   methods: {
@@ -15718,9 +15788,9 @@ module.exports = {
               });
             });
           } else if (exchange) {
-            return _this.error = "Sentense has expired!";
+            return _this.error = "Sentence has expired!";
           } else {
-            return _this.error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ...";
+            return _this.error = "Wrong sentence. Please verify that you entered the words currently showed in Trailbot Watcher...";
           }
         };
       })(this));
@@ -15729,7 +15799,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-6ad90b68=\"\"><header _v-6ad90b68=\"\"><button @click=\"back\" class=\"plain back\" _v-6ad90b68=\"\">&lt; BACK</button><h1 _v-6ad90b68=\"\">Public keys exchange</h1></header><form _v-6ad90b68=\"\"><p _v-6ad90b68=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-6ad90b68=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-6ad90b68=\"\">{{error}}</p><fieldset _v-6ad90b68=\"\"><label for=\"sentence\" _v-6ad90b68=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-6ad90b68=\"\"></fieldset></form><footer _v-6ad90b68=\"\"><button @click=\"validate\" class=\"or\" _v-6ad90b68=\"\">Validate sentence</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-6ad90b68=\"\"><header _v-6ad90b68=\"\"><button @click=\"back\" class=\"plain back\" _v-6ad90b68=\"\">&lt; BACK</button><h1 _v-6ad90b68=\"\">Public keys exchange</h1></header><form _v-6ad90b68=\"\"><p _v-6ad90b68=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-6ad90b68=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-6ad90b68=\"\">{{error}}</p><fieldset _v-6ad90b68=\"\"><label for=\"sentence\" _v-6ad90b68=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-6ad90b68=\"\"></fieldset></form><footer v-if=\"sentence\" _v-6ad90b68=\"\"><button @click=\"validate\" class=\"or\" _v-6ad90b68=\"\">Validate sentence</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15748,7 +15818,9 @@ if (module.hot) {(function () {  module.hot.accept()
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("section.wizard {\n  background: -webkit-linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  background: linear-gradient(45deg, #34495e 0%, #44586d 100%);\n  -webkit-animation: fade-in 1s;\n          animation: fade-in 1s;\n}\nsection.wizard article {\n  background: #fff;\n  color: #777;\n  position: absolute;\n  margin: 0 auto;\n  border-radius: 2px;\n  box-shadow: 0 10px 20px rgba(0,0,0,0.2);\n  overflow: hidden;\n}\nsection.wizard article.form {\n  min-width: 440px;\n  max-width: 65vw;\n  top: 50px;\n  right: 50px;\n  left: 50px;\n}\nsection.wizard article.form header {\n  padding: 21px 30px 20px 30px;\n  background: #f6f6f6;\n}\nsection.wizard article.form header h1 {\n  margin: 0;\n  font-size: 1.2em;\n  color: #777;\n  font-weight: regular;\n}\nsection.wizard article.form header button.back {\n  float: right;\n  width: auto;\n  margin-top: -5px;\n  margin-right: -10px;\n  padding: 10px 15px;\n  width: auto;\n  background: #eee;\n  color: #aaa;\n  font-size: 0.7em;\n}\nsection.wizard article.form header button.back:hover {\n  background: #44586d;\n  color: #fff;\n}\nsection.wizard article.form form {\n  padding: 30px 30px 10px 30px;\n  max-height: calc(100vh - 250px);\n  overflow: auto;\n}\nsection.wizard article.form form fieldset {\n  position: relative;\n  padding: 5px 0;\n  border: none;\n}\nsection.wizard article.form form fieldset * {\n  box-sizing: border-box;\n}\nsection.wizard article.form form fieldset label {\n  display: block;\n  width: 100%;\n  margin-bottom: 5px;\n  color: #666;\n  font-weight: bold;\n  font-size: 0.8em;\n  text-transform: uppercase;\n}\nsection.wizard article.form form fieldset input {\n  padding: 10px;\n  width: 100%;\n  border: none;\n  border-bottom: 1px solid #ddd;\n}\nsection.wizard article.form form fieldset input:focus {\n  border-color: #999;\n}\nsection.wizard article.form form fieldset:last-of-type {\n  padding-bottom: 30px;\n}\nsection.wizard article.form form p {\n  margin: 0 0 20px 0;\n  font-weight: 300;\n  color: #666;\n}\nsection.wizard article.form form p.error {\n  position: block;\n  color: #f00;\n}\nsection.wizard article.form form p.error:before {\n  content: 'ERROR:';\n  margin-right: 10px;\n  font-size: 0.7em;\n  font-weight: bold;\n}\nsection.wizard article.form footer {\n  display: block;\n  padding-bottom: 30px;\n}\nsection.wizard article.form footer button {\n  display: block;\n  min-height: 50px;\n  min-width: 200px;\n  margin: 0 auto;\n  opacity: 1;\n  border: none;\n  border-radius: 30px;\n  background: #f37e84;\n  color: #fff;\n  text-transform: uppercase;\n  font-weight: 700;\n  font-size: 0.8em;\n}\nsection.wizard article.form footer button:hover {\n  background: #fff;\n  color: #f37e84;\n  box-shadow: 0 0 5px #f37e84;\n}\nsection.wizard article.form footer div.half button {\n  display: inline;\n  width: 45%;\n  border-radius: 30px 0 0 30px;\n}\nsection.wizard article.form footer div.half button:not(:first-child) {\n  border-radius: 0 30px 30px 0;\n}\n")
 module.exports = {
-  data: function() {}
+  data: function() {
+    return {};
+  }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
