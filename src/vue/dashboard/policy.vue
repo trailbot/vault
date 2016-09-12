@@ -1,6 +1,8 @@
 <style lang="stylus" scoped>
 article
   header
+    h1
+      max-width: calc(100% - 8rem)
     h2
       font-weight: 100
       font-size: 1em
@@ -30,8 +32,8 @@ article
     text-transform: uppercase
   .switch
     position: absolute
-    top: 2.1rem
-    right: 1.6rem
+    top: 1.6rem
+    right: 1rem
     display: block
     width: 5.4rem
     height: 2.6rem
@@ -39,6 +41,8 @@ article
     background-color: #BDC6C8
     transition: all .2s
     overflow: hidden
+    transform: scale(0.7)
+    cursor: pointer
 
     .tick
       display: none
@@ -66,18 +70,43 @@ article
       .ball
         left: 2.4rem
         border-color: #2CC269
+  .sync
+    position: absolute
+    top: 2rem
+    right: 6rem
+    display: block
+    width: 3.7rem
+    height: 1.6rem
+    border-radius: 2.4rem
+    background-color: #f37e84
+    color: white
+    transition: all .2s
+    overflow: hidden
+    font-size: 1.3rem
+    padding-top: .23rem
+    text-align: center
+    cursor: pointer
+    &:not(.syncing):hover
+      background-color: white
+      color: #f37e84
+      box-shadow: 0 0 5px #f37e84
+
+  .syncing
+    background-color: #ABB5B7
+    cursor: default
 
 </style>
 
 <template lang="jade">
 article.form.policy(transition="driftFade")
+  .switch(@click='pause', data-paused="{{(!paused).toString()}}")
+    .ball
+    img.tick(src='img/tick.svg')
+  div.sync(@click='sync' v-bind:class="[syncing ? 'syncing': '']")
+    span.fontello &#xE802
   header
-    .switch(@click='pause', data-paused="{{(!paused).toString()}}")
-      .ball
-      img.tick(src='img/tick.svg')
     h1.
       #[strong #[em "{{policy.name}}"]] policy stats
-
     h2.
       Instance of #[a.cool(@click='openExternal', href='{{policy.uri}}') {{policy.uri}}]
   table(v-if='policy.params')
@@ -91,6 +120,7 @@ app = document.app
 module.exports =
   data: ->
     paused: @$parent.policies[decodeURIComponent @$route.params.policy].paused
+    syncing: false
   computed:
     index: -> decodeURIComponent @$route.params.policy
     events: -> @$parent.events
@@ -105,4 +135,12 @@ module.exports =
       @policy.paused = @paused
       document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
       app.save()
+    sync: ()->
+      unless @syncing
+        document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
+        @syncing = true
+
+        setTimeout =>
+          @syncing = false
+        , 2000
 </script>

@@ -9,6 +9,7 @@ nav
   li
     position: relative
     overflow: hidden
+    background: #44586d
     time
       font-weight: normal
       font-size: .8em
@@ -24,7 +25,7 @@ nav
           color: #f37e83
     .strike
       text-decoration: line-through
-    &:after
+    &:not(.dragging):after
       content: ''
       display: block
       position: absolute
@@ -37,12 +38,20 @@ nav
       border-width: 7px 7px 7px 0
       border-color: transparent #ff transparent transparent
       transition: right .2s ease
-    &.policy
-      span
-        color: white
-    &.selected
-      &:after
-        right: 0
+    &.policy span
+      color: white
+    &.selected:after
+      right: 0
+    &:hover .handle
+      opacity: 1
+  .handle
+    opacity: .3
+    cursor: move
+    transition: opacity .2s ease
+
+
+
+
 
 article
   article
@@ -58,8 +67,9 @@ article.file(transition='driftFade')
       button.add(v-link="{ name: 'policyAdd'}")
         img(src='/img/add.svg')
       h1 Smart Policies
-    ul(v-if='policies && policies.length > 0')
-      li(v-for='(i, policy) of policies', v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
+    ul(v-if='policies && policies.length > 0', @dragstart="dragstart_handler" @dragover="dragover_handler" @dragend="dragend_handler")
+      li(v-for='(i, policy) of policies', draggable="{{policies.length > 1}}", v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
+        span.fontello.handle(v-if='policies.length > 1', @mousedown='mousedown_handler' @mouseup='mouseup_handler') &#x25FC
         span(v-bind:class="[policy.paused ? 'strike':'']") {{policy.name}}
     div.empty(v-else).
       No policies have been defined yet.
@@ -81,9 +91,12 @@ article.file(transition='driftFade')
 </template>
 
 <script lang="coffee">
+
 app = document.app
 module.exports =
   data: ->
+    drag_element: undefined
+    handle : undefined
     $.extend app.data(),
       watcher: @$parent.currentWatcher
   computed:
@@ -148,4 +161,42 @@ module.exports =
             name: 'file'
       catch e
         console.error e
+
+    #drag policy for priority
+    dragstart_handler: (ev) ->
+      @drag_element = ev.target
+      # ev.target.style.backgroundColor= "#44586d"
+      @drag_element.classList.add('dragging')
+      ev.dataTransfer.dropEffect = "move"
+
+      unless @handle
+        ev.preventDefault()
+
+    dragover_handler: (ev) ->
+      ev.dataTransfer.dropEffect = 'move'
+      target = ev.target
+
+      if target && target != @drag_element && target.nodeName == 'LI'
+        app.router.go
+          name: 'policy'
+          params:
+            policy: target.dataset.index
+        # Change the order
+        temp = @policies[target.dataset.index]
+        @policies[target.dataset.index] = @policies[ @drag_element.dataset.index]
+        # here we trigger an array change detection in Vue
+        @policies.splice @drag_element.dataset.index, 1, temp
+
+
+    mousedown_handler: (ev) ->
+      @handle = ev.target
+
+    mouseup_handler: (ev) ->
+      @handle = undefined
+
+    dragend_handler: (ev) ->
+      @drag_element.classList.remove('dragging')
+      @handle = undefined
+      app.save()
+
 </script>
