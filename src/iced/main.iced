@@ -64,6 +64,7 @@ main = ->
           '/congrats':
             component: require '../../src/vue/wizard/congrats.vue'
       '/dashboard':
+        name: 'dashboard'
         component: require '../../src/vue/dashboard/main.vue'
       '/dashboard/:watcher':
         name: 'watcher'
