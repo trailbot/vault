@@ -292,8 +292,19 @@
               return app.save();
             });
           } else if (changes.type === 'state' && changes.state === 'synced') {
-            console.log('Finished syncing!');
             app.settings.lastSync = new Date();
+            _this.events.below({
+              datetime: new Date(app.settings.lastSync || 0)
+            }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
+              return _this.events.removeAll(messageList);
+            }).subscribe({
+              error: function(err) {
+                return console.error(err);
+              },
+              complete: function() {
+                return console.log('Finished syncing!');
+              }
+            });
             return setTimeout(function() {
               return app.save();
             });
@@ -338,7 +349,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 70
+                lineno: 79
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -375,7 +386,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 81
+                lineno: 90
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
