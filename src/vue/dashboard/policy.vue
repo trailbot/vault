@@ -119,20 +119,19 @@ article.form.policy(transition="driftFade")
 app = document.app
 module.exports =
   data: ->
-    paused: @$parent.policies[decodeURIComponent @$route.params.policy].paused
     syncing: false
   computed:
     index: -> decodeURIComponent @$route.params.policy
     events: -> @$parent.events
     policy: -> @$parent.policies[@index]
+    paused: -> @policy.paused
   methods:
     openExternal: (e) ->
       e.preventDefault()
       url = $(e.target).attr 'href'
       window.electron.shell.openExternal url
     pause: (e) ->
-      @paused = not @paused
-      @policy.paused = @paused
+      @policy.paused = not @paused
       document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
       app.save()
     sync: ()->
