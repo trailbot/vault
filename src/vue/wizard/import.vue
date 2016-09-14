@@ -34,7 +34,7 @@ article.form(transition='slide')
     fieldset
       label(for='sentence') Biometric sentence
       input(type='text', name='sentence' v-model="sentence")
-  footer
+  footer(v-if='sentence')
       button.or(@click='validate') Validate sentence
 </template>
 
@@ -46,7 +46,7 @@ module.exports =
       error: false
       settings:
         app.settings
-      sentence: undefined
+      sentence: null
   methods:
     next: ->
       app.router.go '/wizard/congrats'
@@ -85,7 +85,7 @@ module.exports =
               # if change is null then the document was deleted
               @newWatcher exchange.watcher unless change
         else if exchange
-          @error = "Sentense has expired!"
+          @error = "Sentence has expired!"
         else
-          @error = "Wrong sentence please verify that you are typing the words from the Trailbot Watcher ..."
+          @error = "Wrong sentence. Please verify that you entered the words currently showed in Trailbot Watcher..."
 </script>
