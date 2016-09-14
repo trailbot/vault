@@ -49,8 +49,17 @@ vault = ->
         setTimeout ->
           app.save()
       else if changes.type is 'state' and changes.state is 'synced'
-        console.log 'Finished syncing!'
         app.settings.lastSync = new Date()
+        @events.below({datetime: new Date(app.settings.lastSync || 0)})
+          .findAll(@toMe)
+          .fetch()
+          .mergeMap((messageList) => @events.removeAll(messageList))
+          .subscribe
+            error : (err) ->  console.error(err)
+            complete : () -> console.log 'Finished syncing!'
+
+
+
         setTimeout ->
           app.save()
       else

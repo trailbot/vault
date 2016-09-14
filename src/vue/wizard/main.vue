@@ -129,5 +129,5 @@ section.wizard
 
 <script lang="coffee">
 module.exports =
-  data: ->
+  data: -> {}
 </script>
