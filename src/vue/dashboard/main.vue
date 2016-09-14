@@ -237,7 +237,8 @@ section.dashboard(transition='fade')
             img(src='/img/add.svg')
         h1(@contextmenu='watcherContextMenu', data-index='{{index}}')
           span(v-if='currentWatcher') {{currentWatcher.name}}
-      ul(v-if='isOpen')
+          span(v-else)  No watchers
+      ul(v-if='isOpen && watchers.length > 1')
         li(v-for='(i, watcher) of watchers', v-if="watcher | other", @contextmenu='watcherContextMenu', data-index='{{i}}')
           a(v-link="{ name: 'watcher', params: { watcher: i }}") {{watcher.name}}
     div.files(v-if='currentWatcher')
@@ -247,11 +248,13 @@ section.dashboard(transition='fade')
         h1 Watched files
       ul(v-if="hasFiles")
         li(v-for="(path, file) of currentWatcher.settings.files", v-link="{ name: 'file', params: { watcher: index, file: encodeURIComponent(path) }, activeClass: 'selected'}", @contextmenu='fileContextMenu', data-path='{{path}}')
-          span.path
-            {{{path | decoratePath}}}
+          span.path {{{path | decoratePath}}}
       div.empty(v-else).
         No files are being watched.
         #[p #[b #[a.cool(v-link="{ name:'fileAdd', params: {watcher: index} }") Click here]] to start watching a file.]
+    div.empty(v-if="!currentWatcher").
+      No Watcher is configured.
+      #[p #[b #[a.cool(v-link="{ path : '/wizard/import' }") Click here]] to configure a new watcher.]
   router-view
   img.logoWatermark(src='/img/logo.svg')
 </template>
