@@ -140,6 +140,9 @@
       if (this.settings.keys != null) {
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
         this.user = this.privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0];
+        if (this.user === 'webuser@mozilla') {
+          this.user = null;
+        }
         this.router.replace('/unlock');
         return this.intercomReport();
       } else {

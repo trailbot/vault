@@ -99,6 +99,8 @@ main = ->
     if @settings.keys?
       @privateKey = @pgp.key.readArmored(document.app.settings.keys.priv).keys[0]
       @user = @privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0]
+      if @user is 'webuser@mozilla'
+        @user = undefined
       @router.replace '/unlock'
       @intercomReport()
     else
