@@ -23,7 +23,11 @@ module.exports = (grunt) ->
     coffee:
       compile:
         files:
-          './dist/js/app.js': './src/iced/*.iced'
+          './dist/js/app.js': [
+            './src/iced/main.iced'
+            './src/iced/vault.iced',
+            './src/iced/archivist.iced',
+          ]
     browserify:
       './dist/js/bundle.js': ['./dist/js/app.js']
       options:

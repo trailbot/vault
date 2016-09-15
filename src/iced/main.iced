@@ -14,10 +14,10 @@ main = ->
 
   @after 'initialize', ->
 
-    document.addEventListener 'keydown', (e) =>
+    @on 'keydown', (e) =>
       if e.which is 13
         e.preventDefault()
-    document.addEventListener 'keyup', (e) =>
+    @on 'keyup', (e) =>
       if e.altKey is true and e.which is 67
         @clear()
         document.location.reload()
@@ -32,9 +32,10 @@ main = ->
     @settings =
       $.extend {
         watchers: []
+        lastArchive: Date.now()
         lastSync: 0
         ready: false
-      }, JSON.parse(localStorage.getItem('settings'))
+      }, JSON.parse localStorage.getItem 'settings'
     @data = ->
       appName: 'Trailbot'
       isElectron: 'electron' of window

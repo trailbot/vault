@@ -24,14 +24,14 @@
   main = function() {
     this.after('initialize', function() {
       var openpgp;
-      document.addEventListener('keydown', (function(_this) {
+      this.on('keydown', (function(_this) {
         return function(e) {
           if (e.which === 13) {
             return e.preventDefault();
           }
         };
       })(this));
-      document.addEventListener('keyup', (function(_this) {
+      this.on('keyup', (function(_this) {
         return function(e) {
           if (e.altKey === true && e.which === 67) {
             _this.clear();
@@ -47,6 +47,7 @@
       this.Vue = Vue;
       this.settings = $.extend({
         watchers: [],
+        lastArchive: Date.now(),
         lastSync: 0,
         ready: false
       }, JSON.parse(localStorage.getItem('settings')));
@@ -141,7 +142,7 @@
         this.privateKey = this.pgp.key.readArmored(document.app.settings.keys.priv).keys[0];
         this.user = this.privateKey.users[0].userId.userid.split(/[<>]/g)[1].split('.')[0];
         if (this.user === 'webuser@mozilla') {
-          this.user = null;
+          this.user = void 0;
         }
         this.router.replace('/unlock');
         return this.intercomReport();
@@ -239,98 +240,103 @@
   app = document.app;
 
   vault = function() {
-    this.after('initialize', (function(_this) {
-      return function() {
-        _this.hz = new Horizon({
-          authType: 'anonymous'
-        });
-        _this.hz.connect();
-        _this.users = _this.hz('users');
-        _this.settings = _this.hz('settings');
-        _this.events = _this.hz('events');
-        _this.exchange = _this.hz('exchange');
-        console.log(JSON.stringify(_this.events));
-        _this.hz.onReady(function() {
-          return console.log('Connected to Horizon!');
-        });
-        _this.hz.onDisconnected(function(e) {});
-        _this.hz.currentUser().fetch().subscribe(function(me) {
-          var fingerprint, _ref;
-          console.log(JSON.stringify(me));
+    this.after('initialize', function() {
+      this.hz = new Horizon({
+        authType: 'anonymous'
+      });
+      this.users = this.hz('users');
+      this.settings = this.hz('settings');
+      this.events = this.hz('events');
+      this.exchange = this.hz('exchange');
+      this.hz.onReady((function(_this) {
+        return function() {
+          return _this.subscribe();
+        };
+      })(this));
+      app.on('ready', (function(_this) {
+        return function() {
+          return _this.hz.connect();
+        };
+      })(this));
+      app.on('unlocked', (function(_this) {
+        return function() {
+          return _this.retrieveEvents();
+        };
+      })(this));
+      return document.vault = this;
+    });
+    this.subscribe = function() {
+      return this.hz.currentUser().fetch().subscribe((function(_this) {
+        return function(me) {
+          var _ref;
           _this.me = me;
+          console.log(JSON.stringify(_this.me));
           if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
-            fingerprint = app.settings.keys.fingerprint;
-            _this.updateFingerprint(fingerprint);
+            _this.updateFingerprint(app.settings.keys.fingerprint);
             return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
-              console.log('New settings');
-              return console.log(settings);
-            }, function(error) {
-              return console.error(error);
-            }, function() {
-              return console.log('Settings completed!');
-            });
+              return console.log(JSON.stringify(settings));
+            }, console.error);
           }
-        });
-        document.vault = _this;
-        return app.save();
+        };
+      })(this));
+    };
+    this.retrieveEvents = function() {
+      if (this.retrieving) {
+        return;
+      }
+      this.retrieving = true;
+      console.log("Retrieving events newer than " + app.settings.lastSync);
+      return this.events.order('datetime', 'descending').above({
+        datetime: new Date(app.settings.lastSync || 0)
+      }).findAll(this.toMe).watch({
+        rawChanges: true
+      }).subscribe({
+        next: (function(_this) {
+          return function(changes) {
+            if (changes.new_val != null) {
+              _this.eventProcess(changes.new_val);
+              app.settings.lastSync = new Date();
+              return setTimeout(function() {
+                return app.save();
+              });
+            } else if (changes.type === 'state' && changes.state === 'synced') {
+              app.settings.lastSync = new Date();
+              _this.events.below({
+                datetime: new Date(app.settings.lastSync || 0)
+              }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
+                return _this.events.removeAll(messageList);
+              }).subscribe({
+                error: function(err) {
+                  return console.error(err);
+                },
+                complete: function() {
+                  console.log('Finished syncing!');
+                  return _this.trigger('synced');
+                }
+              });
+              return setTimeout(function() {
+                return app.save();
+              });
+            } else {
+              return console.log('There are other changes');
+            }
+          };
+        })(this)
+      });
+    };
+    this.updateFingerprint = function(fingerprint) {
+      this.fromMe = {
+        creator: fingerprint
       };
-    })(this));
-    this.retrieveEvents = (function(_this) {
-      return function() {
-        if (_this.retrieving) {
-          return;
+      this.toMe = {
+        reader: fingerprint
+      };
+      return this.users.replace($.extend(this.me, {
+        data: {
+          key: fingerprint
         }
-        _this.retrieving = true;
-        console.log("Retrieving events newer than " + app.settings.lastSync);
-        return _this.events.order('datetime', 'descending').above({
-          datetime: new Date(app.settings.lastSync || 0)
-        }).findAll(_this.toMe).watch({
-          rawChanges: true
-        }).subscribe(function(changes) {
-          if (changes.new_val != null) {
-            _this.eventProcess(changes.new_val);
-            app.settings.lastSync = new Date();
-            return setTimeout(function() {
-              return app.save();
-            });
-          } else if (changes.type === 'state' && changes.state === 'synced') {
-            app.settings.lastSync = new Date();
-            _this.events.below({
-              datetime: new Date(app.settings.lastSync || 0)
-            }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
-              return _this.events.removeAll(messageList);
-            }).subscribe({
-              error: function(err) {
-                return console.error(err);
-              },
-              complete: function() {
-                return console.log('Finished syncing!');
-              }
-            });
-            return setTimeout(function() {
-              return app.save();
-            });
-          } else {
-            return console.log('There are other changes');
-          }
-        });
-      };
-    })(this);
-    this.updateFingerprint = (function(_this) {
-      return function(fingerprint) {
-        _this.fromMe = {
-          creator: fingerprint
-        };
-        _this.toMe = {
-          reader: fingerprint
-        };
-        return _this.users.replace($.extend(_this.me, {
-          data: {
-            key: fingerprint
-          }
-        }));
-      };
-    })(this);
+      }));
+    };
     this.store = (function(_this) {
       return function(col, obj, cb) {
         var ___iced_passed_deferral, __iced_deferrals, __iced_k;
@@ -351,7 +357,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 79
+                lineno: 74
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -388,7 +394,7 @@
                     return obj = arguments[0];
                   };
                 })(),
-                lineno: 90
+                lineno: 85
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -512,5 +518,25 @@
   Vault.attachTo(document);
 
   module.exports = Vault;
+
+}).call(this);
+
+(function() {
+  var Archivist, archivist, vault;
+
+  vault = document.vault;
+
+  archivist = function() {
+    this.after('initialize', function() {
+      return vault.on('synced', this.archive);
+    });
+    return this.archive = function() {};
+  };
+
+  Archivist = flight.component(archivist);
+
+  Archivist.attachTo(document);
+
+  module.exports = Archivist;
 
 }).call(this);
