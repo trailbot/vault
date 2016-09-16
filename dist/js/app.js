@@ -240,31 +240,27 @@
   app = document.app;
 
   vault = function() {
-    this.after('initialize', function() {
-      this.hz = new Horizon({
-        authType: 'anonymous'
-      });
-      this.users = this.hz('users');
-      this.settings = this.hz('settings');
-      this.events = this.hz('events');
-      this.exchange = this.hz('exchange');
-      this.hz.onReady((function(_this) {
-        return function() {
+    this.after('initialize', (function(_this) {
+      return function() {
+        _this.hz = new Horizon({
+          authType: 'anonymous'
+        });
+        _this.users = _this.hz('users');
+        _this.settings = _this.hz('settings');
+        _this.events = _this.hz('events');
+        _this.exchange = _this.hz('exchange');
+        _this.hz.onReady(function() {
           return _this.subscribe();
-        };
-      })(this));
-      app.on('ready', (function(_this) {
-        return function() {
+        });
+        app.on('ready', function() {
           return _this.hz.connect();
-        };
-      })(this));
-      app.on('unlocked', (function(_this) {
-        return function() {
+        });
+        app.on('unlocked', function() {
           return _this.retrieveEvents();
-        };
-      })(this));
-      return document.vault = this;
-    });
+        });
+        return document.vault = _this;
+      };
+    })(this));
     this.subscribe = function() {
       return this.hz.currentUser().fetch().subscribe((function(_this) {
         return function(me) {
@@ -281,12 +277,13 @@
       })(this));
     };
     this.retrieveEvents = function() {
+      var _ref;
       if (this.retrieving) {
         return;
       }
       this.retrieving = true;
       console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('datetime', 'descending').above({
+      return (_ref = this.events) != null ? _ref.order('datetime', 'descending').above({
         datetime: new Date(app.settings.lastSync || 0)
       }).findAll(this.toMe).watch({
         rawChanges: true
@@ -322,7 +319,7 @@
             }
           };
         })(this)
-      });
+      }) : void 0;
     };
     this.updateFingerprint = function(fingerprint) {
       this.fromMe = {

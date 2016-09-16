@@ -2,7 +2,7 @@ app = document.app
 
 vault = ->
 
-  @after 'initialize', ->
+  @after 'initialize', =>
 
     @hz = new Horizon
       authType: 'anonymous'
@@ -36,7 +36,7 @@ vault = ->
     return if @retrieving
     @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
-    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
+    @events?.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
       next : (changes) =>
         if changes.new_val?
           @eventProcess changes.new_val
