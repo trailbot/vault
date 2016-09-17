@@ -308,8 +308,7 @@
                   return console.error(err);
                 },
                 complete: function() {
-                  console.log('Finished syncing!');
-                  return _this.trigger('synced');
+                  return console.log('Finished syncing!');
                 }
               });
               return setTimeout(function() {
@@ -429,7 +428,7 @@
         pgp = app.pgp;
         message = pgp.message.readArmored(content);
         return message.decrypt(app.privateKey).then(function(_arg1) {
-          var Vue, data, date, event, events, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
+          var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
           packets = _arg1.packets;
           literal = packets.findPacket(pgp.enums.packet.literal);
           filename = literal.filename, date = literal.date, data = literal.data;
@@ -455,7 +454,6 @@
             if (!(keyPacket && sig.verify(keyPacket, literal))) {
               return console.error("[CRYPTO] Wrong signature");
             }
-            Vue = app.Vue;
             path = filename;
             event = {
               ref: Date.now(),
@@ -463,14 +461,12 @@
               content: data
             };
             if (watcher.events == null) {
-              Vue.set(watcher, 'events', {});
+              watcher.events = {};
             }
             if (watcher.events[path] == null) {
-              Vue.set(watcher.events, path, []);
+              watcher.events[path] = [];
             }
-            events = watcher.events[path];
-            events.push(event);
-            return Vue.set(watcher.events, path, events);
+            return watcher.events[path].push(event);
           }
         })["catch"](function(error) {
           return console.error(error);

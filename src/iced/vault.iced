@@ -53,7 +53,7 @@ vault = ->
               error : (err) ->  console.error(err)
               complete : () =>
                 console.log 'Finished syncing!'
-                @trigger 'synced'
+                # @trigger 'synced'
 
           setTimeout ->
             app.save()
@@ -122,17 +122,16 @@ vault = ->
           return console.error "[CRYPTO] Wrong signature"
 
         # Event saving and rendering
-        Vue = app.Vue
         path = filename
         event =
           ref: Date.now()
           time: date
           content: data
-        Vue.set watcher, 'events', {} unless watcher.events?
-        Vue.set watcher.events, path, [] unless watcher.events[path]?
-        events = watcher.events[path]
-        events.push event
-        Vue.set watcher.events, path, events
+
+        watcher.events = {} unless watcher.events?
+        watcher.events[path] = [] unless watcher.events[path]?
+        watcher.events[path].push event
+
     .catch (error) ->
       console.error error
 
