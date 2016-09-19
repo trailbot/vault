@@ -520,15 +520,45 @@
 }).call(this);
 
 (function() {
-  var Archivist, archivist, vault;
+  var Archivist, app, archivist, vault;
+
+  app = document.app;
 
   vault = document.vault;
 
   archivist = function() {
     this.after('initialize', function() {
-      return vault.on('synced', this.archive);
+      return vault.on('synced', this.globalArchive);
     });
-    return this.archive = function() {};
+    this.globalArchive = (function(_this) {
+      return function() {
+        return app.settings.watchers.forEach(_this.watcherArchive);
+      };
+    })(this);
+    this.watcherArchive = (function(_this) {
+      return function(watcher) {
+        var file, path, _ref, _results;
+        _ref = watcher.settings.files;
+        _results = [];
+        for (path in _ref) {
+          file = _ref[path];
+          _results.push(_this.fileArchive(path, file, watcher.events[path]));
+        }
+        return _results;
+      };
+    })(this);
+    return this.fileArchive = (function(_this) {
+      return function(path, file, events) {
+        var archivable, limit, lines, now, text;
+        now = new Date();
+        limit = file.archive || 4 * 60 * 60 * 1000;
+        archivable = events.filter(function(event) {
+          return now - new Date(event.time) > limit;
+        });
+        lines = archivable.map(JSON.stringify);
+        return text = lines.join("\n");
+      };
+    })(this);
   };
 
   Archivist = flight.component(archivist);

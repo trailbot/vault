@@ -1,6 +1,11 @@
 {
   "name": "trailbot-vault",
   "version": "0.3.0",
+  "repository": "https://github.com/trailbot/vault",
+  "license": "MIT",
+  "engines": {
+    "node": ">=5.0.0"
+  },
   "dependencies": {
     "horizon": "^1.1.3",
     "pgp-word-list-converter": "^1.0.0"
@@ -10,7 +15,8 @@
     "setup": "./postinstall",
     "start": "./start",
     "start-dev": "./start --dev --debug",
-    "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
+    "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force",
+    "test": "grunt"
   },
   "bin": {
     "trailbot-vault": "./start",
@@ -21,6 +27,7 @@
     "babel-plugin-transform-runtime": "^6.9.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-runtime": "^6.9.2",
+    "coffee-script": "^1.10.0",
     "coffeeify": "^2.0.1",
     "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
@@ -28,8 +35,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-less": "^1.3.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-iced-coffee": "^0.7.0",
-    "horizon": "^1.1.3",
+    "grunt-iced-coffee": "stampery/grunt-contrib-coffee#348c2d7",
     "iced-coffee-script": "^108.0.11",
     "jade": "^1.11.0",
     "node-pgp": "0.0.1",

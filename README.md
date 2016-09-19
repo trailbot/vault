@@ -2,6 +2,8 @@
 
 # [Trailbot](https://trailbot.io) Vault <sup><sub><sup><sub>DEVELOPER PREVIEW</sub></sup></sub></sup>
 
+[![Build Status](https://travis-ci.org/trailbot/vault.svg?branch=master)](https://travis-ci.org/trailbot/vault)
+
 __Trailbot tracks files and logs in your servers__, triggers [__Smart Policies__](https://github.com/trailbot/client/wiki/Smart-Policies) upon __tampering__ and generates an __immutable audit trail__ of everything happening to them.
 
 [Smart Policies](https://github.com/trailbot/client/wiki/Smart-Policies) are simple scripts that get called every time a tracked file changes. They trigger actions such as emailing someone, rolling files back or even shutting the system down. There are [plenty of them ready to use](https://github.com/trailbot/client/wiki/Smart-Policies#ready-to-use-policies), and you can even [create your own](https://github.com/trailbot/client/wiki/Smart-Policies).
