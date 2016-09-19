@@ -1,6 +1,8 @@
 {
   "name": "trailbot-vault",
   "version": "0.3.0",
+  "repository": "https://github.com/trailbot/vault",
+  "license": "MIT",
   "dependencies": {
     "horizon": "^1.1.3",
     "pgp-word-list-converter": "^1.0.0"
@@ -29,8 +31,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-less": "^1.3.0",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-iced-coffee": "^0.7.0",
-    "horizon": "^1.1.3",
+    "grunt-iced-coffee": "stampery/grunt-contrib-coffee#348c2d7",
     "iced-coffee-script": "^108.0.11",
     "jade": "^1.11.0",
     "node-pgp": "0.0.1",
