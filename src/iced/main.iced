@@ -87,6 +87,9 @@ main = ->
               '/event/:event':
                 name: 'event'
                 component: require '../../src/vue/dashboard/event.vue'
+              '/policyEdit/:index':
+                name: 'policyEdit'
+                component: require '../../src/vue/dashboard/policyEdit.vue'
 
     @router.afterEach (transition) =>
       methods = transition.to.matched.slice(-1)[0].handler.component.options.methods

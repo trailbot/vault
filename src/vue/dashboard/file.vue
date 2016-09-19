@@ -129,8 +129,8 @@ module.exports =
       JSON.stringify o
   methods:
     contextMenu: (e) ->
-      name = $(e.target).closest('li').data 'name'
-      index = $(e.target).closest('li').data 'index'
+      name = $(e.target).closest('li')[0].dataset.name
+      index = $(e.target).closest('li')[0].dataset.index
       try
         MenuItem = window.electron.MenuItem
         menu = new window.electron.Menu()
@@ -140,10 +140,24 @@ module.exports =
         menu.append new MenuItem
           type: 'separator'
         menu.append new MenuItem
+          label: 'Edit policy'
+          accelerator: 'e'
+          click: =>
+            console.log "should edit", index, name , @file.policies[index]
+            app.router.go
+              name: 'policyEdit'
+              params:
+                index: index
+        menu.append new MenuItem
           label: 'Remove policy'
-          accelerator: 's'
+          accelerator: 'r'
           click: =>
             @removePolicy index, name
+        menu.append new MenuItem
+          label: 'Pause policy'
+          accelerator: 'p'
+          click: =>
+            console.log "should pause"
         menu.popup window.electron.getCurrentWindow()
       catch e
         console.error e

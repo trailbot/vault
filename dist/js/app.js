@@ -119,6 +119,10 @@
                 '/event/:event': {
                   name: 'event',
                   component: require('../../src/vue/dashboard/event.vue')
+                },
+                '/policyEdit/:index': {
+                  name: 'policyEdit',
+                  component: require('../../src/vue/dashboard/policyEdit.vue')
                 }
               }
             }
