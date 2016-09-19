@@ -15071,7 +15071,6 @@ module.exports = {
           accelerator: 'e',
           click: (function(_this) {
             return function() {
-              console.log("should edit", index, name, _this.file.policies[index]);
               return app.router.go({
                 name: 'policyEdit',
                 params: {
@@ -15095,7 +15094,7 @@ module.exports = {
           accelerator: 'p',
           click: (function(_this) {
             return function() {
-              return console.log("should pause");
+              return _this.pause(index);
             };
           })(this)
         }));
@@ -15165,6 +15164,13 @@ module.exports = {
     dragend_handler: function(ev) {
       this.drag_element.classList.remove('dragging');
       this.handle = void 0;
+      return app.save();
+    },
+    pause: function(index) {
+      this.policies[index].paused = !this.policies[index].paused;
+      document.vault.replace('settings', $.extend(this.watcher.settings, {
+        encrypt: true
+      }));
       return app.save();
     }
   }
@@ -15497,11 +15503,7 @@ module.exports = {
       return window.electron.shell.openExternal(url);
     },
     pause: function(e) {
-      this.policy.paused = !this.paused;
-      document.vault.replace('settings', $.extend(this.$parent.watcher.settings, {
-        encrypt: true
-      }));
-      return app.save();
+      return this.$parent.pause(this.index);
     },
     sync: function() {
       if (!this.syncing) {

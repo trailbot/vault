@@ -143,7 +143,6 @@ module.exports =
           label: 'Edit policy'
           accelerator: 'e'
           click: =>
-            console.log "should edit", index, name , @file.policies[index]
             app.router.go
               name: 'policyEdit'
               params:
@@ -157,7 +156,7 @@ module.exports =
           label: 'Pause policy'
           accelerator: 'p'
           click: =>
-            console.log "should pause"
+            @pause(index)
         menu.popup window.electron.getCurrentWindow()
       catch e
         console.error e
@@ -214,4 +213,8 @@ module.exports =
       @handle = undefined
       app.save()
 
+    pause: (index) ->
+      @policies[index].paused = not @policies[index].paused
+      document.vault.replace 'settings', $.extend(@watcher.settings, {encrypt: true})
+      app.save()
 </script>
