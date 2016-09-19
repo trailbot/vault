@@ -10,7 +10,8 @@
     "setup": "./postinstall",
     "start": "./start",
     "start-dev": "./start --dev --debug",
-    "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force"
+    "set-schema": "hz set-schema /etc/trailbot-vault/schema.toml --force",
+    "test": "grunt"
   },
   "bin": {
     "trailbot-vault": "./start",
