@@ -2,70 +2,65 @@ app = document.app
 
 vault = ->
 
-  @after 'initialize', =>
+  @after 'initialize', ->
+
     @hz = new Horizon
       authType: 'anonymous'
-    @hz.connect()
-
     @users = @hz 'users'
     @settings = @hz 'settings'
     @events = @hz 'events'
     @exchange = @hz 'exchange'
-    console.log JSON.stringify @events
 
-    @hz.onReady ->
-      console.log 'Connected to Horizon!'
+    @hz.onReady =>
+      @subscribe()
 
-    @hz.onDisconnected (e) ->
-#      location.reload()
+    app.on 'ready', =>
+      @hz.connect()
 
-    @hz.currentUser().fetch().subscribe (me) =>
-      console.log JSON.stringify me
-      @me = me
-
-      if app.settings.keys?.fingerprint
-        fingerprint = app.settings.keys.fingerprint
-        @updateFingerprint fingerprint
-
-        @settings.findAll(@fromMe).fetch().subscribe (settings) =>
-          console.log 'New settings'
-          console.log settings
-        , (error) =>
-          console.error error
-        , () =>
-          console.log 'Settings completed!'
+    app.on 'unlocked', =>
+      @retrieveEvents()
 
     document.vault = this
-    app.save()
 
-  @retrieveEvents = () =>
+  @subscribe = ->
+    @hz.currentUser().fetch().subscribe (@me) =>
+      console.log JSON.stringify @me
+
+      if app.settings.keys?.fingerprint
+        @updateFingerprint app.settings.keys.fingerprint
+        @settings.findAll(@fromMe).fetch().subscribe (settings) =>
+          console.log JSON.stringify settings
+        , console.error
+
+  @retrieveEvents = ->
     return if @retrieving
     @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
-    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe (changes) =>
-      if changes.new_val?
-        @eventProcess changes.new_val
-        app.settings.lastSync = new Date()
-        setTimeout ->
-          app.save()
-      else if changes.type is 'state' and changes.state is 'synced'
-        app.settings.lastSync = new Date()
-        @events.below({datetime: new Date(app.settings.lastSync || 0)})
-          .findAll(@toMe)
-          .fetch()
-          .mergeMap((messageList) => @events.removeAll(messageList))
-          .subscribe
-            error : (err) ->  console.error(err)
-            complete : () -> console.log 'Finished syncing!'
+    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
+      next : (changes) =>
+        if changes.new_val?
+          @eventProcess changes.new_val
+          app.settings.lastSync = new Date()
+          setTimeout ->
+            app.save()
+        else if changes.type is 'state' and changes.state is 'synced'
+          app.settings.lastSync = new Date()
+          @events.below({datetime: new Date(app.settings.lastSync || 0)})
+            .findAll(@toMe)
+            .fetch()
+            .mergeMap((messageList) => @events.removeAll(messageList))
+            .subscribe
+              error : (err) ->  console.error(err)
+              complete : () =>
+                console.log 'Finished syncing!'
+                @trigger 'synced'
 
+          setTimeout ->
+            app.save()
+        else
+          console.log 'There are other changes'
 
-
-        setTimeout ->
-          app.save()
-      else
-        console.log 'There are other changes'
-
-  @updateFingerprint = (fingerprint) =>
+  @updateFingerprint = (fingerprint) ->
     @fromMe =
       creator: fingerprint
     @toMe =

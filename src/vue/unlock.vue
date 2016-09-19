@@ -144,7 +144,7 @@ module.exports =
     submit: (e) ->
       if app.privateKey.decrypt @pass
         app.router.go '/dashboard'
-        setTimeout document.vault.retrieveEvents, 1000
+        app.trigger 'unlocked'
       else
         @error = 'Wrong passphrase'
 </script>
