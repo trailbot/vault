@@ -14939,7 +14939,7 @@ module.exports = {
   },
   methods: {
     contextMenu: function(e) {
-      var MenuItem, error, index, menu, name;
+      var MenuItem, index, menu, name;
       name = $(e.target).closest('li').data('name');
       index = $(e.target).closest('li').data('index');
       try {
@@ -14968,7 +14968,7 @@ module.exports = {
       }
     },
     removePolicy: function(index, name) {
-      var e, error;
+      var e;
       try {
         return window.electron.dialog.showMessageBox({
           type: 'question',
@@ -15167,7 +15167,7 @@ module.exports = {
       return this.isOpen = !this.isOpen;
     },
     fileContextMenu: function(e) {
-      var MenuItem, error, menu, path;
+      var MenuItem, menu, path;
       path = $(e.target).closest('li').data('path');
       try {
         MenuItem = window.electron.MenuItem;
@@ -15210,7 +15210,7 @@ module.exports = {
       }
     },
     watcherContextMenu: function(e) {
-      var MenuItem, error, index, menu, watcher;
+      var MenuItem, index, menu, watcher;
       try {
         index = $(e.target).closest('[data-index]').data('index');
         watcher = this.watchers[index];
@@ -15253,7 +15253,7 @@ module.exports = {
       }
     },
     stopWatching: function(path) {
-      var e, error;
+      var e;
       try {
         return window.electron.dialog.showMessageBox({
           type: 'question',
@@ -15742,7 +15742,7 @@ module.exports = {
       })(this));
     },
     identikit: function() {
-      var e, error, host, user;
+      var e, host, user;
       try {
         user = os.homedir().split('/').pop();
         host = os.hostname();
@@ -15807,7 +15807,7 @@ module.exports = {
       return app.router.go('/wizard/preImport');
     },
     newWatcher: function(key) {
-      var err, error, fingerprint, keys, name, settings, watcher;
+      var err, fingerprint, keys, name, settings, watcher;
       try {
         keys = app.pgp.key.readArmored(key).keys;
         console.log(JSON.stringify(keys));
@@ -15963,7 +15963,7 @@ module.exports = {
       return app.router.go('/wizard/preImport');
     },
     newWatcher: function(key) {
-      var err, error, fingerprint, keys, name, settings, watcher;
+      var err, fingerprint, keys, name, settings, watcher;
       try {
         keys = app.pgp.key.readArmored(key).keys;
         console.log(JSON.stringify(keys));
