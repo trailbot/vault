@@ -534,6 +534,7 @@
     });
     this.globalArchive = (function(_this) {
       return function() {
+        window.mkdir("archive");
         return app.settings.watchers.forEach(_this.watcherArchive);
       };
     })(this);
@@ -544,23 +545,77 @@
         _results = [];
         for (path in _ref) {
           file = _ref[path];
-          _results.push(_this.fileArchive(path, file, watcher.events[path]));
+          _results.push(_this.fileArchive(path, file, watcher.events));
         }
         return _results;
       };
     })(this);
-    return this.fileArchive = (function(_this) {
+    this.fileArchive = (function(_this) {
       return function(path, file, events) {
-        var archivable, limit, lines, now, text;
-        now = new Date();
-        limit = file.archive || 4 * 60 * 60 * 1000;
-        archivable = events.filter(function(event) {
-          return now - new Date(event.time) > limit;
-        });
-        lines = archivable.map(JSON.stringify);
-        return text = lines.join("\n");
+        var archivable, date, ev, i, index, limit, lines, _ref, _results;
+        events[path].sort(_this.sortByDate);
+        limit = _this.getLimit(file.archive || 3);
+        index = void 0;
+        _ref = events[path];
+        for (i in _ref) {
+          ev = _ref[i];
+          if (new Date(ev.time) < limit) {
+            index = i;
+            break;
+          }
+        }
+        if (index) {
+          archivable = events[path].slice(index);
+          events[path] = events[path].slice(0, index);
+          app.save();
+          archivable = archivable.reduce(_this.groupByDay, []);
+          _results = [];
+          for (date in archivable) {
+            lines = archivable[date];
+            _results.push(_this.writeToFile(date, lines.join("\n")));
+          }
+          return _results;
+        }
       };
     })(this);
+    this.groupByDay = function(arr, value) {
+      var d, key;
+      d = new Date(value.time);
+      key = "" + (d.getFullYear()) + "-" + (d.getMonth() + 1) + "-" + (d.getDate());
+      if (!arr[key]) {
+        arr[key] = [];
+      }
+      arr[key].push(JSON.stringify(value));
+      return arr;
+    };
+    this.writeToFile = function(prefix, txt) {
+      return window.fs.writeFile("archive/" + prefix + "-archive", txt, function(err) {
+        if (err) {
+          return console.log("Error creating the archiving file " + prefix + " " + err);
+        } else {
+          return console.log("Archive for date " + prefix + " succesfully saved");
+        }
+      });
+    };
+    this.sortByDate = function(a, b) {
+      if (a.time < b.time) {
+        return 1;
+      }
+      if (a.time > b.time) {
+        return -1;
+      }
+      return 0;
+    };
+    return this.getLimit = function(days) {
+      var limit, now;
+      now = new Date();
+      limit = new Date();
+      limit.setDate(now.getDate() - days);
+      limit.setHours(23);
+      limit.setMinutes(59);
+      limit.setSeconds(59);
+      return limit;
+    };
   };
 
   Archivist = flight.component(archivist);
