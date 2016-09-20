@@ -2,7 +2,7 @@ app = document.app
 
 vault = ->
 
-  @after 'initialize', ->
+  @after 'initialize', =>
 
     @hz = new Horizon
       authType: 'anonymous'
@@ -36,7 +36,7 @@ vault = ->
     return if @retrieving
     @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
-    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
+    @events?.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
       next : (changes) =>
         if changes.new_val?
           @eventProcess changes.new_val
@@ -53,7 +53,7 @@ vault = ->
               error : (err) ->  console.error(err)
               complete : () =>
                 console.log 'Finished syncing!'
-                @trigger 'synced'
+                # @trigger 'synced'
 
           setTimeout ->
             app.save()
@@ -122,17 +122,16 @@ vault = ->
           return console.error "[CRYPTO] Wrong signature"
 
         # Event saving and rendering
-        Vue = app.Vue
         path = filename
         event =
           ref: Date.now()
           time: date
           content: data
-        Vue.set watcher, 'events', {} unless watcher.events?
-        Vue.set watcher.events, path, [] unless watcher.events[path]?
-        events = watcher.events[path]
-        events.push event
-        Vue.set watcher.events, path, events
+
+        watcher.events = {} unless watcher.events?
+        watcher.events[path] = [] unless watcher.events[path]?
+        watcher.events[path].push event
+
     .catch (error) ->
       console.error error
 

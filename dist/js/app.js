@@ -119,6 +119,10 @@
                 '/event/:event': {
                   name: 'event',
                   component: require('../../src/vue/dashboard/event.vue')
+                },
+                '/policyEdit/:index': {
+                  name: 'policyEdit',
+                  component: require('../../src/vue/dashboard/policyEdit.vue')
                 }
               }
             }
@@ -240,31 +244,27 @@
   app = document.app;
 
   vault = function() {
-    this.after('initialize', function() {
-      this.hz = new Horizon({
-        authType: 'anonymous'
-      });
-      this.users = this.hz('users');
-      this.settings = this.hz('settings');
-      this.events = this.hz('events');
-      this.exchange = this.hz('exchange');
-      this.hz.onReady((function(_this) {
-        return function() {
+    this.after('initialize', (function(_this) {
+      return function() {
+        _this.hz = new Horizon({
+          authType: 'anonymous'
+        });
+        _this.users = _this.hz('users');
+        _this.settings = _this.hz('settings');
+        _this.events = _this.hz('events');
+        _this.exchange = _this.hz('exchange');
+        _this.hz.onReady(function() {
           return _this.subscribe();
-        };
-      })(this));
-      app.on('ready', (function(_this) {
-        return function() {
+        });
+        app.on('ready', function() {
           return _this.hz.connect();
-        };
-      })(this));
-      app.on('unlocked', (function(_this) {
-        return function() {
+        });
+        app.on('unlocked', function() {
           return _this.retrieveEvents();
-        };
-      })(this));
-      return document.vault = this;
-    });
+        });
+        return document.vault = _this;
+      };
+    })(this));
     this.subscribe = function() {
       return this.hz.currentUser().fetch().subscribe((function(_this) {
         return function(me) {
@@ -281,12 +281,13 @@
       })(this));
     };
     this.retrieveEvents = function() {
+      var _ref;
       if (this.retrieving) {
         return;
       }
       this.retrieving = true;
       console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('datetime', 'descending').above({
+      return (_ref = this.events) != null ? _ref.order('datetime', 'descending').above({
         datetime: new Date(app.settings.lastSync || 0)
       }).findAll(this.toMe).watch({
         rawChanges: true
@@ -310,8 +311,7 @@
                   return console.error(err);
                 },
                 complete: function() {
-                  console.log('Finished syncing!');
-                  return _this.trigger('synced');
+                  return console.log('Finished syncing!');
                 }
               });
               return setTimeout(function() {
@@ -322,7 +322,7 @@
             }
           };
         })(this)
-      });
+      }) : void 0;
     };
     this.updateFingerprint = function(fingerprint) {
       this.fromMe = {
@@ -431,7 +431,7 @@
         pgp = app.pgp;
         message = pgp.message.readArmored(content);
         return message.decrypt(app.privateKey).then(function(_arg1) {
-          var Vue, data, date, event, events, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
+          var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
           packets = _arg1.packets;
           literal = packets.findPacket(pgp.enums.packet.literal);
           filename = literal.filename, date = literal.date, data = literal.data;
@@ -457,7 +457,6 @@
             if (!(keyPacket && sig.verify(keyPacket, literal))) {
               return console.error("[CRYPTO] Wrong signature");
             }
-            Vue = app.Vue;
             path = filename;
             event = {
               ref: Date.now(),
@@ -465,14 +464,12 @@
               content: data
             };
             if (watcher.events == null) {
-              Vue.set(watcher, 'events', {});
+              watcher.events = {};
             }
             if (watcher.events[path] == null) {
-              Vue.set(watcher.events, path, []);
+              watcher.events[path] = [];
             }
-            events = watcher.events[path];
-            events.push(event);
-            return Vue.set(watcher.events, path, events);
+            return watcher.events[path].push(event);
           }
         })["catch"](function(error) {
           return console.error(error);
