@@ -153,7 +153,7 @@ module.exports =
           click: =>
             @removePolicy index, name
         menu.append new MenuItem
-          label: 'Pause policy'
+          label: "#{!!@policies[index].paused and 'Resume' or 'Pause'} policy"
           accelerator: 'p'
           click: =>
             @pause(index)

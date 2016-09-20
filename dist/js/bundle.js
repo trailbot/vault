@@ -15090,7 +15090,7 @@ module.exports = {
           })(this)
         }));
         menu.append(new MenuItem({
-          label: 'Pause policy',
+          label: (!!this.policies[index].paused && 'Resume' || 'Pause') + " policy",
           accelerator: 'p',
           click: (function(_this) {
             return function() {
