@@ -15,25 +15,24 @@ archivist = ->
       @fileArchive path, file, watcher.events
 
   @fileArchive = (path, file, events) =>
-#    return unless file.archive
-    # sort by recent first
-    events[path].sort @sortByDate
+    events[path].sort @sortBy
 
-    limit = @getLimit file.archive || 3
-    index = undefined
+    limit = @getLimit file.archive || 5
+    # index of the first event older than the limit
+    indexOlder = undefined
     for i, ev of events[path]
-      if new Date(ev.time) < limit
-        index = i
+      console.log "index #{i} ,ref #{new Date(ev.ref)}  < lim #{new Date(limit)}"
+      if ev.ref < limit
+        indexOlder = i
         break
 
-    if index
-      archivable = events[path].slice index
-      events[path] = events[path].slice 0, index
+    if indexOlder
+      archivable = events[path].slice indexOlder
+      events[path] = events[path].slice 0, indexOlder
       app.save()
-
       archivable = archivable.reduce @groupByDay, []
       for date, lines  of archivable
-        @writeToFile date, lines.join "\n"
+        @writeToFile "#{@getBaseName path}-#{date}", lines.join "\n"
 
 
 
@@ -51,13 +50,14 @@ archivist = ->
       else
         console.log "Archive for date #{prefix} succesfully saved"
 
-  @sortByDate = (a, b) ->
-    if a.time < b.time
+  @sortBy = (a, b, field = "ref") ->
+    if a[field] < b[field]
       return 1
-    if a.time > b.time
+    if a[field] > b[field]
       return -1
     return 0
 
+  # current date minus the number of days , return epoch
   @getLimit = (days) ->
     now = new Date()
     limit = new Date()
@@ -65,7 +65,10 @@ archivist = ->
     limit.setHours(23)
     limit.setMinutes(59)
     limit.setSeconds(59)
-    limit
+    Date.parse limit
+
+  @getBaseName = (path) ->
+    path.split(/[\\/]/).reverse()[0].split(".")[0]
 
 Archivist = flight.component archivist
 Archivist.attachTo document

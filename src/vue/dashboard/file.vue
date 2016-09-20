@@ -77,7 +77,7 @@ article.file(transition='driftFade')
     header
       h1 Events
     ul(v-if='thereAreEvents')
-      li(v-for="event in events | orderBy 'time' -1", v-link="{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }")
+      li(v-for="event in events | orderBy 'ref' -1", v-link="{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }")
         time(datetime='event.time') {{event.time | prettyDate}}
         p.stats(v-if='event.content.type == "change"')
           span.add(v-if="event.content.payload | countByType 'add'") +{{event.content.payload | countByType 'add'}}

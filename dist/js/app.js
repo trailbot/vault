@@ -286,8 +286,8 @@
       }
       this.retrieving = true;
       console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('datetime', 'descending').above({
-        datetime: new Date(app.settings.lastSync || 0)
+      return this.events.order('ref', 'descending').above({
+        ref: app.settings.lastSync || 0
       }).findAll(this.toMe).watch({
         rawChanges: true
       }).subscribe({
@@ -295,14 +295,14 @@
           return function(changes) {
             if (changes.new_val != null) {
               _this.eventProcess(changes.new_val);
-              app.settings.lastSync = new Date();
+              app.settings.lastSync = Date.now();
               return setTimeout(function() {
                 return app.save();
               });
             } else if (changes.type === 'state' && changes.state === 'synced') {
-              app.settings.lastSync = new Date();
+              app.settings.lastSync = Date.now();
               _this.events.below({
-                datetime: new Date(app.settings.lastSync || 0)
+                ref: app.settings.lastSync || 0
               }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
                 return _this.events.removeAll(messageList);
               }).subscribe({
@@ -552,27 +552,28 @@
     })(this);
     this.fileArchive = (function(_this) {
       return function(path, file, events) {
-        var archivable, date, ev, i, index, limit, lines, _ref, _results;
-        events[path].sort(_this.sortByDate);
-        limit = _this.getLimit(file.archive || 3);
-        index = void 0;
+        var archivable, date, ev, i, indexOlder, limit, lines, _ref, _results;
+        events[path].sort(_this.sortBy);
+        limit = _this.getLimit(file.archive || 5);
+        indexOlder = void 0;
         _ref = events[path];
         for (i in _ref) {
           ev = _ref[i];
-          if (new Date(ev.time) < limit) {
-            index = i;
+          console.log("index " + i + " ,ref " + (new Date(ev.ref)) + "  < lim " + (new Date(limit)));
+          if (ev.ref < limit) {
+            indexOlder = i;
             break;
           }
         }
-        if (index) {
-          archivable = events[path].slice(index);
-          events[path] = events[path].slice(0, index);
+        if (indexOlder) {
+          archivable = events[path].slice(indexOlder);
+          events[path] = events[path].slice(0, indexOlder);
           app.save();
           archivable = archivable.reduce(_this.groupByDay, []);
           _results = [];
           for (date in archivable) {
             lines = archivable[date];
-            _results.push(_this.writeToFile(date, lines.join("\n")));
+            _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
           }
           return _results;
         }
@@ -597,16 +598,19 @@
         }
       });
     };
-    this.sortByDate = function(a, b) {
-      if (a.time < b.time) {
+    this.sortBy = function(a, b, field) {
+      if (field == null) {
+        field = "ref";
+      }
+      if (a[field] < b[field]) {
         return 1;
       }
-      if (a.time > b.time) {
+      if (a[field] > b[field]) {
         return -1;
       }
       return 0;
     };
-    return this.getLimit = function(days) {
+    this.getLimit = function(days) {
       var limit, now;
       now = new Date();
       limit = new Date();
@@ -614,7 +618,10 @@
       limit.setHours(23);
       limit.setMinutes(59);
       limit.setSeconds(59);
-      return limit;
+      return Date.parse(limit);
+    };
+    return this.getBaseName = function(path) {
+      return path.split(/[\\/]/).reverse()[0].split(".")[0];
     };
   };
 

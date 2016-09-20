@@ -287,8 +287,8 @@
       }
       this.retrieving = true;
       console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('datetime', 'descending').above({
-        datetime: new Date(app.settings.lastSync || 0)
+      return this.events.order('ref', 'descending').above({
+        ref: app.settings.lastSync || 0
       }).findAll(this.toMe).watch({
         rawChanges: true
       }).subscribe({
@@ -296,14 +296,14 @@
           return function(changes) {
             if (changes.new_val != null) {
               _this.eventProcess(changes.new_val);
-              app.settings.lastSync = new Date();
+              app.settings.lastSync = Date.now();
               return setTimeout(function() {
                 return app.save();
               });
             } else if (changes.type === 'state' && changes.state === 'synced') {
-              app.settings.lastSync = new Date();
+              app.settings.lastSync = Date.now();
               _this.events.below({
-                datetime: new Date(app.settings.lastSync || 0)
+                ref: app.settings.lastSync || 0
               }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
                 return _this.events.removeAll(messageList);
               }).subscribe({
@@ -553,27 +553,28 @@
     })(this);
     this.fileArchive = (function(_this) {
       return function(path, file, events) {
-        var archivable, date, ev, i, index, limit, lines, _ref, _results;
-        events[path].sort(_this.sortByDate);
-        limit = _this.getLimit(file.archive || 3);
-        index = void 0;
+        var archivable, date, ev, i, indexOlder, limit, lines, _ref, _results;
+        events[path].sort(_this.sortBy);
+        limit = _this.getLimit(file.archive || 5);
+        indexOlder = void 0;
         _ref = events[path];
         for (i in _ref) {
           ev = _ref[i];
-          if (new Date(ev.time) < limit) {
-            index = i;
+          console.log("index " + i + " ,ref " + (new Date(ev.ref)) + "  < lim " + (new Date(limit)));
+          if (ev.ref < limit) {
+            indexOlder = i;
             break;
           }
         }
-        if (index) {
-          archivable = events[path].slice(index);
-          events[path] = events[path].slice(0, index);
+        if (indexOlder) {
+          archivable = events[path].slice(indexOlder);
+          events[path] = events[path].slice(0, indexOlder);
           app.save();
           archivable = archivable.reduce(_this.groupByDay, []);
           _results = [];
           for (date in archivable) {
             lines = archivable[date];
-            _results.push(_this.writeToFile(date, lines.join("\n")));
+            _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
           }
           return _results;
         }
@@ -598,16 +599,19 @@
         }
       });
     };
-    this.sortByDate = function(a, b) {
-      if (a.time < b.time) {
+    this.sortBy = function(a, b, field) {
+      if (field == null) {
+        field = "ref";
+      }
+      if (a[field] < b[field]) {
         return 1;
       }
-      if (a.time > b.time) {
+      if (a[field] > b[field]) {
         return -1;
       }
       return 0;
     };
-    return this.getLimit = function(days) {
+    this.getLimit = function(days) {
       var limit, now;
       now = new Date();
       limit = new Date();
@@ -615,7 +619,10 @@
       limit.setHours(23);
       limit.setMinutes(59);
       limit.setSeconds(59);
-      return limit;
+      return Date.parse(limit);
+    };
+    return this.getBaseName = function(path) {
+      return path.split(/[\\/]/).reverse()[0].split(".")[0];
     };
   };
 
@@ -15205,7 +15212,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"{{policies.length > 1}}\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" @mousedown=\"mousedown_handler\" @mouseup=\"mouseup_handler\" class=\"fontello handle\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'time' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span><span v-else=\"v-else\" _v-879ec5b6=\"\">{{event.content.type.toUpperCase()}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"{{policies.length > 1}}\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" @mousedown=\"mousedown_handler\" @mouseup=\"mouseup_handler\" class=\"fontello handle\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'ref' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span><span v-else=\"v-else\" _v-879ec5b6=\"\">{{event.content.type.toUpperCase()}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

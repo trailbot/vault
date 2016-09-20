@@ -36,16 +36,16 @@ vault = ->
     return if @retrieving
     @retrieving = true
     console.log "Retrieving events newer than #{app.settings.lastSync}"
-    @events.order('datetime', 'descending').above({datetime: new Date(app.settings.lastSync || 0)}).findAll(@toMe).watch({rawChanges: true}).subscribe
+    @events.order('ref', 'descending').above({ref: app.settings.lastSync || 0}).findAll(@toMe).watch({rawChanges: true}).subscribe
       next : (changes) =>
         if changes.new_val?
           @eventProcess changes.new_val
-          app.settings.lastSync = new Date()
+          app.settings.lastSync = Date.now()
           setTimeout ->
             app.save()
         else if changes.type is 'state' and changes.state is 'synced'
-          app.settings.lastSync = new Date()
-          @events.below({datetime: new Date(app.settings.lastSync || 0)})
+          app.settings.lastSync = Date.now()
+          @events.below({ref: app.settings.lastSync || 0})
             .findAll(@toMe)
             .fetch()
             .mergeMap((messageList) => @events.removeAll(messageList))
