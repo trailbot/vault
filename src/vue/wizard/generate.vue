@@ -24,7 +24,7 @@ article
 </style>
 
 <template lang="jade">
-article.generating(v-if='generating', transition='pop')
+article.generating(v-show='generating', transition='pop')
   div.loader Loading...
   p
     strong Generating keypair...

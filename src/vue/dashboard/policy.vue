@@ -131,9 +131,7 @@ module.exports =
       url = $(e.target).attr 'href'
       window.electron.shell.openExternal url
     pause: (e) ->
-      @policy.paused = not @paused
-      document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
-      app.save()
+      @$parent.pause @index
     sync: ()->
       unless @syncing
         document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
