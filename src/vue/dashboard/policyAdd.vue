@@ -114,11 +114,9 @@ module.exports =
             alert "This repository does not look like a Trailbot Smart Policy :("
     submit: (e) ->
       e.preventDefault()
-      console.log JSON.stringify @params
 
       # Send test request for URL fields
       for key, field of @fields when field.type is 'url' and field.test
-        console.log "Testing #{@params[key]}"
         window.request
           method: field.test
           body: app.fooEvent

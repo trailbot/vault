@@ -2,6 +2,9 @@
 input[name='path']
   box-sizing: border-box
   width: 100%
+input[name='archive']
+  display: inline-block !important
+  margin-right: 1em
 </style>
 
 <template lang="jade">
@@ -18,6 +21,10 @@ article.form.fileAdd(transition='driftFade')
       input(type='text', name='path', placeholder='/var/log/syslog', v-model='path', v-focus-auto)
       span.tip.
         Please consign the #[strong absolute path] of the file to watch.
+    fieldset
+      label(for='archive') Archive events older than
+      input(type='number', name='archive', placeholder='5', v-model='archive')
+      | days
     footer
       button.ok(@click='submit', v-if="path.split('/').pop()").
         Start watching #[i {{path.split('/').pop()}}]
@@ -28,9 +35,9 @@ app = document.app
 module.exports =
   mixins: [ (require 'vue-focus').mixin ]
   data: ->
-    $.extend app.data(),
-      path: ''
-      index: @$parent.index
+    path: ''
+    archive: 5
+    index: @$parent.index
   computed:
     watcher: ->
       @$parent.currentWatcher
@@ -42,7 +49,11 @@ module.exports =
       settings = @watcher.settings
       settings.files[@path] =
         policies: []
-      @$parent.$set 'currentWatcher.settings', settings
+        archive: @archive
+
+      @$parent.$set 'currentWatcher', @watcher
+      currentEvents = "currentWatcher.events['#{@path}']"
+      @$parent.$set currentEvents, []
       document.vault.replace 'settings', $.extend(settings, {encrypt: true})
       app.save()
       app.router.go
@@ -50,4 +61,6 @@ module.exports =
         params:
           watcher: @index
           file: encodeURIComponent @path
+
+
 </script>

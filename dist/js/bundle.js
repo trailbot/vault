@@ -245,269 +245,268 @@
   app = document.app;
 
   vault = function() {
-    this.after('initialize', (function(_this) {
-      return function() {
-        _this.hz = new Horizon({
-          authType: 'anonymous'
-        });
-        _this.users = _this.hz('users');
-        _this.settings = _this.hz('settings');
-        _this.events = _this.hz('events');
-        _this.exchange = _this.hz('exchange');
-        _this.hz.onReady(function() {
+    return this.after('initialize', function() {
+      this.hz = new Horizon({
+        authType: 'anonymous'
+      });
+      this.users = this.hz('users');
+      this.settings = this.hz('settings');
+      this.events = this.hz('events');
+      this.exchange = this.hz('exchange');
+      this.hz.onReady((function(_this) {
+        return function() {
           return _this.subscribe();
-        });
-        app.on('ready', function() {
-          return _this.hz.connect();
-        });
-        app.on('unlocked', function() {
-          return _this.retrieveEvents();
-        });
-        return document.vault = _this;
-      };
-    })(this));
-    this.subscribe = function() {
-      return this.hz.currentUser().fetch().subscribe((function(_this) {
-        return function(me) {
-          var _ref;
-          _this.me = me;
-          console.log(JSON.stringify(_this.me));
-          if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
-            _this.updateFingerprint(app.settings.keys.fingerprint);
-            return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
-              return console.log(JSON.stringify(settings));
-            }, console.error);
-          }
         };
       })(this));
-    };
-    this.retrieveEvents = function() {
-      if (this.retrieving) {
-        return;
-      }
-      this.retrieving = true;
-      console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('ref', 'descending').above({
-        ref: app.settings.lastSync || 0
-      }).findAll(this.toMe).watch({
-        rawChanges: true
-      }).subscribe({
-        next: (function(_this) {
-          return function(changes) {
-            if (changes.new_val != null) {
-              _this.eventProcess(changes.new_val);
-              app.settings.lastSync = Date.now();
-              return setTimeout(function() {
-                return app.save();
-              });
-            } else if (changes.type === 'state' && changes.state === 'synced') {
-              app.settings.lastSync = Date.now();
-              _this.events.below({
-                ref: app.settings.lastSync || 0
-              }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
-                return _this.events.removeAll(messageList);
-              }).subscribe({
-                error: function(err) {
-                  return console.error(err);
-                },
-                complete: function() {
-                  return console.log('Finished syncing!');
-                }
-              });
-              return setTimeout(function() {
-                return app.save();
-              });
-            } else {
-              return console.log('There are other changes');
+      app.on('ready', (function(_this) {
+        return function() {
+          return _this.hz.connect();
+        };
+      })(this));
+      app.on('unlocked', (function(_this) {
+        return function() {
+          return _this.retrieveEvents();
+        };
+      })(this));
+      document.vault = this;
+      this.subscribe = function() {
+        return this.hz.currentUser().fetch().subscribe((function(_this) {
+          return function(me) {
+            var _ref;
+            _this.me = me;
+            console.log(JSON.stringify(_this.me));
+            if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
+              _this.updateFingerprint(app.settings.keys.fingerprint);
+              return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
+                return console.log(JSON.stringify(settings));
+              }, console.error);
             }
           };
-        })(this)
-      });
-    };
-    this.updateFingerprint = function(fingerprint) {
-      this.fromMe = {
-        creator: fingerprint
+        })(this));
       };
-      this.toMe = {
-        reader: fingerprint
-      };
-      return this.users.replace($.extend(this.me, {
-        data: {
-          key: fingerprint
+      this.retrieveEvents = function() {
+        if (this.retrieving) {
+          return;
         }
-      }));
-    };
-    this.store = (function(_this) {
-      return function(col, obj, cb) {
-        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
-        __iced_k = __iced_k_noop;
-        ___iced_passed_deferral = iced.findDeferral(arguments);
-        (function(__iced_k) {
-          if (obj.encrypt) {
-            delete obj.encrypt;
-            (function(__iced_k) {
-              __iced_deferrals = new iced.Deferrals(__iced_k, {
-                parent: ___iced_passed_deferral,
-                filename: "./src/iced/vault.iced",
-                funcname: "store"
-              });
-              _this.encrypt(obj, __iced_deferrals.defer({
-                assign_fn: (function() {
-                  return function() {
-                    return obj = arguments[0];
-                  };
-                })(),
-                lineno: 74
-              }));
-              __iced_deferrals._fulfill();
-            })(__iced_k);
-          } else {
-            return __iced_k();
-          }
-        })(function() {
-          return _this[col].store(obj).subscribe(function(result) {
-            return cb(result.id);
-          }, function(error) {
-            return console.error(error);
-          });
-        });
-      };
-    })(this);
-    this.replace = (function(_this) {
-      return function(col, obj, cb) {
-        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
-        __iced_k = __iced_k_noop;
-        ___iced_passed_deferral = iced.findDeferral(arguments);
-        console.log('Replacing', col, obj);
-        (function(__iced_k) {
-          if (obj.encrypt) {
-            delete obj.encrypt;
-            (function(__iced_k) {
-              __iced_deferrals = new iced.Deferrals(__iced_k, {
-                parent: ___iced_passed_deferral,
-                filename: "./src/iced/vault.iced",
-                funcname: "replace"
-              });
-              _this.encrypt(obj, __iced_deferrals.defer({
-                assign_fn: (function() {
-                  return function() {
-                    return obj = arguments[0];
-                  };
-                })(),
-                lineno: 85
-              }));
-              __iced_deferrals._fulfill();
-            })(__iced_k);
-          } else {
-            return __iced_k();
-          }
-        })(function() {
-          return _this[col].upsert(obj).subscribe(function(result) {
-            return cb && cb(result.id);
-          }, function(error) {
-            return console.error(error);
-          });
-        });
-      };
-    })(this);
-    this.find = (function(_this) {
-      return function(col, obj, cb) {
-        console.log('Finding', col, obj);
-        return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
-      };
-    })(this);
-    this.watch = (function(_this) {
-      return function(col, obj, cb) {
-        var _ref;
-        return (_ref = _this[col]) != null ? _ref.find(obj).watch().subscribe(function(items) {
-          return cb && cb(items);
-        }) : void 0;
-      };
-    })(this);
-    this.eventProcess = (function(_this) {
-      return function(_arg) {
-        var content, creator, id, message, pgp, reader;
-        content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
-        pgp = app.pgp;
-        message = pgp.message.readArmored(content);
-        return message.decrypt(app.privateKey).then(function(_arg1) {
-          var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
-          packets = _arg1.packets;
-          literal = packets.findPacket(pgp.enums.packet.literal);
-          filename = literal.filename, date = literal.date, data = literal.data;
-          data = JSON.parse(pgp.util.Uint8Array2str(data));
-          console.log('There is a new event ' + JSON.stringify({
-            filename: filename,
-            date: date
-          }));
-          watcher = app.settings.watchers.find(function(e) {
-            return e.fingerprint === creator;
-          });
-          if (watcher) {
-            sig = packets.findPacket(pgp.enums.packet.signature);
-            keyPacket = null;
-            _ref = pgp.key.readArmored(watcher.key).keys;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              key = _ref[_i];
-              keyPacket = key.getSigningKeyPacket(sig.issuerKeyId);
-              if (keyPacket) {
-                break;
+        this.retrieving = true;
+        console.log("Retrieving events newer than " + (new Date(app.settings.lastSync)));
+        return this.events.order('ref', 'descending').above({
+          ref: app.settings.lastSync || 0
+        }).findAll(this.toMe).watch({
+          rawChanges: true
+        }).subscribe({
+          next: (function(_this) {
+            return function(changes) {
+              if (changes.new_val != null) {
+                _this.eventProcess(changes.new_val);
+                app.settings.lastSync = Date.now();
+                return setTimeout(function() {
+                  return app.save();
+                });
+              } else if (changes.type === 'state' && changes.state === 'synced') {
+                app.settings.lastSync = Date.now();
+                _this.events.below({
+                  ref: app.settings.lastSync || 0
+                }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
+                  return _this.events.removeAll(messageList);
+                }).subscribe({
+                  error: function(err) {
+                    return console.error(err);
+                  },
+                  complete: function() {
+                    console.log('Finished syncing!');
+                    return _this.trigger('synced');
+                  }
+                });
+                return setTimeout(function() {
+                  return app.save();
+                });
+              } else {
+                return console.log('There are other changes');
               }
-            }
-            if (!(keyPacket && sig.verify(keyPacket, literal))) {
-              return console.error("[CRYPTO] Wrong signature");
-            }
-            path = filename;
-            event = {
-              ref: Date.now(),
-              time: date,
-              content: data
             };
-            if (watcher.events == null) {
-              watcher.events = {};
-            }
-            if (watcher.events[path] == null) {
-              watcher.events[path] = [];
-            }
-            return watcher.events[path].push(event);
+          })(this)
+        });
+      };
+      this.updateFingerprint = function(fingerprint) {
+        this.fromMe = {
+          creator: fingerprint
+        };
+        this.toMe = {
+          reader: fingerprint
+        };
+        return this.users.replace($.extend(this.me, {
+          data: {
+            key: fingerprint
           }
-        })["catch"](function(error) {
-          return console.error(error);
-        });
+        }));
       };
-    })(this);
-    return this.encrypt = (function(_this) {
-      return function(object, cb) {
-        var creator, data, id, pgp, reader, v, watcher;
-        id = object.id, v = object.v, creator = object.creator, reader = object.reader;
-        pgp = app.pgp;
-        watcher = app.settings.watchers.find(function(e) {
-          return e.fingerprint === object.reader;
-        });
-        data = $.extend({}, object);
-        delete data.id;
-        delete data.v;
-        delete data.creator;
-        delete data.reader;
-        return pgp.encrypt({
-          data: JSON.stringify(data),
-          publicKeys: pgp.key.readArmored(watcher.key).keys,
-          privateKeys: app.privateKey
-        }).then(function(cyphertext) {
-          var content;
-          content = cyphertext.data;
-          return cb({
-            id: id,
-            v: v,
-            creator: creator,
-            reader: reader,
-            content: content
+      this.store = (function(_this) {
+        return function(col, obj, cb) {
+          var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+          __iced_k = __iced_k_noop;
+          ___iced_passed_deferral = iced.findDeferral(arguments);
+          (function(__iced_k) {
+            if (obj.encrypt) {
+              delete obj.encrypt;
+              (function(__iced_k) {
+                __iced_deferrals = new iced.Deferrals(__iced_k, {
+                  parent: ___iced_passed_deferral,
+                  filename: "./src/iced/vault.iced",
+                  funcname: "store"
+                });
+                _this.encrypt(obj, __iced_deferrals.defer({
+                  assign_fn: (function() {
+                    return function() {
+                      return obj = arguments[0];
+                    };
+                  })(),
+                  lineno: 74
+                }));
+                __iced_deferrals._fulfill();
+              })(__iced_k);
+            } else {
+              return __iced_k();
+            }
+          })(function() {
+            return _this[col].store(obj).subscribe(function(result) {
+              return cb(result.id);
+            }, function(error) {
+              return console.error(error);
+            });
           });
-        })["catch"](function(error) {
-          return console.error(error);
-        });
-      };
-    })(this);
+        };
+      })(this);
+      this.replace = (function(_this) {
+        return function(col, obj, cb) {
+          var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+          __iced_k = __iced_k_noop;
+          ___iced_passed_deferral = iced.findDeferral(arguments);
+          console.log('Replacing', col, obj);
+          (function(__iced_k) {
+            if (obj.encrypt) {
+              delete obj.encrypt;
+              (function(__iced_k) {
+                __iced_deferrals = new iced.Deferrals(__iced_k, {
+                  parent: ___iced_passed_deferral,
+                  filename: "./src/iced/vault.iced",
+                  funcname: "replace"
+                });
+                _this.encrypt(obj, __iced_deferrals.defer({
+                  assign_fn: (function() {
+                    return function() {
+                      return obj = arguments[0];
+                    };
+                  })(),
+                  lineno: 85
+                }));
+                __iced_deferrals._fulfill();
+              })(__iced_k);
+            } else {
+              return __iced_k();
+            }
+          })(function() {
+            return _this[col].upsert(obj).subscribe(function(result) {
+              return cb && cb(result.id);
+            }, function(error) {
+              return console.error(error);
+            });
+          });
+        };
+      })(this);
+      this.find = (function(_this) {
+        return function(col, obj, cb) {
+          console.log('Finding', col, obj);
+          return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
+        };
+      })(this);
+      this.watch = (function(_this) {
+        return function(col, obj, cb) {
+          var _ref;
+          return (_ref = _this[col]) != null ? _ref.find(obj).watch().subscribe(function(items) {
+            return cb && cb(items);
+          }) : void 0;
+        };
+      })(this);
+      this.eventProcess = (function(_this) {
+        return function(_arg) {
+          var content, creator, id, message, pgp, reader;
+          content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
+          pgp = app.pgp;
+          message = pgp.message.readArmored(content);
+          return message.decrypt(app.privateKey).then(function(_arg1) {
+            var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
+            packets = _arg1.packets;
+            literal = packets.findPacket(pgp.enums.packet.literal);
+            filename = literal.filename, date = literal.date, data = literal.data;
+            data = JSON.parse(pgp.util.Uint8Array2str(data));
+            console.log('There is a new event ' + JSON.stringify({
+              filename: filename,
+              date: date
+            }));
+            watcher = app.settings.watchers.find(function(e) {
+              return e.fingerprint === creator;
+            });
+            if (watcher) {
+              sig = packets.findPacket(pgp.enums.packet.signature);
+              keyPacket = null;
+              _ref = pgp.key.readArmored(watcher.key).keys;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                key = _ref[_i];
+                keyPacket = key.getSigningKeyPacket(sig.issuerKeyId);
+                if (keyPacket) {
+                  break;
+                }
+              }
+              if (!(keyPacket && sig.verify(keyPacket, literal))) {
+                return console.error("[CRYPTO] Wrong signature");
+              }
+              path = filename;
+              event = {
+                ref: Date.now(),
+                time: date,
+                content: data
+              };
+              return watcher.events[path].push(event);
+            }
+          })["catch"](function(error) {
+            return console.error(error);
+          });
+        };
+      })(this);
+      return this.encrypt = (function(_this) {
+        return function(object, cb) {
+          var creator, data, id, pgp, reader, v, watcher;
+          id = object.id, v = object.v, creator = object.creator, reader = object.reader;
+          pgp = app.pgp;
+          watcher = app.settings.watchers.find(function(e) {
+            return e.fingerprint === object.reader;
+          });
+          data = $.extend({}, object);
+          delete data.id;
+          delete data.v;
+          delete data.creator;
+          delete data.reader;
+          return pgp.encrypt({
+            data: JSON.stringify(data),
+            publicKeys: pgp.key.readArmored(watcher.key).keys,
+            privateKeys: app.privateKey
+          }).then(function(cyphertext) {
+            var content;
+            content = cyphertext.data;
+            return cb({
+              id: id,
+              v: v,
+              creator: creator,
+              reader: reader,
+              content: content
+            });
+          })["catch"](function(error) {
+            return console.error(error);
+          });
+        };
+      })(this);
+    });
   };
 
   Vault = flight.component(vault);
@@ -550,29 +549,30 @@
     this.fileArchive = (function(_this) {
       return function(path, file, events) {
         var archivable, date, ev, i, indexOlder, limit, lines, _ref, _results;
-        events[path].sort(_this.sortBy);
-        limit = _this.getLimit(file.archive || 5);
-        indexOlder = void 0;
-        _ref = events[path];
-        for (i in _ref) {
-          ev = _ref[i];
-          console.log("index " + i + " ,ref " + (new Date(ev.ref)) + "  < lim " + (new Date(limit)));
-          if (ev.ref < limit) {
-            indexOlder = i;
-            break;
+        if (events[path]) {
+          events[path].sort(_this.sortBy);
+          limit = _this.getLimit(file.archive || 5);
+          indexOlder = void 0;
+          _ref = events[path];
+          for (i in _ref) {
+            ev = _ref[i];
+            if (ev.ref < limit) {
+              indexOlder = i;
+              break;
+            }
           }
-        }
-        if (indexOlder) {
-          archivable = events[path].slice(indexOlder);
-          events[path] = events[path].slice(0, indexOlder);
-          app.save();
-          archivable = archivable.reduce(_this.groupByDay, []);
-          _results = [];
-          for (date in archivable) {
-            lines = archivable[date];
-            _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
+          if (indexOlder) {
+            archivable = events[path].slice(indexOlder);
+            events[path] = events[path].slice(0, indexOlder);
+            app.save();
+            archivable = archivable.reduce(_this.groupByDay, []);
+            _results = [];
+            for (date in archivable) {
+              lines = archivable[date];
+              _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
+            }
+            return _results;
           }
-          return _results;
         }
       };
     })(this);
@@ -15062,15 +15062,15 @@ app = document.app;
 
 module.exports = {
   data: function() {
-    ({
+    return {
       drag_element: void 0,
       handle: void 0
-    });
-    return $.extend(app.data(), {
-      watcher: this.$parent.currentWatcher
-    });
+    };
   },
   computed: {
+    watcher: function() {
+      return this.$parent.currentWatcher;
+    },
     path: function() {
       return decodeURIComponent(this.$route.params.file);
     },
@@ -15081,13 +15081,11 @@ module.exports = {
       return this.watcher.settings.files[this.path];
     },
     policies: function() {
-      return this.file.policies;
+      var ref;
+      return (ref = this.file) != null ? ref.policies : void 0;
     },
     events: function() {
-      return this.watcher.events && this.watcher.events[this.path] || [];
-    },
-    thereAreEvents: function() {
-      return Object.keys(this.events).length > 0;
+      return this.watcher.events[this.path];
     }
   },
   filters: {
@@ -15177,14 +15175,14 @@ module.exports = {
             if (!res) {
               return;
             }
+            app.router.go({
+              name: 'file'
+            });
             _this.file.policies.splice(index, 1);
             document.vault.replace('settings', $.extend(_this.watcher.settings, {
               encrypt: true
             }));
-            app.save();
-            return app.router.go({
-              name: 'file'
-            });
+            return app.save();
           };
         })(this));
       } catch (error) {
@@ -15238,7 +15236,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length > 0\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"{{policies.length > 1}}\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" @mousedown=\"mousedown_handler\" @mouseup=\"mouseup_handler\" class=\"fontello handle\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"thereAreEvents\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'ref' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span><span v-else=\"v-else\" _v-879ec5b6=\"\">{{event.content.type.toUpperCase()}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"file\" _v-879ec5b6=\"\"><nav _v-879ec5b6=\"\"><header _v-879ec5b6=\"\"><button v-link=\"{ name: 'policyAdd'}\" class=\"add\" _v-879ec5b6=\"\"><img src=\"/img/add.svg\" _v-879ec5b6=\"\"></button><h1 _v-879ec5b6=\"\">Smart Policies</h1></header><ul v-if=\"policies &amp;&amp; policies.length\" @dragstart=\"dragstart_handler\" @dragover=\"dragover_handler\" @dragend=\"dragend_handler\" _v-879ec5b6=\"\"><li v-for=\"(i, policy) of policies\" draggable=\"{{policies.length > 1}}\" v-link=\"{ name: 'policy', params: { policy: i }, activeClass: 'selected' }\" @contextmenu=\"contextMenu\" data-name=\"{{policy.name}}\" data-index=\"{{i}}\" class=\"policy\" _v-879ec5b6=\"\"><span v-if=\"policies.length > 1\" @mousedown=\"mousedown_handler\" @mouseup=\"mouseup_handler\" class=\"fontello handle\" _v-879ec5b6=\"\">◼</span><span v-bind:class=\"[policy.paused ? 'strike':'']\" _v-879ec5b6=\"\">{{policy.name}}</span></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No policies have been defined yet.\n<p _v-879ec5b6=\"\"><b _v-879ec5b6=\"\"><a v-link=\"{ name: 'policyAdd'}\" class=\"cool\" _v-879ec5b6=\"\">Click here</a></b> to add a policy.</p></div><header _v-879ec5b6=\"\"><h1 _v-879ec5b6=\"\">Events</h1></header><ul v-if=\"events &amp;&amp; events.length\" _v-879ec5b6=\"\"><li v-for=\"event in events | orderBy 'ref' -1\" v-link=\"{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }\" _v-879ec5b6=\"\"><time datetime=\"event.time\" _v-879ec5b6=\"\">{{event.time | prettyDate}}</time><p v-if=\"event.content.type == &quot;change&quot;\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.payload | countByType 'add'\" class=\"add\" _v-879ec5b6=\"\">+{{event.content.payload | countByType 'add'}}</span><span v-if=\"event.content.payload | countByType 'rem'\" class=\"rem\" _v-879ec5b6=\"\">-{{event.content.payload | countByType 'rem'}}</span></p><p v-else=\"v-else\" class=\"stats\" _v-879ec5b6=\"\"><span v-if=\"event.content.type == &quot;add&quot;\" class=\"add\" _v-879ec5b6=\"\">CREATED</span><span v-if=\"event.content.type == &quot;unlink&quot;\" class=\"rem\" _v-879ec5b6=\"\">REMOVED</span><span v-else=\"v-else\" _v-879ec5b6=\"\">{{event.content.type.toUpperCase()}}</span></p></li></ul><div v-else=\"v-else\" class=\"empty\" _v-879ec5b6=\"\">No events have been received yet.</div></nav><router-view _v-879ec5b6=\"\"></router-view></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -15255,7 +15253,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],17:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[name='archive'][_v-aad10e28] {\n  display: inline-block !important;\n  margin-right: 1em;\n}\n")
 var app;
 
 app = document.app;
@@ -15263,10 +15261,11 @@ app = document.app;
 module.exports = {
   mixins: [(require('vue-focus')).mixin],
   data: function() {
-    return $.extend(app.data(), {
+    return {
       path: '',
+      archive: 5,
       index: this.$parent.index
-    });
+    };
   },
   computed: {
     watcher: function() {
@@ -15278,13 +15277,16 @@ module.exports = {
       return this.path = e.target.innerText;
     },
     submit: function(e) {
-      var settings;
+      var currentEvents, settings;
       e.preventDefault();
       settings = this.watcher.settings;
       settings.files[this.path] = {
-        policies: []
+        policies: [],
+        archive: this.archive
       };
-      this.$parent.$set('currentWatcher.settings', settings);
+      this.$parent.$set('currentWatcher', this.watcher);
+      currentEvents = "currentWatcher.events['" + this.path + "']";
+      this.$parent.$set(currentEvents, []);
       document.vault.replace('settings', $.extend(settings, {
         encrypt: true
       }));
@@ -15301,13 +15303,13 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-aad10e28=\"\"><form @keyup.enter=\"submit\" _v-aad10e28=\"\"><header _v-aad10e28=\"\"><h1 _v-aad10e28=\"\">Start watching a file in <strong _v-aad10e28=\"\">{{watcher.name}}</strong></h1></header><p _v-aad10e28=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-aad10e28=\"\">Recommended files to watch are those containing the system and access logs, such as <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/syslog</code> and <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/auth.log</code>.</p><fieldset _v-aad10e28=\"\"><label for=\"path\" _v-aad10e28=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" v-focus-auto=\"v-focus-auto\" _v-aad10e28=\"\"><span class=\"tip\" _v-aad10e28=\"\">Please consign the <strong _v-aad10e28=\"\">absolute path</strong> of the file to watch.</span></fieldset><footer _v-aad10e28=\"\"><button @click=\"submit\" v-if=\"path.split('/').pop()\" class=\"ok\" _v-aad10e28=\"\">Start watching <i _v-aad10e28=\"\">{{path.split('/').pop()}}</i></button></footer></form></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"driftFade\" class=\"form fileAdd\" _v-aad10e28=\"\"><form @keyup.enter=\"submit\" _v-aad10e28=\"\"><header _v-aad10e28=\"\"><h1 _v-aad10e28=\"\">Start watching a file in <strong _v-aad10e28=\"\">{{watcher.name}}</strong></h1></header><p _v-aad10e28=\"\">{{appName}} can watch an track all the files in your server that need to be monitored to ensure system intigrity.</p><p _v-aad10e28=\"\">Recommended files to watch are those containing the system and access logs, such as <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/syslog</code> and <code @click=\"watchMe\" class=\"clickable\" _v-aad10e28=\"\">/var/log/auth.log</code>.</p><fieldset _v-aad10e28=\"\"><label for=\"path\" _v-aad10e28=\"\">File path</label><input type=\"text\" name=\"path\" placeholder=\"/var/log/syslog\" v-model=\"path\" v-focus-auto=\"v-focus-auto\" _v-aad10e28=\"\"><span class=\"tip\" _v-aad10e28=\"\">Please consign the <strong _v-aad10e28=\"\">absolute path</strong> of the file to watch.</span></fieldset><fieldset _v-aad10e28=\"\"><label for=\"archive\" _v-aad10e28=\"\">Archive events older than</label><input type=\"number\" name=\"archive\" placeholder=\"5\" v-model=\"archive\" _v-aad10e28=\"\">days</fieldset><footer _v-aad10e28=\"\"><button @click=\"submit\" v-if=\"path.split('/').pop()\" class=\"ok\" _v-aad10e28=\"\">Start watching <i _v-aad10e28=\"\">{{path.split('/').pop()}}</i></button></footer></form></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\n"] = false
+    __vueify_insert__.cache["input[name='path'][_v-aad10e28] {\n  box-sizing: border-box;\n  width: 100%;\n}\ninput[name='archive'][_v-aad10e28] {\n  display: inline-block !important;\n  margin-right: 1em;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -15318,7 +15320,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":13,"vue-focus":10,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("section.dashboard > nav,\nsection.dashboard > article nav {\n  width: 275px;\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard > nav button.add,\nsection.dashboard > article nav button.add {\n  position: absolute;\n  top: 23px;\n  right: 16px;\n  min-width: auto;\n  min-height: auto;\n  margin: 0;\n  border: none;\n  padding: 0 4px;\n  background: none;\n  opacity: 0.7;\n}\nsection.dashboard > nav button.add:hover,\nsection.dashboard > article nav button.add:hover {\n  box-shadow: none;\n  opacity: 1;\n}\nsection.dashboard > nav > div,\nsection.dashboard > article nav > div {\n  position: relative;\n}\nsection.dashboard > nav > div.watchers,\nsection.dashboard > article nav > div.watchers {\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header,\nsection.dashboard > article nav > div.watchers header {\n  padding: 30px 20px 25px 20px;\n  border-bottom: 1px solid #34495e;\n}\nsection.dashboard > nav > div.watchers header h1,\nsection.dashboard > article nav > div.watchers header h1 {\n  font-weight: 900;\n}\nsection.dashboard > nav > div.watchers header button.menu,\nsection.dashboard > article nav > div.watchers header button.menu {\n  position: absolute;\n  top: 30px;\n  right: 20px;\n  padding-left: 15px;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header button.menu img,\nsection.dashboard > article nav > div.watchers header button.menu img {\n  opacity: 0.7;\n  height: 14px;\n}\nsection.dashboard > nav > div.watchers header button.menu:hover img,\nsection.dashboard > article nav > div.watchers header button.menu:hover img {\n  opacity: 1;\n}\nsection.dashboard > nav > div.watchers header button.menu:before,\nsection.dashboard > article nav > div.watchers header button.menu:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -28px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools,\nsection.dashboard > article nav > div.watchers header .tools {\n  position: absolute;\n  top: -1px;\n  right: 50px;\n  display: block;\n  height: 75px;\n  background: #2c3e50;\n  -webkit-animation: fade-in 0.2s;\n          animation: fade-in 0.2s;\n}\nsection.dashboard > nav > div.watchers header .tools *,\nsection.dashboard > article nav > div.watchers header .tools * {\n  position: relative;\n  float: right;\n  right: 0;\n  margin-left: 15px;\n}\nsection.dashboard > nav > div.watchers header .tools:before,\nsection.dashboard > article nav > div.watchers header .tools:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -30px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools button.add,\nsection.dashboard > article nav > div.watchers header .tools button.add {\n  top: 31px;\n}\nsection.dashboard > nav > div.watchers ul,\nsection.dashboard > article nav > div.watchers ul {\n  margin: 0;\n  -webkit-animation: pop-in 0.2s;\n          animation: pop-in 0.2s;\n}\nsection.dashboard > nav > div.watchers ul li a,\nsection.dashboard > article nav > div.watchers ul li a {\n  display: block;\n  padding: 8px 0 5px 0;\n  color: #fff;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-decoration: none;\n  text-transform: uppercase;\n  opacity: 0.7;\n}\nsection.dashboard > nav header,\nsection.dashboard > article nav header {\n  padding: 23px 20px 19px 20px;\n}\nsection.dashboard > nav header h1,\nsection.dashboard > article nav header h1 {\n  display: inline-block;\n  margin: 0;\n  font-size: 0.9em;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #fff;\n}\nsection.dashboard > nav.main,\nsection.dashboard > article nav.main {\n  color: #fff;\n  left: 0;\n  background: #34495e;\n}\nsection.dashboard > nav.main ul,\nsection.dashboard > article nav.main ul {\n  margin: 0;\n}\nsection.dashboard > nav.main ul li,\nsection.dashboard > article nav.main ul li {\n  overflow: hidden;\n}\nsection.dashboard > nav.main ul li:after,\nsection.dashboard > article nav.main ul li:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 12px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #44586d transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nsection.dashboard > nav.main ul li.selected,\nsection.dashboard > article nav.main ul li.selected {\n  border-left: 3px solid #fff;\n  padding-left: 17px;\n}\nsection.dashboard > nav.main ul li.selected:after,\nsection.dashboard > article nav.main ul li.selected:after {\n  right: 0;\n}\nsection.dashboard > nav.main ul li .path,\nsection.dashboard > article nav.main ul li .path {\n  color: rgba(255,255,255,0.7);\n}\nsection.dashboard > nav.main ul li .path strong,\nsection.dashboard > article nav.main ul li .path strong {\n  color: #fff;\n}\nsection.dashboard > nav ul,\nsection.dashboard > article nav ul {\n  list-style-type: none;\n  padding: 0;\n  margin: 0 0 20px 0;\n}\nsection.dashboard > nav ul li,\nsection.dashboard > article nav ul li {\n  position: relative;\n  padding: 10px 20px;\n  cursor: pointer;\n}\nsection.dashboard > nav .empty,\nsection.dashboard > article nav .empty {\n  display: block;\n  margin: 0;\n  padding: 15px 20px;\n  color: #fff;\n  font-style: italic;\n  opacity: 0.7;\n}\nsection.dashboard a.cool {\n  text-decoration: none;\n  font-weight: bold;\n  color: #fff;\n}\nsection.dashboard article {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 275px;\n  background: #fff;\n  z-index: 1;\n}\nsection.dashboard article.form {\n  padding: 30px;\n  color: #444;\n}\nsection.dashboard article.form a.cool {\n  color: #f37e83;\n}\nsection.dashboard article.form header {\n  margin-bottom: 20px;\n}\nsection.dashboard article.form header h1 {\n  margin: 0;\n  font-size: 2em;\n  font-weight: 300;\n  color: #777;\n}\nsection.dashboard article.form p {\n  line-height: 1.6em;\n}\nsection.dashboard article.form p code {\n  position: relative;\n  top: -1px;\n  padding: 4px 5px 4px 5px;\n  background: #555;\n  color: #fff;\n  border-radius: 2px;\n}\nsection.dashboard article.form form {\n  padding: 30px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard article.form form fieldset {\n  margin-bottom: 10px;\n  padding: 0;\n  border: none;\n}\nsection.dashboard article.form form fieldset label,\nsection.dashboard article.form form fieldset .label-alike {\n  display: block;\n  position: relative;\n  top: 1px;\n  width: 200px;\n  margin-right: 30px;\n  margin-bottom: 5px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\nsection.dashboard article.form form fieldset input,\nsection.dashboard article.form form fieldset select {\n  display: block;\n  margin-bottom: 10px;\n  padding: 10px;\n  background: #fff;\n  border: 0;\n  border-bottom: 1px solid #ccc;\n}\nsection.dashboard article.form form fieldset input:focus,\nsection.dashboard article.form form fieldset select:focus {\n  border-color: #999;\n}\nsection.dashboard article.form form fieldset .tip {\n  display: block;\n  padding: 5px;\n  font-style: italic;\n  color: #999;\n}\nsection.dashboard article.form form :last-child {\n  margin-bottom: 15px;\n}\nsection.dashboard article.form footer {\n  text-align: center;\n}\n.logoWatermark {\n  position: fixed;\n  top: 0;\n  right: 30px;\n  width: 70vh;\n  opacity: 0.3;\n  -webkit-transform: rotateZ(-90deg);\n          transform: rotateZ(-90deg);\n  -webkit-transform-origin: 100% 100% 0;\n          transform-origin: 100% 100% 0;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert("section.dashboard > nav,\nsection.dashboard > article nav {\n  width: 275px;\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard > nav button.add,\nsection.dashboard > article nav button.add {\n  position: absolute;\n  top: 23px;\n  right: 16px;\n  min-width: auto;\n  min-height: auto;\n  margin: 0;\n  border: none;\n  padding: 0 4px;\n  background: none;\n  opacity: 0.7;\n}\nsection.dashboard > nav button.add:hover,\nsection.dashboard > article nav button.add:hover {\n  box-shadow: none;\n  opacity: 1;\n}\nsection.dashboard > nav > div,\nsection.dashboard > article nav > div {\n  position: relative;\n}\nsection.dashboard > nav > div.watchers,\nsection.dashboard > article nav > div.watchers {\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header,\nsection.dashboard > article nav > div.watchers header {\n  padding: 30px 20px 25px 20px;\n  border-bottom: 1px solid #34495e;\n}\nsection.dashboard > nav > div.watchers header h1,\nsection.dashboard > article nav > div.watchers header h1 {\n  font-weight: 900;\n}\nsection.dashboard > nav > div.watchers header button.menu,\nsection.dashboard > article nav > div.watchers header button.menu {\n  position: absolute;\n  top: 30px;\n  right: 20px;\n  padding-left: 15px;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header button.menu img,\nsection.dashboard > article nav > div.watchers header button.menu img {\n  opacity: 0.7;\n  height: 14px;\n}\nsection.dashboard > nav > div.watchers header button.menu:hover img,\nsection.dashboard > article nav > div.watchers header button.menu:hover img {\n  opacity: 1;\n}\nsection.dashboard > nav > div.watchers header button.menu:before,\nsection.dashboard > article nav > div.watchers header button.menu:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -28px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools,\nsection.dashboard > article nav > div.watchers header .tools {\n  position: absolute;\n  top: -1px;\n  right: 50px;\n  display: block;\n  height: 75px;\n  background: #2c3e50;\n  -webkit-animation: fade-in 0.2s;\n          animation: fade-in 0.2s;\n}\nsection.dashboard > nav > div.watchers header .tools *,\nsection.dashboard > article nav > div.watchers header .tools * {\n  position: relative;\n  float: right;\n  right: 0;\n  margin-left: 15px;\n}\nsection.dashboard > nav > div.watchers header .tools:before,\nsection.dashboard > article nav > div.watchers header .tools:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -30px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools button.add,\nsection.dashboard > article nav > div.watchers header .tools button.add {\n  top: 31px;\n}\nsection.dashboard > nav > div.watchers ul,\nsection.dashboard > article nav > div.watchers ul {\n  margin: 0;\n  -webkit-animation: pop-in 0.2s;\n          animation: pop-in 0.2s;\n}\nsection.dashboard > nav > div.watchers ul li a,\nsection.dashboard > article nav > div.watchers ul li a {\n  display: block;\n  padding: 8px 0 5px 0;\n  color: #fff;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-decoration: none;\n  text-transform: uppercase;\n  opacity: 0.7;\n}\nsection.dashboard > nav header,\nsection.dashboard > article nav header {\n  padding: 23px 20px 19px 20px;\n}\nsection.dashboard > nav header h1,\nsection.dashboard > article nav header h1 {\n  display: inline-block;\n  margin: 0;\n  font-size: 0.9em;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #fff;\n}\nsection.dashboard > nav.main,\nsection.dashboard > article nav.main {\n  color: #fff;\n  left: 0;\n  background: #34495e;\n}\nsection.dashboard > nav.main ul,\nsection.dashboard > article nav.main ul {\n  margin: 0;\n}\nsection.dashboard > nav.main ul li,\nsection.dashboard > article nav.main ul li {\n  overflow: hidden;\n}\nsection.dashboard > nav.main ul li:after,\nsection.dashboard > article nav.main ul li:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 12px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #44586d transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nsection.dashboard > nav.main ul li.selected,\nsection.dashboard > article nav.main ul li.selected {\n  border-left: 3px solid #fff;\n  padding-left: 17px;\n}\nsection.dashboard > nav.main ul li.selected:after,\nsection.dashboard > article nav.main ul li.selected:after {\n  right: 0;\n}\nsection.dashboard > nav.main ul li .path,\nsection.dashboard > article nav.main ul li .path {\n  color: rgba(255,255,255,0.7);\n}\nsection.dashboard > nav.main ul li .path strong,\nsection.dashboard > article nav.main ul li .path strong {\n  color: #fff;\n}\nsection.dashboard > nav ul,\nsection.dashboard > article nav ul {\n  list-style-type: none;\n  padding: 0;\n  margin: 0 0 20px 0;\n}\nsection.dashboard > nav ul li,\nsection.dashboard > article nav ul li {\n  position: relative;\n  padding: 10px 20px;\n  cursor: pointer;\n}\nsection.dashboard > nav .empty,\nsection.dashboard > article nav .empty {\n  display: block;\n  margin: 0;\n  padding: 15px 20px;\n  color: #fff;\n  font-style: italic;\n  opacity: 0.7;\n}\nsection.dashboard a.cool {\n  text-decoration: none;\n  font-weight: bold;\n  color: #fff;\n}\nsection.dashboard article {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 275px;\n  background: #fff;\n  z-index: 1;\n}\nsection.dashboard article.form {\n  padding: 30px;\n  color: #444;\n}\nsection.dashboard article.form a.cool {\n  color: #f37e83;\n}\nsection.dashboard article.form header {\n  margin-bottom: 20px;\n}\nsection.dashboard article.form header h1 {\n  margin: 0;\n  font-size: 2em;\n  font-weight: 300;\n  color: #777;\n}\nsection.dashboard article.form p {\n  line-height: 1.6em;\n}\nsection.dashboard article.form p code {\n  position: relative;\n  top: -1px;\n  padding: 4px 5px 4px 5px;\n  background: #555;\n  color: #fff;\n  border-radius: 2px;\n}\nsection.dashboard article.form form {\n  padding: 30px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard article.form form fieldset {\n  margin-bottom: 10px;\n  padding: 0;\n  border: none;\n}\nsection.dashboard article.form form fieldset label,\nsection.dashboard article.form form fieldset .label-alike {\n  display: block;\n  position: relative;\n  top: 1px;\n  margin-right: 30px;\n  margin-bottom: 5px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\nsection.dashboard article.form form fieldset input,\nsection.dashboard article.form form fieldset select {\n  display: block;\n  margin-bottom: 10px;\n  padding: 10px;\n  background: #fff;\n  border: 0;\n  border-bottom: 1px solid #ccc;\n}\nsection.dashboard article.form form fieldset input:focus,\nsection.dashboard article.form form fieldset select:focus {\n  border-color: #999;\n}\nsection.dashboard article.form form fieldset .tip {\n  display: block;\n  padding: 5px;\n  font-style: italic;\n  color: #999;\n}\nsection.dashboard article.form form :last-child {\n  margin-bottom: 15px;\n}\nsection.dashboard article.form footer {\n  text-align: center;\n}\n.logoWatermark {\n  position: fixed;\n  top: 0;\n  right: 30px;\n  width: 70vh;\n  opacity: 0.3;\n  -webkit-transform: rotateZ(-90deg);\n          transform: rotateZ(-90deg);\n  -webkit-transform-origin: 100% 100% 0;\n          transform-origin: 100% 100% 0;\n}\n")
 var app;
 
 app = document.app;
@@ -15470,6 +15472,9 @@ module.exports = {
             if (!res) {
               return;
             }
+            app.router.go({
+              name: 'dashboard'
+            });
             files = $.extend({}, _this.currentWatcher.settings.files);
             events = $.extend({}, _this.currentWatcher.events);
             delete files[path];
@@ -15479,10 +15484,7 @@ module.exports = {
             document.vault.replace('settings', $.extend(_this.currentWatcher.settings, {
               encrypt: true
             }));
-            app.save();
-            return app.router.go({
-              name: 'dashboard'
-            });
+            return app.save();
           };
         })(this));
       } catch (error) {
@@ -15520,7 +15522,7 @@ if (module.hot) {(function () {  module.hot.accept()
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["section.dashboard > nav,\nsection.dashboard > article nav {\n  width: 275px;\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard > nav button.add,\nsection.dashboard > article nav button.add {\n  position: absolute;\n  top: 23px;\n  right: 16px;\n  min-width: auto;\n  min-height: auto;\n  margin: 0;\n  border: none;\n  padding: 0 4px;\n  background: none;\n  opacity: 0.7;\n}\nsection.dashboard > nav button.add:hover,\nsection.dashboard > article nav button.add:hover {\n  box-shadow: none;\n  opacity: 1;\n}\nsection.dashboard > nav > div,\nsection.dashboard > article nav > div {\n  position: relative;\n}\nsection.dashboard > nav > div.watchers,\nsection.dashboard > article nav > div.watchers {\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header,\nsection.dashboard > article nav > div.watchers header {\n  padding: 30px 20px 25px 20px;\n  border-bottom: 1px solid #34495e;\n}\nsection.dashboard > nav > div.watchers header h1,\nsection.dashboard > article nav > div.watchers header h1 {\n  font-weight: 900;\n}\nsection.dashboard > nav > div.watchers header button.menu,\nsection.dashboard > article nav > div.watchers header button.menu {\n  position: absolute;\n  top: 30px;\n  right: 20px;\n  padding-left: 15px;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header button.menu img,\nsection.dashboard > article nav > div.watchers header button.menu img {\n  opacity: 0.7;\n  height: 14px;\n}\nsection.dashboard > nav > div.watchers header button.menu:hover img,\nsection.dashboard > article nav > div.watchers header button.menu:hover img {\n  opacity: 1;\n}\nsection.dashboard > nav > div.watchers header button.menu:before,\nsection.dashboard > article nav > div.watchers header button.menu:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -28px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools,\nsection.dashboard > article nav > div.watchers header .tools {\n  position: absolute;\n  top: -1px;\n  right: 50px;\n  display: block;\n  height: 75px;\n  background: #2c3e50;\n  -webkit-animation: fade-in 0.2s;\n          animation: fade-in 0.2s;\n}\nsection.dashboard > nav > div.watchers header .tools *,\nsection.dashboard > article nav > div.watchers header .tools * {\n  position: relative;\n  float: right;\n  right: 0;\n  margin-left: 15px;\n}\nsection.dashboard > nav > div.watchers header .tools:before,\nsection.dashboard > article nav > div.watchers header .tools:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -30px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools button.add,\nsection.dashboard > article nav > div.watchers header .tools button.add {\n  top: 31px;\n}\nsection.dashboard > nav > div.watchers ul,\nsection.dashboard > article nav > div.watchers ul {\n  margin: 0;\n  -webkit-animation: pop-in 0.2s;\n          animation: pop-in 0.2s;\n}\nsection.dashboard > nav > div.watchers ul li a,\nsection.dashboard > article nav > div.watchers ul li a {\n  display: block;\n  padding: 8px 0 5px 0;\n  color: #fff;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-decoration: none;\n  text-transform: uppercase;\n  opacity: 0.7;\n}\nsection.dashboard > nav header,\nsection.dashboard > article nav header {\n  padding: 23px 20px 19px 20px;\n}\nsection.dashboard > nav header h1,\nsection.dashboard > article nav header h1 {\n  display: inline-block;\n  margin: 0;\n  font-size: 0.9em;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #fff;\n}\nsection.dashboard > nav.main,\nsection.dashboard > article nav.main {\n  color: #fff;\n  left: 0;\n  background: #34495e;\n}\nsection.dashboard > nav.main ul,\nsection.dashboard > article nav.main ul {\n  margin: 0;\n}\nsection.dashboard > nav.main ul li,\nsection.dashboard > article nav.main ul li {\n  overflow: hidden;\n}\nsection.dashboard > nav.main ul li:after,\nsection.dashboard > article nav.main ul li:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 12px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #44586d transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nsection.dashboard > nav.main ul li.selected,\nsection.dashboard > article nav.main ul li.selected {\n  border-left: 3px solid #fff;\n  padding-left: 17px;\n}\nsection.dashboard > nav.main ul li.selected:after,\nsection.dashboard > article nav.main ul li.selected:after {\n  right: 0;\n}\nsection.dashboard > nav.main ul li .path,\nsection.dashboard > article nav.main ul li .path {\n  color: rgba(255,255,255,0.7);\n}\nsection.dashboard > nav.main ul li .path strong,\nsection.dashboard > article nav.main ul li .path strong {\n  color: #fff;\n}\nsection.dashboard > nav ul,\nsection.dashboard > article nav ul {\n  list-style-type: none;\n  padding: 0;\n  margin: 0 0 20px 0;\n}\nsection.dashboard > nav ul li,\nsection.dashboard > article nav ul li {\n  position: relative;\n  padding: 10px 20px;\n  cursor: pointer;\n}\nsection.dashboard > nav .empty,\nsection.dashboard > article nav .empty {\n  display: block;\n  margin: 0;\n  padding: 15px 20px;\n  color: #fff;\n  font-style: italic;\n  opacity: 0.7;\n}\nsection.dashboard a.cool {\n  text-decoration: none;\n  font-weight: bold;\n  color: #fff;\n}\nsection.dashboard article {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 275px;\n  background: #fff;\n  z-index: 1;\n}\nsection.dashboard article.form {\n  padding: 30px;\n  color: #444;\n}\nsection.dashboard article.form a.cool {\n  color: #f37e83;\n}\nsection.dashboard article.form header {\n  margin-bottom: 20px;\n}\nsection.dashboard article.form header h1 {\n  margin: 0;\n  font-size: 2em;\n  font-weight: 300;\n  color: #777;\n}\nsection.dashboard article.form p {\n  line-height: 1.6em;\n}\nsection.dashboard article.form p code {\n  position: relative;\n  top: -1px;\n  padding: 4px 5px 4px 5px;\n  background: #555;\n  color: #fff;\n  border-radius: 2px;\n}\nsection.dashboard article.form form {\n  padding: 30px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard article.form form fieldset {\n  margin-bottom: 10px;\n  padding: 0;\n  border: none;\n}\nsection.dashboard article.form form fieldset label,\nsection.dashboard article.form form fieldset .label-alike {\n  display: block;\n  position: relative;\n  top: 1px;\n  width: 200px;\n  margin-right: 30px;\n  margin-bottom: 5px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\nsection.dashboard article.form form fieldset input,\nsection.dashboard article.form form fieldset select {\n  display: block;\n  margin-bottom: 10px;\n  padding: 10px;\n  background: #fff;\n  border: 0;\n  border-bottom: 1px solid #ccc;\n}\nsection.dashboard article.form form fieldset input:focus,\nsection.dashboard article.form form fieldset select:focus {\n  border-color: #999;\n}\nsection.dashboard article.form form fieldset .tip {\n  display: block;\n  padding: 5px;\n  font-style: italic;\n  color: #999;\n}\nsection.dashboard article.form form :last-child {\n  margin-bottom: 15px;\n}\nsection.dashboard article.form footer {\n  text-align: center;\n}\n.logoWatermark {\n  position: fixed;\n  top: 0;\n  right: 30px;\n  width: 70vh;\n  opacity: 0.3;\n  -webkit-transform: rotateZ(-90deg);\n          transform: rotateZ(-90deg);\n  -webkit-transform-origin: 100% 100% 0;\n          transform-origin: 100% 100% 0;\n}\n"] = false
+    __vueify_insert__.cache["section.dashboard > nav,\nsection.dashboard > article nav {\n  width: 275px;\n  position: fixed;\n  top: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard > nav button.add,\nsection.dashboard > article nav button.add {\n  position: absolute;\n  top: 23px;\n  right: 16px;\n  min-width: auto;\n  min-height: auto;\n  margin: 0;\n  border: none;\n  padding: 0 4px;\n  background: none;\n  opacity: 0.7;\n}\nsection.dashboard > nav button.add:hover,\nsection.dashboard > article nav button.add:hover {\n  box-shadow: none;\n  opacity: 1;\n}\nsection.dashboard > nav > div,\nsection.dashboard > article nav > div {\n  position: relative;\n}\nsection.dashboard > nav > div.watchers,\nsection.dashboard > article nav > div.watchers {\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header,\nsection.dashboard > article nav > div.watchers header {\n  padding: 30px 20px 25px 20px;\n  border-bottom: 1px solid #34495e;\n}\nsection.dashboard > nav > div.watchers header h1,\nsection.dashboard > article nav > div.watchers header h1 {\n  font-weight: 900;\n}\nsection.dashboard > nav > div.watchers header button.menu,\nsection.dashboard > article nav > div.watchers header button.menu {\n  position: absolute;\n  top: 30px;\n  right: 20px;\n  padding-left: 15px;\n  -webkit-transition: all 0.2s ease;\n  transition: all 0.2s ease;\n  background: #2c3e50;\n}\nsection.dashboard > nav > div.watchers header button.menu img,\nsection.dashboard > article nav > div.watchers header button.menu img {\n  opacity: 0.7;\n  height: 14px;\n}\nsection.dashboard > nav > div.watchers header button.menu:hover img,\nsection.dashboard > article nav > div.watchers header button.menu:hover img {\n  opacity: 1;\n}\nsection.dashboard > nav > div.watchers header button.menu:before,\nsection.dashboard > article nav > div.watchers header button.menu:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -28px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools,\nsection.dashboard > article nav > div.watchers header .tools {\n  position: absolute;\n  top: -1px;\n  right: 50px;\n  display: block;\n  height: 75px;\n  background: #2c3e50;\n  -webkit-animation: fade-in 0.2s;\n          animation: fade-in 0.2s;\n}\nsection.dashboard > nav > div.watchers header .tools *,\nsection.dashboard > article nav > div.watchers header .tools * {\n  position: relative;\n  float: right;\n  right: 0;\n  margin-left: 15px;\n}\nsection.dashboard > nav > div.watchers header .tools:before,\nsection.dashboard > article nav > div.watchers header .tools:before {\n  content: '';\n  display: block;\n  position: absolute;\n  left: -30px;\n  width: 30px;\n  height: 100%;\n  background: -webkit-linear-gradient(left, rgba(44,62,80,0) 0%, #2c3e50 100%);\n  background: linear-gradient(90deg, rgba(44,62,80,0) 0%, #2c3e50 100%);\n}\nsection.dashboard > nav > div.watchers header .tools button.add,\nsection.dashboard > article nav > div.watchers header .tools button.add {\n  top: 31px;\n}\nsection.dashboard > nav > div.watchers ul,\nsection.dashboard > article nav > div.watchers ul {\n  margin: 0;\n  -webkit-animation: pop-in 0.2s;\n          animation: pop-in 0.2s;\n}\nsection.dashboard > nav > div.watchers ul li a,\nsection.dashboard > article nav > div.watchers ul li a {\n  display: block;\n  padding: 8px 0 5px 0;\n  color: #fff;\n  font-size: 0.9em;\n  font-weight: bold;\n  text-decoration: none;\n  text-transform: uppercase;\n  opacity: 0.7;\n}\nsection.dashboard > nav header,\nsection.dashboard > article nav header {\n  padding: 23px 20px 19px 20px;\n}\nsection.dashboard > nav header h1,\nsection.dashboard > article nav header h1 {\n  display: inline-block;\n  margin: 0;\n  font-size: 0.9em;\n  font-weight: 700;\n  text-transform: uppercase;\n  color: #fff;\n}\nsection.dashboard > nav.main,\nsection.dashboard > article nav.main {\n  color: #fff;\n  left: 0;\n  background: #34495e;\n}\nsection.dashboard > nav.main ul,\nsection.dashboard > article nav.main ul {\n  margin: 0;\n}\nsection.dashboard > nav.main ul li,\nsection.dashboard > article nav.main ul li {\n  overflow: hidden;\n}\nsection.dashboard > nav.main ul li:after,\nsection.dashboard > article nav.main ul li:after {\n  content: '';\n  display: block;\n  position: absolute;\n  top: 12px;\n  right: -10px;\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-width: 7px 7px 7px 0;\n  border-color: transparent #44586d transparent transparent;\n  -webkit-transition: right 0.2s ease;\n  transition: right 0.2s ease;\n}\nsection.dashboard > nav.main ul li.selected,\nsection.dashboard > article nav.main ul li.selected {\n  border-left: 3px solid #fff;\n  padding-left: 17px;\n}\nsection.dashboard > nav.main ul li.selected:after,\nsection.dashboard > article nav.main ul li.selected:after {\n  right: 0;\n}\nsection.dashboard > nav.main ul li .path,\nsection.dashboard > article nav.main ul li .path {\n  color: rgba(255,255,255,0.7);\n}\nsection.dashboard > nav.main ul li .path strong,\nsection.dashboard > article nav.main ul li .path strong {\n  color: #fff;\n}\nsection.dashboard > nav ul,\nsection.dashboard > article nav ul {\n  list-style-type: none;\n  padding: 0;\n  margin: 0 0 20px 0;\n}\nsection.dashboard > nav ul li,\nsection.dashboard > article nav ul li {\n  position: relative;\n  padding: 10px 20px;\n  cursor: pointer;\n}\nsection.dashboard > nav .empty,\nsection.dashboard > article nav .empty {\n  display: block;\n  margin: 0;\n  padding: 15px 20px;\n  color: #fff;\n  font-style: italic;\n  opacity: 0.7;\n}\nsection.dashboard a.cool {\n  text-decoration: none;\n  font-weight: bold;\n  color: #fff;\n}\nsection.dashboard article {\n  position: fixed;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 275px;\n  background: #fff;\n  z-index: 1;\n}\nsection.dashboard article.form {\n  padding: 30px;\n  color: #444;\n}\nsection.dashboard article.form a.cool {\n  color: #f37e83;\n}\nsection.dashboard article.form header {\n  margin-bottom: 20px;\n}\nsection.dashboard article.form header h1 {\n  margin: 0;\n  font-size: 2em;\n  font-weight: 300;\n  color: #777;\n}\nsection.dashboard article.form p {\n  line-height: 1.6em;\n}\nsection.dashboard article.form p code {\n  position: relative;\n  top: -1px;\n  padding: 4px 5px 4px 5px;\n  background: #555;\n  color: #fff;\n  border-radius: 2px;\n}\nsection.dashboard article.form form {\n  padding: 30px;\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  overflow: auto;\n}\nsection.dashboard article.form form fieldset {\n  margin-bottom: 10px;\n  padding: 0;\n  border: none;\n}\nsection.dashboard article.form form fieldset label,\nsection.dashboard article.form form fieldset .label-alike {\n  display: block;\n  position: relative;\n  top: 1px;\n  margin-right: 30px;\n  margin-bottom: 5px;\n  font-size: 0.9em;\n  font-weight: 600;\n  color: #888;\n  text-transform: uppercase;\n}\nsection.dashboard article.form form fieldset input,\nsection.dashboard article.form form fieldset select {\n  display: block;\n  margin-bottom: 10px;\n  padding: 10px;\n  background: #fff;\n  border: 0;\n  border-bottom: 1px solid #ccc;\n}\nsection.dashboard article.form form fieldset input:focus,\nsection.dashboard article.form form fieldset select:focus {\n  border-color: #999;\n}\nsection.dashboard article.form form fieldset .tip {\n  display: block;\n  padding: 5px;\n  font-style: italic;\n  color: #999;\n}\nsection.dashboard article.form form :last-child {\n  margin-bottom: 15px;\n}\nsection.dashboard article.form footer {\n  text-align: center;\n}\n.logoWatermark {\n  position: fixed;\n  top: 0;\n  right: 30px;\n  width: 70vh;\n  opacity: 0.3;\n  -webkit-transform: rotateZ(-90deg);\n          transform: rotateZ(-90deg);\n  -webkit-transform-origin: 100% 100% 0;\n          transform-origin: 100% 100% 0;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -15687,20 +15689,17 @@ module.exports = {
     submit: function(e) {
       var field, key, ref;
       e.preventDefault();
-      console.log(JSON.stringify(this.params));
       ref = this.fields;
       for (key in ref) {
         field = ref[key];
-        if (!(field.type === 'url' && field.test)) {
-          continue;
+        if (field.type === 'url' && field.test) {
+          window.request({
+            method: field.test,
+            body: app.fooEvent,
+            json: true,
+            url: this.params[key]
+          });
         }
-        console.log("Testing " + this.params[key]);
-        window.request({
-          method: field.test,
-          body: app.fooEvent,
-          json: true,
-          url: this.params[key]
-        });
       }
       this.$parent.file.policies.push({
         name: this.name,
@@ -16181,6 +16180,7 @@ module.exports = {
           fingerprint: fingerprint,
           settings: settings
         };
+        watcher.events = {};
         return document.vault.store('settings', settings, (function(_this) {
           return function(id) {
             watcher.settings.id = id;

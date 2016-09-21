@@ -15,24 +15,24 @@ archivist = ->
       @fileArchive path, file, watcher.events
 
   @fileArchive = (path, file, events) =>
-    events[path].sort @sortBy
+    if events[path]
+      events[path].sort @sortBy
 
-    limit = @getLimit file.archive || 5
-    # index of the first event older than the limit
-    indexOlder = undefined
-    for i, ev of events[path]
-      console.log "index #{i} ,ref #{new Date(ev.ref)}  < lim #{new Date(limit)}"
-      if ev.ref < limit
-        indexOlder = i
-        break
+      limit = @getLimit file.archive || 5
+      # index of the first event older than the limit
+      indexOlder = undefined
+      for i, ev of events[path]
+        if ev.ref < limit
+          indexOlder = i
+          break
 
-    if indexOlder
-      archivable = events[path].slice indexOlder
-      events[path] = events[path].slice 0, indexOlder
-      app.save()
-      archivable = archivable.reduce @groupByDay, []
-      for date, lines  of archivable
-        @writeToFile "#{@getBaseName path}-#{date}", lines.join "\n"
+      if indexOlder
+        archivable = events[path].slice indexOlder
+        events[path] = events[path].slice 0, indexOlder
+        app.save()
+        archivable = archivable.reduce @groupByDay, []
+        for date, lines  of archivable
+          @writeToFile "#{@getBaseName path}-#{date}", lines.join "\n"
 
 
 

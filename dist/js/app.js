@@ -244,269 +244,268 @@
   app = document.app;
 
   vault = function() {
-    this.after('initialize', (function(_this) {
-      return function() {
-        _this.hz = new Horizon({
-          authType: 'anonymous'
-        });
-        _this.users = _this.hz('users');
-        _this.settings = _this.hz('settings');
-        _this.events = _this.hz('events');
-        _this.exchange = _this.hz('exchange');
-        _this.hz.onReady(function() {
+    return this.after('initialize', function() {
+      this.hz = new Horizon({
+        authType: 'anonymous'
+      });
+      this.users = this.hz('users');
+      this.settings = this.hz('settings');
+      this.events = this.hz('events');
+      this.exchange = this.hz('exchange');
+      this.hz.onReady((function(_this) {
+        return function() {
           return _this.subscribe();
-        });
-        app.on('ready', function() {
-          return _this.hz.connect();
-        });
-        app.on('unlocked', function() {
-          return _this.retrieveEvents();
-        });
-        return document.vault = _this;
-      };
-    })(this));
-    this.subscribe = function() {
-      return this.hz.currentUser().fetch().subscribe((function(_this) {
-        return function(me) {
-          var _ref;
-          _this.me = me;
-          console.log(JSON.stringify(_this.me));
-          if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
-            _this.updateFingerprint(app.settings.keys.fingerprint);
-            return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
-              return console.log(JSON.stringify(settings));
-            }, console.error);
-          }
         };
       })(this));
-    };
-    this.retrieveEvents = function() {
-      if (this.retrieving) {
-        return;
-      }
-      this.retrieving = true;
-      console.log("Retrieving events newer than " + app.settings.lastSync);
-      return this.events.order('ref', 'descending').above({
-        ref: app.settings.lastSync || 0
-      }).findAll(this.toMe).watch({
-        rawChanges: true
-      }).subscribe({
-        next: (function(_this) {
-          return function(changes) {
-            if (changes.new_val != null) {
-              _this.eventProcess(changes.new_val);
-              app.settings.lastSync = Date.now();
-              return setTimeout(function() {
-                return app.save();
-              });
-            } else if (changes.type === 'state' && changes.state === 'synced') {
-              app.settings.lastSync = Date.now();
-              _this.events.below({
-                ref: app.settings.lastSync || 0
-              }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
-                return _this.events.removeAll(messageList);
-              }).subscribe({
-                error: function(err) {
-                  return console.error(err);
-                },
-                complete: function() {
-                  return console.log('Finished syncing!');
-                }
-              });
-              return setTimeout(function() {
-                return app.save();
-              });
-            } else {
-              return console.log('There are other changes');
+      app.on('ready', (function(_this) {
+        return function() {
+          return _this.hz.connect();
+        };
+      })(this));
+      app.on('unlocked', (function(_this) {
+        return function() {
+          return _this.retrieveEvents();
+        };
+      })(this));
+      document.vault = this;
+      this.subscribe = function() {
+        return this.hz.currentUser().fetch().subscribe((function(_this) {
+          return function(me) {
+            var _ref;
+            _this.me = me;
+            console.log(JSON.stringify(_this.me));
+            if ((_ref = app.settings.keys) != null ? _ref.fingerprint : void 0) {
+              _this.updateFingerprint(app.settings.keys.fingerprint);
+              return _this.settings.findAll(_this.fromMe).fetch().subscribe(function(settings) {
+                return console.log(JSON.stringify(settings));
+              }, console.error);
             }
           };
-        })(this)
-      });
-    };
-    this.updateFingerprint = function(fingerprint) {
-      this.fromMe = {
-        creator: fingerprint
+        })(this));
       };
-      this.toMe = {
-        reader: fingerprint
-      };
-      return this.users.replace($.extend(this.me, {
-        data: {
-          key: fingerprint
+      this.retrieveEvents = function() {
+        if (this.retrieving) {
+          return;
         }
-      }));
-    };
-    this.store = (function(_this) {
-      return function(col, obj, cb) {
-        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
-        __iced_k = __iced_k_noop;
-        ___iced_passed_deferral = iced.findDeferral(arguments);
-        (function(__iced_k) {
-          if (obj.encrypt) {
-            delete obj.encrypt;
-            (function(__iced_k) {
-              __iced_deferrals = new iced.Deferrals(__iced_k, {
-                parent: ___iced_passed_deferral,
-                filename: "./src/iced/vault.iced",
-                funcname: "store"
-              });
-              _this.encrypt(obj, __iced_deferrals.defer({
-                assign_fn: (function() {
-                  return function() {
-                    return obj = arguments[0];
-                  };
-                })(),
-                lineno: 74
-              }));
-              __iced_deferrals._fulfill();
-            })(__iced_k);
-          } else {
-            return __iced_k();
-          }
-        })(function() {
-          return _this[col].store(obj).subscribe(function(result) {
-            return cb(result.id);
-          }, function(error) {
-            return console.error(error);
-          });
-        });
-      };
-    })(this);
-    this.replace = (function(_this) {
-      return function(col, obj, cb) {
-        var ___iced_passed_deferral, __iced_deferrals, __iced_k;
-        __iced_k = __iced_k_noop;
-        ___iced_passed_deferral = iced.findDeferral(arguments);
-        console.log('Replacing', col, obj);
-        (function(__iced_k) {
-          if (obj.encrypt) {
-            delete obj.encrypt;
-            (function(__iced_k) {
-              __iced_deferrals = new iced.Deferrals(__iced_k, {
-                parent: ___iced_passed_deferral,
-                filename: "./src/iced/vault.iced",
-                funcname: "replace"
-              });
-              _this.encrypt(obj, __iced_deferrals.defer({
-                assign_fn: (function() {
-                  return function() {
-                    return obj = arguments[0];
-                  };
-                })(),
-                lineno: 85
-              }));
-              __iced_deferrals._fulfill();
-            })(__iced_k);
-          } else {
-            return __iced_k();
-          }
-        })(function() {
-          return _this[col].upsert(obj).subscribe(function(result) {
-            return cb && cb(result.id);
-          }, function(error) {
-            return console.error(error);
-          });
-        });
-      };
-    })(this);
-    this.find = (function(_this) {
-      return function(col, obj, cb) {
-        console.log('Finding', col, obj);
-        return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
-      };
-    })(this);
-    this.watch = (function(_this) {
-      return function(col, obj, cb) {
-        var _ref;
-        return (_ref = _this[col]) != null ? _ref.find(obj).watch().subscribe(function(items) {
-          return cb && cb(items);
-        }) : void 0;
-      };
-    })(this);
-    this.eventProcess = (function(_this) {
-      return function(_arg) {
-        var content, creator, id, message, pgp, reader;
-        content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
-        pgp = app.pgp;
-        message = pgp.message.readArmored(content);
-        return message.decrypt(app.privateKey).then(function(_arg1) {
-          var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
-          packets = _arg1.packets;
-          literal = packets.findPacket(pgp.enums.packet.literal);
-          filename = literal.filename, date = literal.date, data = literal.data;
-          data = JSON.parse(pgp.util.Uint8Array2str(data));
-          console.log('There is a new event ' + JSON.stringify({
-            filename: filename,
-            date: date
-          }));
-          watcher = app.settings.watchers.find(function(e) {
-            return e.fingerprint === creator;
-          });
-          if (watcher) {
-            sig = packets.findPacket(pgp.enums.packet.signature);
-            keyPacket = null;
-            _ref = pgp.key.readArmored(watcher.key).keys;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              key = _ref[_i];
-              keyPacket = key.getSigningKeyPacket(sig.issuerKeyId);
-              if (keyPacket) {
-                break;
+        this.retrieving = true;
+        console.log("Retrieving events newer than " + (new Date(app.settings.lastSync)));
+        return this.events.order('ref', 'descending').above({
+          ref: app.settings.lastSync || 0
+        }).findAll(this.toMe).watch({
+          rawChanges: true
+        }).subscribe({
+          next: (function(_this) {
+            return function(changes) {
+              if (changes.new_val != null) {
+                _this.eventProcess(changes.new_val);
+                app.settings.lastSync = Date.now();
+                return setTimeout(function() {
+                  return app.save();
+                });
+              } else if (changes.type === 'state' && changes.state === 'synced') {
+                app.settings.lastSync = Date.now();
+                _this.events.below({
+                  ref: app.settings.lastSync || 0
+                }).findAll(_this.toMe).fetch().mergeMap(function(messageList) {
+                  return _this.events.removeAll(messageList);
+                }).subscribe({
+                  error: function(err) {
+                    return console.error(err);
+                  },
+                  complete: function() {
+                    console.log('Finished syncing!');
+                    return _this.trigger('synced');
+                  }
+                });
+                return setTimeout(function() {
+                  return app.save();
+                });
+              } else {
+                return console.log('There are other changes');
               }
-            }
-            if (!(keyPacket && sig.verify(keyPacket, literal))) {
-              return console.error("[CRYPTO] Wrong signature");
-            }
-            path = filename;
-            event = {
-              ref: Date.now(),
-              time: date,
-              content: data
             };
-            if (watcher.events == null) {
-              watcher.events = {};
-            }
-            if (watcher.events[path] == null) {
-              watcher.events[path] = [];
-            }
-            return watcher.events[path].push(event);
+          })(this)
+        });
+      };
+      this.updateFingerprint = function(fingerprint) {
+        this.fromMe = {
+          creator: fingerprint
+        };
+        this.toMe = {
+          reader: fingerprint
+        };
+        return this.users.replace($.extend(this.me, {
+          data: {
+            key: fingerprint
           }
-        })["catch"](function(error) {
-          return console.error(error);
-        });
+        }));
       };
-    })(this);
-    return this.encrypt = (function(_this) {
-      return function(object, cb) {
-        var creator, data, id, pgp, reader, v, watcher;
-        id = object.id, v = object.v, creator = object.creator, reader = object.reader;
-        pgp = app.pgp;
-        watcher = app.settings.watchers.find(function(e) {
-          return e.fingerprint === object.reader;
-        });
-        data = $.extend({}, object);
-        delete data.id;
-        delete data.v;
-        delete data.creator;
-        delete data.reader;
-        return pgp.encrypt({
-          data: JSON.stringify(data),
-          publicKeys: pgp.key.readArmored(watcher.key).keys,
-          privateKeys: app.privateKey
-        }).then(function(cyphertext) {
-          var content;
-          content = cyphertext.data;
-          return cb({
-            id: id,
-            v: v,
-            creator: creator,
-            reader: reader,
-            content: content
+      this.store = (function(_this) {
+        return function(col, obj, cb) {
+          var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+          __iced_k = __iced_k_noop;
+          ___iced_passed_deferral = iced.findDeferral(arguments);
+          (function(__iced_k) {
+            if (obj.encrypt) {
+              delete obj.encrypt;
+              (function(__iced_k) {
+                __iced_deferrals = new iced.Deferrals(__iced_k, {
+                  parent: ___iced_passed_deferral,
+                  filename: "./src/iced/vault.iced",
+                  funcname: "store"
+                });
+                _this.encrypt(obj, __iced_deferrals.defer({
+                  assign_fn: (function() {
+                    return function() {
+                      return obj = arguments[0];
+                    };
+                  })(),
+                  lineno: 74
+                }));
+                __iced_deferrals._fulfill();
+              })(__iced_k);
+            } else {
+              return __iced_k();
+            }
+          })(function() {
+            return _this[col].store(obj).subscribe(function(result) {
+              return cb(result.id);
+            }, function(error) {
+              return console.error(error);
+            });
           });
-        })["catch"](function(error) {
-          return console.error(error);
-        });
-      };
-    })(this);
+        };
+      })(this);
+      this.replace = (function(_this) {
+        return function(col, obj, cb) {
+          var ___iced_passed_deferral, __iced_deferrals, __iced_k;
+          __iced_k = __iced_k_noop;
+          ___iced_passed_deferral = iced.findDeferral(arguments);
+          console.log('Replacing', col, obj);
+          (function(__iced_k) {
+            if (obj.encrypt) {
+              delete obj.encrypt;
+              (function(__iced_k) {
+                __iced_deferrals = new iced.Deferrals(__iced_k, {
+                  parent: ___iced_passed_deferral,
+                  filename: "./src/iced/vault.iced",
+                  funcname: "replace"
+                });
+                _this.encrypt(obj, __iced_deferrals.defer({
+                  assign_fn: (function() {
+                    return function() {
+                      return obj = arguments[0];
+                    };
+                  })(),
+                  lineno: 85
+                }));
+                __iced_deferrals._fulfill();
+              })(__iced_k);
+            } else {
+              return __iced_k();
+            }
+          })(function() {
+            return _this[col].upsert(obj).subscribe(function(result) {
+              return cb && cb(result.id);
+            }, function(error) {
+              return console.error(error);
+            });
+          });
+        };
+      })(this);
+      this.find = (function(_this) {
+        return function(col, obj, cb) {
+          console.log('Finding', col, obj);
+          return _this[col].find(obj).fetch().defaultIfEmpty().subscribe(cb);
+        };
+      })(this);
+      this.watch = (function(_this) {
+        return function(col, obj, cb) {
+          var _ref;
+          return (_ref = _this[col]) != null ? _ref.find(obj).watch().subscribe(function(items) {
+            return cb && cb(items);
+          }) : void 0;
+        };
+      })(this);
+      this.eventProcess = (function(_this) {
+        return function(_arg) {
+          var content, creator, id, message, pgp, reader;
+          content = _arg.content, creator = _arg.creator, reader = _arg.reader, id = _arg.id;
+          pgp = app.pgp;
+          message = pgp.message.readArmored(content);
+          return message.decrypt(app.privateKey).then(function(_arg1) {
+            var data, date, event, filename, key, keyPacket, literal, packets, path, sig, watcher, _i, _len, _ref;
+            packets = _arg1.packets;
+            literal = packets.findPacket(pgp.enums.packet.literal);
+            filename = literal.filename, date = literal.date, data = literal.data;
+            data = JSON.parse(pgp.util.Uint8Array2str(data));
+            console.log('There is a new event ' + JSON.stringify({
+              filename: filename,
+              date: date
+            }));
+            watcher = app.settings.watchers.find(function(e) {
+              return e.fingerprint === creator;
+            });
+            if (watcher) {
+              sig = packets.findPacket(pgp.enums.packet.signature);
+              keyPacket = null;
+              _ref = pgp.key.readArmored(watcher.key).keys;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                key = _ref[_i];
+                keyPacket = key.getSigningKeyPacket(sig.issuerKeyId);
+                if (keyPacket) {
+                  break;
+                }
+              }
+              if (!(keyPacket && sig.verify(keyPacket, literal))) {
+                return console.error("[CRYPTO] Wrong signature");
+              }
+              path = filename;
+              event = {
+                ref: Date.now(),
+                time: date,
+                content: data
+              };
+              return watcher.events[path].push(event);
+            }
+          })["catch"](function(error) {
+            return console.error(error);
+          });
+        };
+      })(this);
+      return this.encrypt = (function(_this) {
+        return function(object, cb) {
+          var creator, data, id, pgp, reader, v, watcher;
+          id = object.id, v = object.v, creator = object.creator, reader = object.reader;
+          pgp = app.pgp;
+          watcher = app.settings.watchers.find(function(e) {
+            return e.fingerprint === object.reader;
+          });
+          data = $.extend({}, object);
+          delete data.id;
+          delete data.v;
+          delete data.creator;
+          delete data.reader;
+          return pgp.encrypt({
+            data: JSON.stringify(data),
+            publicKeys: pgp.key.readArmored(watcher.key).keys,
+            privateKeys: app.privateKey
+          }).then(function(cyphertext) {
+            var content;
+            content = cyphertext.data;
+            return cb({
+              id: id,
+              v: v,
+              creator: creator,
+              reader: reader,
+              content: content
+            });
+          })["catch"](function(error) {
+            return console.error(error);
+          });
+        };
+      })(this);
+    });
   };
 
   Vault = flight.component(vault);
@@ -549,29 +548,30 @@
     this.fileArchive = (function(_this) {
       return function(path, file, events) {
         var archivable, date, ev, i, indexOlder, limit, lines, _ref, _results;
-        events[path].sort(_this.sortBy);
-        limit = _this.getLimit(file.archive || 5);
-        indexOlder = void 0;
-        _ref = events[path];
-        for (i in _ref) {
-          ev = _ref[i];
-          console.log("index " + i + " ,ref " + (new Date(ev.ref)) + "  < lim " + (new Date(limit)));
-          if (ev.ref < limit) {
-            indexOlder = i;
-            break;
+        if (events[path]) {
+          events[path].sort(_this.sortBy);
+          limit = _this.getLimit(file.archive || 5);
+          indexOlder = void 0;
+          _ref = events[path];
+          for (i in _ref) {
+            ev = _ref[i];
+            if (ev.ref < limit) {
+              indexOlder = i;
+              break;
+            }
           }
-        }
-        if (indexOlder) {
-          archivable = events[path].slice(indexOlder);
-          events[path] = events[path].slice(0, indexOlder);
-          app.save();
-          archivable = archivable.reduce(_this.groupByDay, []);
-          _results = [];
-          for (date in archivable) {
-            lines = archivable[date];
-            _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
+          if (indexOlder) {
+            archivable = events[path].slice(indexOlder);
+            events[path] = events[path].slice(0, indexOlder);
+            app.save();
+            archivable = archivable.reduce(_this.groupByDay, []);
+            _results = [];
+            for (date in archivable) {
+              lines = archivable[date];
+              _results.push(_this.writeToFile("" + (_this.getBaseName(path)) + "-" + date, lines.join("\n")));
+            }
+            return _results;
           }
-          return _results;
         }
       };
     })(this);

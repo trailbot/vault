@@ -63,6 +63,7 @@ module.exports =
           reader: fingerprint
           files: {}
         watcher = {key, name, fingerprint, settings}
+        watcher.events = {}
         # Encryption is not enabled the first time
         document.vault.store 'settings', settings, (id) =>
           watcher.settings.id = id
