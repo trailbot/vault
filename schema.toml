@@ -10,7 +10,7 @@ indexes = [
   "reader",
   "creator",
   "reader_creator",
-  "reader_datetime"
+  "reader_ref"
 ]
 
 [collections.exchange]

@@ -67,7 +67,7 @@ article.file(transition='driftFade')
       button.add(v-link="{ name: 'policyAdd'}")
         img(src='/img/add.svg')
       h1 Smart Policies
-    ul(v-if='policies && policies.length > 0', @dragstart="dragstart_handler" @dragover="dragover_handler" @dragend="dragend_handler")
+    ul(v-if='policies && policies.length', @dragstart="dragstart_handler" @dragover="dragover_handler" @dragend="dragend_handler")
       li(v-for='(i, policy) of policies', draggable="{{policies.length > 1}}", v-link="{ name: 'policy', params: { policy: i }, activeClass: 'selected' }", @contextmenu='contextMenu', data-name='{{policy.name}}', data-index='{{i}}').policy
         span.fontello.handle(v-if='policies.length > 1', @mousedown='mousedown_handler' @mouseup='mouseup_handler') &#x25FC
         span(v-bind:class="[policy.paused ? 'strike':'']") {{policy.name}}
@@ -76,8 +76,8 @@ article.file(transition='driftFade')
       #[p #[b #[a.cool(v-link="{ name: 'policyAdd'}") Click here]] to add a policy.]
     header
       h1 Events
-    ul(v-if='thereAreEvents')
-      li(v-for="event in events | orderBy 'time' -1", v-link="{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }")
+    ul(v-if='events && events.length')
+      li(v-for="event in events | orderBy 'ref' -1", v-link="{ name: 'event', params: { event: event.ref }, activeClass: 'selected' }")
         time(datetime='event.time') {{event.time | prettyDate}}
         p.stats(v-if='event.content.type == "change"')
           span.add(v-if="event.content.payload | countByType 'add'") +{{event.content.payload | countByType 'add'}}
@@ -97,10 +97,10 @@ app = document.app
 module.exports =
   data: ->
     drag_element: undefined
-    handle : undefined
-    $.extend app.data(),
-      watcher: @$parent.currentWatcher
+    handle: undefined
   computed:
+    watcher: ->
+      @$parent.currentWatcher
     path: ->
       decodeURIComponent @$route.params.file
     fileName: ->
@@ -108,11 +108,9 @@ module.exports =
     file: ->
       @watcher.settings.files[@path]
     policies: ->
-      @file.policies
+      @file?.policies
     events: ->
-      @watcher.events && @watcher.events[@path] || []
-    thereAreEvents: ->
-      Object.keys(@events).length > 0
+      @watcher.events[@path]
   filters:
     prettyDate: (zulu) ->
       d = new Date(zulu || Date.now())
@@ -168,18 +166,18 @@ module.exports =
           buttons: ['cancel', 'ok']
         , (res) =>
           return unless res
+          app.router.go
+            name: 'file'
           @file.policies.splice index, 1
           document.vault.replace 'settings', $.extend(@watcher.settings, {encrypt: true})
           app.save()
-          app.router.go
-            name: 'file'
+
       catch e
         console.error e
 
     #drag policy for priority
     dragstart_handler: (ev) ->
       @drag_element = ev.target
-      # ev.target.style.backgroundColor= "#44586d"
       @drag_element.classList.add('dragging')
       ev.dataTransfer.dropEffect = "move"
 

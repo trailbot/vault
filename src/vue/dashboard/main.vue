@@ -189,7 +189,6 @@ section.dashboard
             display: block
             position: relative
             top: 1px
-            width: 200px
             margin-right: 30px
             margin-bottom: 5px
             font-size: .9em
@@ -354,6 +353,8 @@ module.exports =
           buttons: ['cancel', 'ok']
         , (res) =>
           return unless res
+          app.router.go
+            name: 'dashboard'
           files = $.extend {}, @currentWatcher.settings.files
           events = $.extend {}, @currentWatcher.events
           delete files[path]
@@ -362,8 +363,7 @@ module.exports =
           @$set 'currentWatcher.events', events
           document.vault.replace 'settings', $.extend(@currentWatcher.settings, {encrypt: true})
           app.save()
-          app.router.go
-            name: 'dashboard'
+
       catch e
         console.error e
     watcherUnlink: (index) ->
