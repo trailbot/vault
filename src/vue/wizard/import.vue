@@ -16,10 +16,10 @@
 </style>
 
 <template lang="jade">
-article.form(transition='slide')
+article.form(:transition="transitionName")
   header
-    button.plain.close(v-if='settings.watchers.length', v-link="{ path: '/dashboard' }") X
-    button.plain.back(@click='back') < BACK
+    button.plain.close(v-if='!initialSetUp', v-link="{ path: '/dashboard' }") X
+    button.plain.back(v-if='initialSetUp', @click='back') < BACK
     h1 Public keys exchange
   form
     p Please enter here the biometric sentence provided by Trailbot Watcher.
@@ -41,6 +41,11 @@ module.exports =
       settings:
         app.settings
       sentence: null
+  computed:
+    initialSetUp: ->
+      !app.settings.watchers.length # if watcher is 0 true
+    transitionName: ->
+      @initialSetUp && 'slide' || 'fade'
   methods:
     next: ->
       app.router.go '/wizard/congrats'
