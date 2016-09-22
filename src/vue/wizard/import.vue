@@ -1,30 +1,24 @@
 <style lang="stylus" scoped>
-div.or
-  text-align: center
-  button
-    &:first-child
-      padding-right: 30px
-    &:last-child
-      position: relative
-      padding-left: 30px
-      &:after
-        content: 'or'
-        display: block
-        position: absolute
-        left: -21px
-        top: 6px
-        background: #f7
-        border: 1px solid #dd
-        border-radius: 50%
-        padding: 12px 11px 11px 11px
-        text-transform: uppercase
-        font-size: .8em
-        color: gray
+  .close
+    float: right
+    width: auto
+    margin-top: -5px
+    margin-right: -10px
+    margin-left: 12px
+    padding: 10px 15px
+    width: auto
+    background: #EEE
+    color: #AAA
+    font-size: .7em
+    &:hover
+      background: #44586d
+      color: white
 </style>
 
 <template lang="jade">
 article.form(transition='slide')
   header
+    button.plain.close(v-if='settings.watchers.length', v-link="{ path: '/dashboard' }") X
     button.plain.back(@click='back') < BACK
     h1 Public keys exchange
   form
@@ -89,4 +83,6 @@ module.exports =
           @error = "Sentence has expired!"
         else
           @error = "Wrong sentence. Please verify that you entered the words currently showed in Trailbot Watcher..."
+    close: ->
+
 </script>
