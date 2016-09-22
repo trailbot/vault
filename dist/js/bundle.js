@@ -15836,9 +15836,8 @@ module.exports = {
       })(this));
     },
     submit: function(e) {
-      var field, key, ref;
+      var field, key, policy, ref;
       e.preventDefault();
-      console.log(JSON.stringify(this.params));
       ref = this.fields;
       for (key in ref) {
         field = ref[key];
@@ -15853,8 +15852,7 @@ module.exports = {
           url: this.params[key]
         });
       }
-      console.log("name", this.name);
-      this.$parent.policies[this.index] = {
+      policy = {
         name: this.name,
         uri: this.gitURL,
         ref: this.gitBranch.split('/').pop(),
@@ -15862,6 +15860,7 @@ module.exports = {
         params: this.params,
         paused: this.paused
       };
+      this.$parent.$set("policies[" + this.index + "]", policy);
       document.vault.replace('settings', $.extend(this.$parent.watcher.settings, {
         encrypt: true
       }));
@@ -15869,7 +15868,7 @@ module.exports = {
       return app.router.go({
         name: 'policy',
         params: {
-          policy: this.$parent.file.policies.length - 1
+          policy: this.index
         }
       });
     }

@@ -113,7 +113,6 @@ module.exports =
             alert "This repository does not look like a Trailbot Smart Policy :("
     submit: (e) ->
       e.preventDefault()
-      console.log JSON.stringify @params
 
       # Send test request for URL fields
       for key, field of @fields when field.type is 'url' and field.test
@@ -124,20 +123,21 @@ module.exports =
           json: true
           url: @params[key]
 
-      console.log "name", @name
-      @$parent.policies[@index] =
+      policy =
         name: @name
         uri: @gitURL
         ref: @gitBranch.split('/').pop()
         lang: @manifest.policy.language
         params: @params
         paused: @paused
+
+      @$parent.$set "policies[#{@index}]", policy
       document.vault.replace 'settings', $.extend(@$parent.watcher.settings, {encrypt: true})
       app.save()
       app.router.go
         name: 'policy'
         params:
-          policy: @$parent.file.policies.length - 1
+          policy: @index
   ready: ->
     @getBranches()
 </script>
