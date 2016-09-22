@@ -49,6 +49,11 @@
           return _this.status.decrypting--;
         };
       })(this));
+      this.on('unlocked', function() {
+        var unlock;
+        unlock = document.querySelector('.unlock');
+        return unlock.parentElement.removeChild(unlock);
+      });
       openpgp = require('./openpgp.min.js');
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'

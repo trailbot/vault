@@ -27,6 +27,10 @@ main = ->
     @on 'decrypted', (e) =>
       @status.decrypting--
 
+    @on 'unlocked', ->
+      unlock = document.querySelector '.unlock'
+      unlock.parentElement.removeChild unlock
+
     openpgp = require './openpgp.min.js'
     openpgp.initWorker
       path: '/js/openpgp.worker.min.js'
