@@ -104,6 +104,10 @@
               name: 'fileAdd',
               component: require('../../src/vue/dashboard/fileAdd.vue')
             },
+            '/fileEdit/:path': {
+              name: 'fileEdit',
+              component: require('../../src/vue/dashboard/fileEdit.vue')
+            },
             '/file/:file': {
               name: 'file',
               component: require('../../src/vue/dashboard/file.vue'),
@@ -550,7 +554,7 @@
         var archivable, date, ev, i, indexOlder, limit, lines, _ref, _results;
         if (events[path]) {
           events[path].sort(_this.sortBy);
-          limit = _this.getLimit(file.archive || 5);
+          limit = _this.getLimit(file.archive || 30);
           indexOlder = void 0;
           _ref = events[path];
           for (i in _ref) {

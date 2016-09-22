@@ -74,6 +74,9 @@ main = ->
           '/fileAdd':
             name: 'fileAdd'
             component: require '../../src/vue/dashboard/fileAdd.vue'
+          '/fileEdit/:path':
+            name: 'fileEdit'
+            component: require '../../src/vue/dashboard/fileEdit.vue'
           '/file/:file':
             name: 'file'
             component: require '../../src/vue/dashboard/file.vue'
