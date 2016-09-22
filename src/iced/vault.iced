@@ -39,9 +39,10 @@ vault = ->
       @events.order('ref', 'descending').above({ref: app.settings.lastSync || 0}).findAll(@toMe).watch({rawChanges: true}).subscribe
         next : (changes) =>
           if changes.new_val?
-            @eventProcess changes.new_val
-            app.settings.lastSync = Date.now()
-            setTimeout ->
+            app.trigger 'decrypting'
+            setTimeout =>
+              @eventProcess changes.new_val
+              app.settings.lastSync = Date.now()
               app.save()
           else if changes.type is 'state' and changes.state is 'synced'
             app.settings.lastSync = Date.now()
@@ -128,9 +129,11 @@ vault = ->
             time: date
             content: data
           watcher.events[path].push event
+          app.trigger 'decrypted'
 
       .catch (error) ->
         console.error error
+        app.trigger 'decrypted'
 
     @encrypt = (object, cb) =>
       {id, v, creator, reader} = object

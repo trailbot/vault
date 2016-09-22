@@ -1,5 +1,16 @@
 <style lang="stylus">
 section.dashboard
+  > aside.crypto
+      position: fixed
+      z-index: 1
+      bottom: 0
+      left: 0
+      background: radial-gradient(ellipse 100% 100% at 0 100% , rgba(0, 0, 0, .5) 0%, rgba(0, 0, 0, 0) 100%)
+      padding: 60px 150px 15px 20px
+      font-weight: bold
+      color: white
+      text-transform: uppercase
+      animation: fade-in .2s
   > nav
   > article nav
     width: 275px
@@ -226,6 +237,8 @@ section.dashboard
 
 <template lang="jade">
 section.dashboard(transition='fade')
+  aside.crypto(v-show='status.decrypting').
+    Decrypting {{status.decrypting}} event#[span(v-show='status.decrypting > 1') s]...
   nav.main
     div.watchers
       header
@@ -264,6 +277,7 @@ module.exports =
   data: ->
     $.extend app.data(),
       settings: app.settings
+      status: app.status
       isOpen: false
   computed:
     watchers: ->

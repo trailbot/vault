@@ -39,6 +39,16 @@
           }
         };
       })(this));
+      this.on('decrypting', (function(_this) {
+        return function(e) {
+          return _this.status.decrypting++;
+        };
+      })(this));
+      this.on('decrypted', (function(_this) {
+        return function(e) {
+          return _this.status.decrypting--;
+        };
+      })(this));
       openpgp = require('./openpgp.min.js');
       openpgp.initWorker({
         path: '/js/openpgp.worker.min.js'
@@ -56,6 +66,9 @@
           appName: 'Trailbot',
           isElectron: 'electron' in window
         };
+      };
+      this.status = {
+        decrypting: 0
       };
       document.app = this;
       this.router = new VueRouter();
@@ -297,9 +310,10 @@
           next: (function(_this) {
             return function(changes) {
               if (changes.new_val != null) {
-                _this.eventProcess(changes.new_val);
-                app.settings.lastSync = Date.now();
+                app.trigger('decrypting');
                 return setTimeout(function() {
+                  _this.eventProcess(changes.new_val);
+                  app.settings.lastSync = Date.now();
                   return app.save();
                 });
               } else if (changes.type === 'state' && changes.state === 'synced') {
@@ -360,7 +374,7 @@
                       return obj = arguments[0];
                     };
                   })(),
-                  lineno: 74
+                  lineno: 75
                 }));
                 __iced_deferrals._fulfill();
               })(__iced_k);
@@ -397,7 +411,7 @@
                       return obj = arguments[0];
                     };
                   })(),
-                  lineno: 85
+                  lineno: 86
                 }));
                 __iced_deferrals._fulfill();
               })(__iced_k);
@@ -466,10 +480,12 @@
                 time: date,
                 content: data
               };
-              return watcher.events[path].push(event);
+              watcher.events[path].push(event);
+              return app.trigger('decrypted');
             }
           })["catch"](function(error) {
-            return console.error(error);
+            console.error(error);
+            return app.trigger('decrypted');
           });
         };
       })(this);
