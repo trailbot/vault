@@ -16141,7 +16141,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":13,"vue-hot-reload-api":11,"vueify/lib/insert-css":14}],27:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("div.or[_v-1cb1ca2b] {\n  text-align: center;\n}\ndiv.or button[_v-1cb1ca2b]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n")
+var __vueify_style__ = __vueify_insert__.insert(".close[_v-1cb1ca2b] {\n  float: right;\n  width: auto;\n  margin-top: -5px;\n  margin-right: -10px;\n  margin-left: 12px;\n  padding: 10px 15px;\n  width: auto;\n  background: #eee;\n  color: #aaa;\n  font-size: 0.7em;\n}\n.close[_v-1cb1ca2b]:hover {\n  background: #44586d;\n  color: #fff;\n}\n")
 var app;
 
 app = document.app;
@@ -16219,18 +16219,19 @@ module.exports = {
           }
         };
       })(this));
-    }
+    },
+    close: function() {}
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1cb1ca2b=\"\"><header _v-1cb1ca2b=\"\"><button @click=\"back\" class=\"plain back\" _v-1cb1ca2b=\"\">&lt; BACK</button><h1 _v-1cb1ca2b=\"\">Public keys exchange</h1></header><form _v-1cb1ca2b=\"\"><p _v-1cb1ca2b=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-1cb1ca2b=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-1cb1ca2b=\"\">{{error}}</p><fieldset _v-1cb1ca2b=\"\"><label for=\"sentence\" _v-1cb1ca2b=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-1cb1ca2b=\"\"></fieldset></form><footer v-if=\"sentence\" _v-1cb1ca2b=\"\"><button @click=\"validate\" class=\"or\" _v-1cb1ca2b=\"\">Validate sentence</button></footer></article>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<article transition=\"slide\" class=\"form\" _v-1cb1ca2b=\"\"><header _v-1cb1ca2b=\"\"><button v-if=\"settings.watchers.length\" v-link=\"{ path: '/dashboard' }\" class=\"plain close\" _v-1cb1ca2b=\"\">X</button><button @click=\"back\" class=\"plain back\" _v-1cb1ca2b=\"\">&lt; BACK</button><h1 _v-1cb1ca2b=\"\">Public keys exchange</h1></header><form _v-1cb1ca2b=\"\"><p _v-1cb1ca2b=\"\">Please enter here the biometric sentence provided by Trailbot Watcher.</p><p _v-1cb1ca2b=\"\">Take in to account that the sentences are renewed every 5 minutes for security reasons.</p><p v-if=\"error\" class=\"error\" _v-1cb1ca2b=\"\">{{error}}</p><fieldset _v-1cb1ca2b=\"\"><label for=\"sentence\" _v-1cb1ca2b=\"\">Biometric sentence</label><input type=\"text\" name=\"sentence\" v-model=\"sentence\" _v-1cb1ca2b=\"\"></fieldset></form><footer v-if=\"sentence\" _v-1cb1ca2b=\"\"><button @click=\"validate\" class=\"or\" _v-1cb1ca2b=\"\">Validate sentence</button></footer></article>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["div.or[_v-1cb1ca2b] {\n  text-align: center;\n}\ndiv.or button[_v-1cb1ca2b]:first-child {\n  padding-right: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child {\n  position: relative;\n  padding-left: 30px;\n}\ndiv.or button[_v-1cb1ca2b]:last-child:after {\n  content: 'or';\n  display: block;\n  position: absolute;\n  left: -21px;\n  top: 6px;\n  background: #f7f7f7;\n  border: 1px solid #ddd;\n  border-radius: 50%;\n  padding: 12px 11px 11px 11px;\n  text-transform: uppercase;\n  font-size: 0.8em;\n  color: #808080;\n}\n"] = false
+    __vueify_insert__.cache[".close[_v-1cb1ca2b] {\n  float: right;\n  width: auto;\n  margin-top: -5px;\n  margin-right: -10px;\n  margin-left: 12px;\n  padding: 10px 15px;\n  width: auto;\n  background: #eee;\n  color: #aaa;\n  font-size: 0.7em;\n}\n.close[_v-1cb1ca2b]:hover {\n  background: #44586d;\n  color: #fff;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
