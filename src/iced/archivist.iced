@@ -18,7 +18,7 @@ archivist = ->
     if events[path]
       events[path].sort @sortBy
 
-      limit = @getLimit file.archive || 5
+      limit = @getLimit file.archive || 30
       # index of the first event older than the limit
       indexOlder = undefined
       for i, ev of events[path]

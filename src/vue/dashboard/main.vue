@@ -311,6 +311,15 @@ module.exports =
                 watcher: @index
                 file: encodeURIComponent path
         menu.append new MenuItem
+          label: 'Edit file'
+          accelerator: 'e'
+          click: =>
+            app.router.go
+              name: 'fileEdit'
+              params:
+                watcher: @index
+                path: encodeURIComponent path
+        menu.append new MenuItem
           label: 'Stop watching'
           accelerator: 's'
           click: =>
@@ -355,14 +364,9 @@ module.exports =
           return unless res
           app.router.go
             name: 'dashboard'
-          files = $.extend {}, @currentWatcher.settings.files
-          events = $.extend {}, @currentWatcher.events
-          delete files[path]
-          delete events[path]
-          @$set 'currentWatcher.settings.files', files
-          @$set 'currentWatcher.events', events
-          document.vault.replace 'settings', $.extend(@currentWatcher.settings, {encrypt: true})
-          app.save()
+
+          @removeFile(path)
+
 
       catch e
         console.error e
@@ -379,4 +383,14 @@ module.exports =
             app.router.go
               name: 'dashboard'
               watcher: 0
+
+    removeFile: (path) ->
+      files = $.extend {}, @currentWatcher.settings.files
+      events = $.extend {}, @currentWatcher.events
+      delete files[path]
+      delete events[path]
+      @$set 'currentWatcher.settings.files', files
+      @$set 'currentWatcher.events', events
+      document.vault.replace 'settings', $.extend(@currentWatcher.settings, {encrypt: true})
+      app.save()
 </script>
