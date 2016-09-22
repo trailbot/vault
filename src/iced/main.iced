@@ -22,6 +22,11 @@ main = ->
         @clear()
         document.location.reload()
 
+    @on 'decrypting', (e) =>
+      @status.decrypting++
+    @on 'decrypted', (e) =>
+      @status.decrypting--
+
     openpgp = require './openpgp.min.js'
     openpgp.initWorker
       path: '/js/openpgp.worker.min.js'
@@ -39,6 +44,8 @@ main = ->
     @data = ->
       appName: 'Trailbot'
       isElectron: 'electron' of window
+    @status =
+      decrypting: 0
     document.app = this
 
     @router = new VueRouter()
